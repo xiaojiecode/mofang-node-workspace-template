@@ -2,11 +2,16 @@
 
 一个 npm workspace 同时维护 Lit 设置面板、Lit 业务面板和 Goja JavaScript 执行程序。组件、宿主接线和类型共用，发布产物保持独立。
 
+公开模板仓库：[xiaojiecode/mofang-node-workspace-template](https://github.com/xiaojiecode/mofang-node-workspace-template)。可通过 GitHub 的 **Use this template** 创建自己的仓库；也可以按下面的命令初始化只包含一个起始节点的新项目。
+
 ## 从空目录开始
 
 需要 Node.js 22.12+、npm 和 Git。完整 Goja 验证还需要 Go 1.26.5+；只写面板和类型检查无需 Go。
 
 ```sh
+git clone https://github.com/xiaojiecode/mofang-node-workspace-template.git
+cd mofang-node-workspace-template
+
 # 在模板仓库内初始化新仓库（不会覆盖非空目录）
 node tooling/init/project.mjs --dir ../my-nodes --name my-nodes --interface lifecycle
 cd ../my-nodes
