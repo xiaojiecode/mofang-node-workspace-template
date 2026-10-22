@@ -13,3 +13,7 @@
 - 调整代码后运行 typecheck、build、verify 与相关测试。最终产物通过 test:browser，执行示例通过 verify:goja；有平台源码时再做 verify:platform。
 - fixtures 是本地试运行输入与断言，不是真实业务成功。验证层次需分开报告。
 - 本仓库不得存储凭据。缓存放 .cache 或 MF_CACHE_DIR 指定目录；发布源码、包锁、类型快照和测试保留在 Git。
+
+- 手写源码统一 4 个空格缩进，不使用 Tab；赋值及二元运算符两侧留空格。提交前运行 npm run lint，自动修复用 npm run lint:fix。
+- 为生命周期钩子和公共函数保留中文说明，写清触发时机、输入输出、效果和限制；export default 前保留 // noinspection JSUnusedGlobalSymbols。修改脚手架时同步 tooling/init/templates，并验证新初始化工程。
+- 正式 build 启用安全压缩并输出大小/耗时报告；不启用属性名混淆、不删除业务日志或变更宿主 ABI。压缩优化需验证行为等价，构建成功不能代替运行校验。

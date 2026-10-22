@@ -1,29 +1,29 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "lib": [
-      "ES5",
-      "ES2015.Core",
-      "ES2015.Collection",
-      "ES2015.Generator",
-      "ES2015.Iterable",
-      "ES2015.Promise",
-      "ES2015.Proxy",
-      "ES2015.Reflect",
-      "ES2015.Symbol",
-      "ES2015.Symbol.WellKnown",
-      "ES2016.Array.Include",
-      "ES2017.Object",
-      "ES2017.String",
-      "ES2017.TypedArrays"
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "lib": [
+            "ES5",
+            "ES2015.Core",
+            "ES2015.Collection",
+            "ES2015.Generator",
+            "ES2015.Iterable",
+            "ES2015.Promise",
+            "ES2015.Proxy",
+            "ES2015.Reflect",
+            "ES2015.Symbol",
+            "ES2015.Symbol.WellKnown",
+            "ES2016.Array.Include",
+            "ES2017.Object",
+            "ES2017.String",
+            "ES2017.TypedArrays"
+        ]
+    },
+    "include": [
+        "packages/contracts/src/goja/**/*.ts",
+        "packages/contracts/src/business/**/*.ts",
+        "nodes/*/executor/**/*.ts",
+        "nodes/*/contract.ts",
+        "nodes/*/shared/**/*.ts",
+        "tests/types/goja.ts"
     ]
-  },
-  "include": [
-    "packages/contracts/src/goja/**/*.ts",
-    "packages/contracts/src/business/**/*.ts",
-    "nodes/*/executor/**/*.ts",
-    "nodes/*/contract.ts",
-    "nodes/*/shared/**/*.ts",
-    "tests/types/goja.ts"
-  ]
 }

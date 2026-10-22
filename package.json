@@ -1,42 +1,44 @@
 {
-  "name": "mofang-node-workspace-template",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "workspaces": [
-    "packages/*"
-  ],
-  "engines": {
-    "node": ">=22.12.0"
-  },
-  "scripts": {
-    "init": "node tooling/init/project.mjs",
-    "node:new": "node tooling/init/node.mjs",
-    "dev": "vite --config apps/playground/vite.config.mjs",
-    "typecheck": "node tooling/typecheck.mjs",
-    "build": "node tooling/build/index.mjs",
-    "verify": "node tooling/verify/artifacts.mjs",
-    "test": "node --test tests/*.test.mjs",
-    "test:browser": "node tooling/verify/browser.mjs",
-    "verify:goja": "node tooling/verify/goja.mjs",
-    "verify:platform": "node tooling/verify/platform.mjs",
-    "check": "npm run typecheck && npm run build && npm run verify && npm test && npm run test:browser && npm run verify:goja",
-    "sync:contracts": "node tooling/sync-contracts/index.mjs",
-    "check:contracts": "node tooling/sync-contracts/index.mjs --check",
-    "trial": "node tooling/verify/goja.mjs",
-    "format": "prettier --write packages/lit-ui packages/lit-host nodes tooling apps tests",
-    "build:dev": "node tooling/build/index.mjs --development"
-  },
-  "devDependencies": {
-    "acorn": "8.15.0",
-    "ajv": "8.17.1",
-    "ajv-formats": "3.0.1",
-    "esbuild": "0.28.2",
-    "json-schema-to-typescript": "16.0.0",
-    "lit": "3.3.3",
-    "playwright": "1.57.0",
-    "prettier": "3.8.0",
-    "typescript": "7.0.2",
-    "vite": "8.3.5"
-  }
+    "name": "mofang-node-workspace-template",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "workspaces": [
+        "packages/*"
+    ],
+    "engines": {
+        "node": ">=22.12.0"
+    },
+    "scripts": {
+        "init": "node tooling/init/project.mjs",
+        "node:new": "node tooling/init/node.mjs",
+        "dev": "vite --config apps/playground/vite.config.mjs",
+        "typecheck": "node tooling/typecheck.mjs",
+        "build": "node tooling/build/index.mjs",
+        "verify": "node tooling/verify/artifacts.mjs",
+        "test": "node --test tests/*.test.mjs",
+        "test:browser": "node tooling/verify/browser.mjs",
+        "verify:goja": "node tooling/verify/goja.mjs",
+        "verify:platform": "node tooling/verify/platform.mjs",
+        "check": "npm run lint && npm run typecheck && npm run build && npm run verify && npm test && npm run test:browser && npm run verify:goja",
+        "sync:contracts": "node tooling/sync-contracts/index.mjs",
+        "check:contracts": "node tooling/sync-contracts/index.mjs --check",
+        "trial": "node tooling/verify/goja.mjs",
+        "format": "npm run lint:fix",
+        "build:dev": "node tooling/build/index.mjs --development",
+        "lint": "prettier --check packages nodes tooling apps tests *.json .prettierrc.json",
+        "lint:fix": "prettier --write packages nodes tooling apps tests *.json .prettierrc.json"
+    },
+    "devDependencies": {
+        "acorn": "8.15.0",
+        "ajv": "8.17.1",
+        "ajv-formats": "3.0.1",
+        "esbuild": "0.28.2",
+        "json-schema-to-typescript": "16.0.0",
+        "lit": "3.3.3",
+        "playwright": "1.57.0",
+        "prettier": "3.8.0",
+        "typescript": "7.0.2",
+        "vite": "8.3.5"
+    }
 }

@@ -11,8 +11,8 @@ void props.ui?.onSelectTask?.({ taskId: 'task', nodeRunId: 'run' })
 void props.ui?.onSelectTask?.('task')
 void textField({ name: 'x', label: 'x', value: '', readOnly: true })
 void productSummary({
-  basic: { title: 'x' },
-  references: { shopProductId: 'shop' },
+    basic: { title: 'x' },
+    references: { shopProductId: 'shop' },
 } satisfies Product)
 // @ts-expect-error IDs/revisions are strings.
 void sdk.nodeFlow.watch({ runId: 42, nodeInstanceId: 'node' })

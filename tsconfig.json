@@ -1,22 +1,18 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    },
+    "include": [
+        "packages/contracts/src/browser/**/*.ts",
+        "packages/lit-ui/src/**/*.ts",
+        "packages/lit-host/src/**/*.ts",
+        "nodes/*/settings/**/*.ts",
+        "nodes/*/business/**/*.ts",
+        "nodes/*/node.ts",
+        "nodes/*/contract.ts",
+        "nodes/*/fixtures/**/*.ts",
+        "apps/playground/src/**/*.ts",
+        "tests/types/browser.ts"
     ]
-  },
-  "include": [
-    "packages/contracts/src/browser/**/*.ts",
-    "packages/lit-ui/src/**/*.ts",
-    "packages/lit-host/src/**/*.ts",
-    "nodes/*/settings/**/*.ts",
-    "nodes/*/business/**/*.ts",
-    "nodes/*/node.ts",
-    "nodes/*/contract.ts",
-    "nodes/*/fixtures/**/*.ts",
-    "apps/playground/src/**/*.ts",
-    "tests/types/browser.ts"
-  ]
 }

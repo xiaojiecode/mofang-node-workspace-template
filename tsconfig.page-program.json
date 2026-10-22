@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": { "lib": ["ES2017"], "skipLibCheck": true },
-  "include": ["nodes/*/page-program/**/*.ts", "tests/types/page-program.ts"]
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": { "lib": ["ES2017"], "skipLibCheck": true },
+    "include": ["nodes/*/page-program/**/*.ts", "tests/types/page-program.ts"]
 }

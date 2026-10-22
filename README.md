@@ -64,6 +64,17 @@ npm run check
 
 官方指令必须匹配宿主的 Lit 构建模式：`npm run build` 默认生成生产产物，用于已部署的生产客户端；本地 Vite 开发宿主使用 `npm run build:dev`。两者都固定 Lit 3.3.3。manifest 记录模式，产物预览会加载匹配的核心；源码预览使用开发版。不要把生产指令与开发核心混用。组件、类型和业务逻辑共用，模式只控制编译条件。
 
+
+## 代码格式、注释与构建报告
+
+`npm run lint` 检查代码格式，`npm run lint:fix`（或 `npm run format`）自动修复。使用空格缩进，每级 4 格，赋值、比较及其它二元运算符两侧留空格；`.editorconfig` 与 Prettier 保持一致。生成的 SDK 声明、系统 Schema 和类型快照沿来源维护，不在格式化时改写其内容。
+
+生命周期、阶段执行、页面数据程序与通用函数含中文说明，覆盖调用时机、参数、返回和副作用限制。`export default` 前保留 `// noinspection JSUnusedGlobalSymbols`，供 IDE 识别由构建器或宿主消费的入口。脚手架源码在 `tooling/init/templates/`，初始化项目和 `node:new` 均从这些文件生成；修改模板后需运行对应脚手架检查。
+
+正式 `npm run build` 使用 esbuild 的语法、标识符和空白压缩、tree shaking 与 UTF-8 输出；保留属性名、函数/类名及宿主 ABI，Goja 仍降级到 ES2016。源码中文注释只用于开发，不进入发布产物。`npm run build:dev` 保留可读代码，并匹配开发版 Lit 核心。
+
+每个产物输出编译后大小、gzip 参考大小与编译耗时，结尾汇总节点数、产物数、总体积和总耗时。`dist/<code>/manifest.json` 保存字节数、来源字节数、gzip 大小、摘要及耗时；`dist/build-report.json` 保存整次汇总。gzip 使用 level 9 独立估算，不代表宿主实际传输方式；源字节数是该入口依赖文件大小之和，不能当作未经压缩的 bundle 大小。
+
 ## 类型与新 TypeScript 语法
 
 锁定 TypeScript 7.0.2、Vite 8.3.5 和 esbuild 0.28.2；Lit 3.3.3 与当前宿主一致。安装使用 lockfile，不在每次安装时浮动升级。
