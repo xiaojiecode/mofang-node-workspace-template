@@ -4,7 +4,8 @@ permissions:
   contents: read
 jobs:
   check:
-    runs-on: ubuntu-latest
+    # Keep the runner OS within the pinned Playwright version's supported platforms.
+    runs-on: ubuntu-24.04
     env:
       MF_CACHE_DIR: ${{ github.workspace }}/.cache
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/browsers
