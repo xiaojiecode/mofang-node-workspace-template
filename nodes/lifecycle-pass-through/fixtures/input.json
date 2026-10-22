@@ -1,0 +1,25 @@
+{
+  "item": {
+    "basic": {
+      "title": "示例收纳盒",
+      "description": "仅用于本地预览的示例数据",
+      "price": 29,
+      "currency": "CNY"
+    },
+    "images": [
+      {
+        "url": "https://example.invalid/sample.png"
+      }
+    ],
+    "skus": [
+      {
+        "skuCode": "DEMO-01",
+        "stock": 12
+      }
+    ],
+    "attributes": {
+      "material": "纸板"
+    }
+  },
+  "note": "本地预览"
+}

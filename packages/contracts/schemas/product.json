@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mofang:workflow:type:product:1",
+  "type": "object",
+  "properties": {
+    "collection": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceUrl": {
+          "$ref": "urn:mofang:workflow:type:url:1"
+        },
+        "sourceItemId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "sourceUrl"
+      ]
+    },
+    "basic": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 1
+        },
+        "language": {
+          "type": "string"
+        },
+        "categoryId": {
+          "type": "string"
+        },
+        "categoryPath": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:mofang:workflow:type:image:1"
+      }
+    },
+    "videos": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:mofang:workflow:type:video:1"
+      }
+    },
+    "skus": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "skuCode": {
+            "type": "string"
+          },
+          "skuName": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0
+          },
+          "stock": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "image": {
+            "$ref": "urn:mofang:workflow:type:image:1"
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "attributes": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "references": {
+      "type": "object",
+      "properties": {
+        "collectProductId": {
+          "type": "string"
+        },
+        "draftProductId": {
+          "type": "string"
+        },
+        "shopProductId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1,
+  "allOf": [
+    {
+      "if": {
+        "anyOf": [
+          {
+            "required": [
+              "basic"
+            ],
+            "properties": {
+              "basic": {
+                "required": [
+                  "price"
+                ]
+              }
+            }
+          },
+          {
+            "required": [
+              "skus"
+            ],
+            "properties": {
+              "skus": {
+                "contains": {
+                  "required": [
+                    "price"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "required": [
+          "basic"
+        ],
+        "properties": {
+          "basic": {
+            "required": [
+              "currency"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

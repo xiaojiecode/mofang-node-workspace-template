@@ -1,0 +1,24 @@
+{
+  "name": "@mofang/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./browser": {
+      "types": "./src/browser/index.ts"
+    },
+    "./goja": {
+      "types": "./src/goja/index.ts"
+    },
+    "./business": {
+      "types": "./src/business/index.ts"
+    },
+    "./author": {
+      "types": "./src/author.ts"
+    },
+    "./page-program": {
+      "types": "./src/page-program.ts"
+    }
+  },
+  "sideEffects": false
+}

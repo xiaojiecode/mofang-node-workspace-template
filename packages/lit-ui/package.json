@@ -1,0 +1,16 @@
+{
+  "name": "@mofang/lit-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "lit": "3.3.3"
+  },
+  "dependencies": {
+    "@mofang/contracts": "*"
+  },
+  "sideEffects": false
+}

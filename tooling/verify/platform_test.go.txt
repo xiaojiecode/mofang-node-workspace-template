@@ -1,0 +1,175 @@
+package pagecompiler_test
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"reflect"
+	"testing"
+
+	"mofang/pkg/jsprogram"
+	"mofang/services/workflow/internal/pagecompiler"
+)
+
+func TestEngineeringTemplate(t *testing.T) {
+	root := os.Getenv("MF_TEMPLATE_REPO")
+	if root == "" {
+		t.Fatal("missing template root")
+	}
+	entries, err := os.ReadDir(filepath.Join(root, "dist"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		t.Run(entry.Name(), func(t *testing.T) {
+			out := filepath.Join(root, "dist", entry.Name())
+			read := func(name string) string {
+				t.Helper()
+				value, err := os.ReadFile(filepath.Join(out, name))
+				if err != nil {
+					t.Fatal(err)
+				}
+				return string(value)
+			}
+			var manifest struct {
+				Interface string `json:"interface"`
+			}
+			if err := json.Unmarshal([]byte(read("manifest.json")), &manifest); err != nil {
+				t.Fatal(err)
+			}
+			ctx := context.Background()
+			for _, surface := range []string{"settings", "business"} {
+				source := pagecompiler.Sources{Surface: surface, ViewSource: read(surface + ".js"), SDKVersion: "1"}
+				if surface == "business" {
+					source.ProgramSource = read("pageProgram.js")
+					source.SupportedContextSchemas = []string{"mf.node-context/1"}
+				}
+				if _, err := pagecompiler.New().Compile(ctx, source); err != nil {
+					t.Fatalf("%s platform compile: %v", surface, err)
+				}
+			}
+			if manifest.Interface == "panels" {
+				return
+			}
+			input, err := os.ReadFile(filepath.Join(root, "nodes", entry.Name(), "fixtures/input.json"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			host := jsprogram.Context{Input: input, State: json.RawMessage(`{}`), Call: func(context.Context, string, json.RawMessage) (json.RawMessage, error) {
+				return nil, fmt.Errorf("fixture does not authorize capability calls")
+			}}
+			execute := func(program *jsprogram.Program) json.RawMessage {
+				t.Helper()
+				step := program.Entry()
+				for i := 0; i < 50; i++ {
+					var result jsprogram.Transition
+					var err error
+					if program.IsMain() && i == 0 {
+						result, err = program.RunMain(ctx, host)
+					} else {
+						result, err = program.RunStep(ctx, step, host)
+					}
+					if err != nil {
+						t.Fatal(err)
+					}
+					if result.Output != nil {
+						return result.Output
+					}
+					if result.NextStep == "" {
+						t.Fatal("fixture stopped without output")
+					}
+					step = result.NextStep
+					host.State = result.Data
+				}
+				t.Fatal("fixture exceeded stage limit")
+				return nil
+			}
+			var output json.RawMessage
+			if manifest.Interface == "lifecycle" {
+				program, err := jsprogram.CompileNode(ctx, read("program.js"))
+				if err != nil {
+					t.Fatal(err)
+				}
+				state, err := program.InitialState(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+				event, err := json.Marshal(map[string]any{"deliveryId": "fixture-delivery", "values": json.RawMessage(input)})
+				if err != nil {
+					t.Fatal(err)
+				}
+				identity := 0
+				hook := jsprogram.HookContext{RunID: "fixture-run", NodeInstanceID: "fixture-node", State: state, View: json.RawMessage(`null`), Config: json.RawMessage(`{}`), Event: event, AllocateID: func() (string, error) { identity++; return fmt.Sprintf("fixture-%d", identity), nil }}
+				started, err := program.RunHook(ctx, "onStart", hook)
+				if err != nil {
+					t.Fatal(err)
+				}
+				var startState struct {
+					Started bool `json:"started"`
+				}
+				if err := json.Unmarshal(started.State, &startState); err != nil {
+					t.Fatal(err)
+				}
+				if !startState.Started {
+					t.Fatal("onStart was not observed")
+				}
+				hook.State, hook.View = started.State, started.View
+				effects, err := program.RunHook(ctx, "onInput", hook)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if len(effects.Tasks) != 1 {
+					t.Fatalf("spawned tasks: %d", len(effects.Tasks))
+				}
+				task := effects.Tasks[0]
+				child, err := program.Task(task.Handler)
+				if err != nil {
+					t.Fatal(err)
+				}
+				host.Input = task.Input
+				output = execute(child)
+				event, err = json.Marshal(map[string]any{"status": "succeeded", "taskId": task.ID, "handler": task.Handler, "inputRefs": task.InputRefs, "output": json.RawMessage(output)})
+				if err != nil {
+					t.Fatal(err)
+				}
+				hook.State = effects.State
+				hook.View = effects.View
+				hook.Event = event
+				effects, err = program.RunHook(ctx, "onTaskResult", hook)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if len(effects.Outputs) != 1 || len(effects.Outputs[0].InputRefs) != 1 || effects.Outputs[0].InputRefs[0] != "fixture-delivery" {
+					t.Fatal("candidate or input provenance lost")
+				}
+				output = effects.Outputs[0].Value
+			} else {
+				program, err := jsprogram.Compile(ctx, read("program.js"))
+				if err != nil {
+					t.Fatal(err)
+				}
+				output = execute(program)
+			}
+			var in struct {
+				Item any `json:"item"`
+			}
+			var result struct {
+				Items []any `json:"items"`
+			}
+			if err := json.Unmarshal(input, &in); err != nil {
+				t.Fatal(err)
+			}
+			if err := json.Unmarshal(output, &result); err != nil {
+				t.Fatal(err)
+			}
+			if len(result.Items) != 1 || !reflect.DeepEqual(result.Items[0], in.Item) {
+				t.Fatal("pass-through changed the full Product")
+			}
+		})
+	}
+}
