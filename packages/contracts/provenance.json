@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "syncedAt": "2026-10-22T03:21:35.970Z",
+  "syncedAt": "2026-10-22T04:03:44.848Z",
   "sources": {
     "mf-client/src/features/workflow/mofangsdk/core/catalog-types.ts": "d2a71ab700525652139117247bbfce4511e494f049c0a7b8483dd7268414f779",
     "mf-client/src/features/workflow/mofangsdk/core/context-types.ts": "957e6c132b3d583da31a79182f5970ccd1475e4aaac904d11e0f59494b8d9062",
@@ -58,13 +58,13 @@
     "mofang-server/pkg/jsprogram/error_text.go": "920b5bd1ef1950ab95850ee7613d7490e6983cc6ef6191b59e811d1c1c56e3cf",
     "mofang-server/pkg/jsprogram/json.go": "bb846076b0ce96127f51d1746d1715c4c3749f23113b3881e426131a42e61151",
     "mofang-server/pkg/jsprogram/json_check.go": "ecc6f93389dd9eaee66f973e3eb04d32f9475496eb20279065408d2cbab5dbf7",
-    "mofang-server/pkg/jsprogram/lifecycle.go": "f60cd944c2b226bdf93e38cb7f8e545d9ad08d91f837934a23ec848878e06ab3",
+    "mofang-server/pkg/jsprogram/lifecycle.go": "0603b378982ca779e44c6bf138462d8aa9f49d042ab6b1c104a997c9b40a837f",
     "mofang-server/pkg/jsprogram/lifecycle_hook.go": "479d23b9ef1ffbf882ce65f8ee295c22f2922ea2e2a42283d3680e9cf749f00e",
-    "mofang-server/pkg/jsprogram/program.go": "b99f01bb4cd86e7b8ae08caf6c6c259d517680f8ebd0601c77e2258ac4222627",
+    "mofang-server/pkg/jsprogram/program.go": "d366e4cf1797f54db9bd94ad1cff99eb1f0280399fdfd05bae90c3105c216035",
     "mf-client/src/features/workflow/node-pages/dynamic-lit-panel.tsx": "a5d35df99b0a9c81df643f175feab4716504aacc3ef016005372cfbb46492ac1",
     "mf-client/src/features/workflow/node-pages/node-panel-provider.tsx": "5161660851c158356bc31c47925f1000082fa1849147da3ef1deb573fd0e00fb",
     "mofang-server/web/admin/src/api/workflowJavaScript.ts": "2ea10de930f49fde49fe55c3af51345d773505d3c2dc13429695d5a888639e01",
-    "mofang-server/services/workflow/internal/pagecompiler/compiler.go": "0088be159a7cd4e9079bc7e9eece4695f0e49a975fccb3bb6e1c6e38fa38b43d",
+    "mofang-server/services/workflow/internal/pagecompiler/compiler.go": "96f2548c67fcc0d484e828321833d1c58af2d14aeae67e6798c4184e98a44cb1",
     "mofang-server/go.mod": "5adb36524cb5e23c96df68446f57a2d2073cb97629fffc441152deb92441887e"
   },
   "authorTypes": "src/goja/index.ts is maintained against pkg/jsprogram, not generated from Go. Browser declarations exclude execution author exports."
