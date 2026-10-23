@@ -95,6 +95,10 @@ test('冷初始化携带完整技能和模板Git祖先，真实类型和构建�
     )
     assert.equal(baseline.version, 2)
     assert.ok(baseline.sourceCommit)
+    assert.equal(
+        JSON.parse(await readFile(path.join(target, '.agents/upstream.json'), 'utf8')).kind,
+        'project',
+    )
     // 只在隔离冷工程中覆写copy，保留真实商品输入契约并验证构建选择page.ts。
     await writeFile(
         path.join(target, 'nodes/copy/page.ts'),
