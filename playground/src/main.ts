@@ -1,11 +1,17 @@
 import type { LitElement } from 'lit'
-import type { PanelProps, JSONObject } from '@mofang/contracts/browser'
+import type { PanelProps, JSONObject, NodeView } from '@mofang/contracts/browser'
 import { createFixture } from './fixture'
 import './style.css'
 const sources = import.meta.glob<{ default: typeof LitElement }>('../../nodes/*/{settings,view}.ts')
 const fixtures = import.meta.glob<{ default: JSONObject }>('../../nodes/*/fixtures/input.json', {
     eager: true,
 })
+const previews = import.meta.glob<{ default: Partial<NodeView> }>(
+    '../../nodes/*/fixtures/preview.json',
+    { eager: true },
+)
+const previewFor = (code: string) =>
+    previews['../../nodes/' + code + '/fixtures/preview.json']?.default ?? {}
 const codes = Object.keys(fixtures)
     .map((key) => key.split('/')[3]!)
     .sort()
@@ -47,7 +53,7 @@ async function mount() {
     delete app.dataset.mounted
     const input = fixtures['../../nodes/' + active + '/fixtures/input.json']!.default
     if (current) previous.push(current)
-    current = createFixture(input, scene === 'empty', scene === 'error')
+    current = createFixture(input, scene === 'empty', scene === 'error', previewFor(active))
     const fixture = current
     const classes = await Promise.all(
         ['settings', 'business'].map(async (surface) => {
@@ -132,7 +138,12 @@ document.querySelector<HTMLButtonElement>('#readonly')!.onclick = () => {
 }
 document.querySelector<HTMLButtonElement>('#replace')!.onclick = () => {
     if (current) previous.push(current)
-    current = createFixture(fixtures['../../nodes/' + active + '/fixtures/input.json']!.default)
+    current = createFixture(
+        fixtures['../../nodes/' + active + '/fixtures/input.json']!.default,
+        false,
+        false,
+        previewFor(active),
+    )
     for (const element of elements) element.sdk = current.sdk
 }
 // Local test observability; this module is never part of a platform bundle.

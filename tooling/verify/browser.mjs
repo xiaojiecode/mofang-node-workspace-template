@@ -3,7 +3,7 @@ import { createServer } from 'vite'
 import { chromium } from 'playwright'
 import path from 'node:path'
 import { root, cache, nodeCodes } from '../paths.mjs'
-import { mkdir } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 const server = await createServer({
     configFile: path.join(root, 'playground/vite.config.mjs'),
     server: { port: 0, strictPort: false },
@@ -76,12 +76,27 @@ try {
             await page.waitForFunction(() =>
                 Boolean(document.querySelector('#app').dataset.mounted),
             )
-            await page.locator('#business .mf-product').waitFor()
+            const fixture = JSON.parse(
+                await readFile(path.join(root, 'nodes', code, 'fixtures/input.json'), 'utf8'),
+            )
+            let title = fixture.item?.basic?.title
+            if (!title) {
+                const preview = JSON.parse(
+                    await readFile(path.join(root, 'nodes', code, 'fixtures/preview.json'), 'utf8'),
+                )
+                title = preview.composition.projection.nodeView.rows?.[0]?.product?.basic?.title
+            }
+            assert.ok(title, 'business fixture needs a real visible Product title')
+            await page.locator('#business').getByText(title, { exact: true }).first().waitFor()
             await page.getByRole('button', { name: '空结果', exact: true }).click()
             await page.waitForFunction(() =>
                 Boolean(document.querySelector('#app').dataset.mounted),
             )
-            await page.locator('#business').getByText('暂无商品').waitFor()
+            await page
+                .locator('#business')
+                .getByText(/暂无商品|没有符合条件/)
+                .first()
+                .waitFor()
             await page.getByRole('button', { name: '读取失败', exact: true }).click()
             await page.waitForFunction(() =>
                 Boolean(document.querySelector('#app').dataset.mounted),
@@ -91,7 +106,7 @@ try {
             await page.waitForFunction(() =>
                 Boolean(document.querySelector('#app').dataset.mounted),
             )
-            await page.locator('#business .mf-product').waitFor()
+            await page.locator('#business').getByText(title, { exact: true }).first().waitFor()
         }
         await page.locator('#replace').click()
         await page.waitForFunction(() =>

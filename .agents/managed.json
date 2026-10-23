@@ -765,12 +765,12 @@
         },
         {
             "path": "playground/src/fixture.ts",
-            "sha256": "cc5ea4f2c054a6439f321d18d2a247fee5608318d7218bc04c0e84d859dfd240",
+            "sha256": "f2d1497dc5d8f522d96c71eea35d39caaefa08843e1a9ad85bf7dc1b5d7a206e",
             "deletion": "if-unchanged"
         },
         {
             "path": "playground/src/main.ts",
-            "sha256": "707df96ed164d7710beedd074c933002d46715d3465617415f8cee68f8ed2cb2",
+            "sha256": "dfe3a27305ffe876c97c74dddfd255947c2242320bda5e73a6da4edcdc025f53",
             "deletion": "if-unchanged"
         },
         {
@@ -1010,7 +1010,7 @@
         },
         {
             "path": "tooling/verify/browser.mjs",
-            "sha256": "11766f143116561eb851b1ea1ef92916832e87c5b90d3f2fd89f2e7faff00ee1",
+            "sha256": "9f4e2266c197c1007ee1c47d098bb1bf7f5e7999d493f07a796d0a8c7c3733f6",
             "deletion": "if-unchanged"
         },
         {
@@ -1050,7 +1050,7 @@
         },
         {
             "path": "tooling/verify/runtime.mjs",
-            "sha256": "8a92a0ef35b42d2b97c59df646e6b243815bff35295c3a85107f5fa8713e29ac",
+            "sha256": "9d6c82896007e15739701f55b834c9b7ff77b8316f063bde4a7962822b703084",
             "deletion": "if-unchanged"
         },
         {

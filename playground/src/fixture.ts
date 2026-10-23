@@ -6,8 +6,16 @@ import type {
     NodeFlowState,
     JSONObject,
     MofangSDKError,
+    NodeFlowActionBody,
+    NodeFlowActionQuery,
+    NodeActionResult,
 } from '@mofang/contracts/browser'
-export function createFixture(input: JSONObject, empty = false, failed = false) {
+export function createFixture(
+    input: JSONObject,
+    empty = false,
+    failed = false,
+    preview: Partial<NodeView> = {},
+) {
     const context: NodeContext = {
         sdkVersion: '1',
         contextRevision: '1',
@@ -30,7 +38,7 @@ export function createFixture(input: JSONObject, empty = false, failed = false) 
             nodeInstanceId: 'preview-node',
             runId: 'preview-run',
             status: 'succeeded',
-            values: { items: empty ? [] : [input.item!] },
+            values: { items: empty || !input.item ? [] : [input.item!] },
         },
         state: { status: 'succeeded', phase: 'done', closure: 'closed' },
         control: {
@@ -51,7 +59,7 @@ export function createFixture(input: JSONObject, empty = false, failed = false) 
         panel: { revisionId: 'preview', renderMode: 'lit' },
         settingsPanel: { revisionId: 'preview-settings', renderMode: 'lit' },
     }
-    const nodeView: NodeView = {
+    let nodeView: NodeView = {
         runId: 'preview-run',
         nodeInstanceId: 'preview-node',
         sessionId: 'preview-session',
@@ -74,10 +82,11 @@ export function createFixture(input: JSONObject, empty = false, failed = false) 
                 status: 'ready',
                 nodeView: {
                     phase: 'ready',
-                    received: empty ? 0 : 1,
-                    rows: empty
-                        ? []
-                        : [{ key: 'preview-delivery', product: input.item!, submitted: false }],
+                    received: empty || !input.item ? 0 : 1,
+                    rows:
+                        empty || !input.item
+                            ? []
+                            : [{ key: 'preview-delivery', product: input.item!, submitted: false }],
                 },
                 actions: [],
             },
@@ -86,22 +95,23 @@ export function createFixture(input: JSONObject, empty = false, failed = false) 
             runId: 'preview-run',
             nodeInstanceId: 'preview-node',
             sessionId: 'preview-session',
-            total: empty ? 0 : 1,
+            total: empty || !input.item ? 0 : 1,
             page: 1,
             pageSize: 20,
-            items: empty
-                ? []
-                : [
-                      {
-                          id: 'preview-candidate',
-                          revision: '1',
-                          state: 'pending',
-                          value: { items: [input.item!] },
-                          inputRefs: ['preview-delivery'],
-                          createdAt: '2026-01-01T00:00:00Z',
-                          updatedAt: '2026-01-01T00:00:00Z',
-                      },
-                  ],
+            items:
+                empty || !input.item
+                    ? []
+                    : [
+                          {
+                              id: 'preview-candidate',
+                              revision: '1',
+                              state: 'pending',
+                              value: { items: [input.item!] },
+                              inputRefs: ['preview-delivery'],
+                              createdAt: '2026-01-01T00:00:00Z',
+                              updatedAt: '2026-01-01T00:00:00Z',
+                          },
+                      ],
         },
         summary: {
             queued: 0,
@@ -111,8 +121,8 @@ export function createFixture(input: JSONObject, empty = false, failed = false) 
             failed: 0,
             unresolved: 0,
             pendingEvents: 0,
-            candidates: empty ? 0 : 1,
-            pending: empty ? 0 : 1,
+            candidates: empty || !input.item ? 0 : 1,
+            pending: empty || !input.item ? 0 : 1,
             released: 0,
             removed: 0,
         },
@@ -125,6 +135,27 @@ export function createFixture(input: JSONObject, empty = false, failed = false) 
             canControl: false,
             canResolveUnknown: false,
         },
+    }
+    if (Object.prototype.hasOwnProperty.call(preview, 'nodeView') && preview.nodeView !== null)
+        throw new Error('preview.json requires composition; retired nodeView is not supported')
+    nodeView = { ...nodeView, ...preview, nodeView: null }
+    if (empty) {
+        const projection = nodeView.composition.projection
+        nodeView = {
+            ...nodeView,
+            nodeOutput: { ...nodeView.nodeOutput, items: [], total: 0 },
+            composition: {
+                ...nodeView.composition,
+                ...(projection.status === 'ready'
+                    ? {
+                          projection: {
+                              ...projection,
+                              nodeView: { ...projection.nodeView, rows: [], total: 0, received: 0 },
+                          },
+                      }
+                    : {}),
+            },
+        }
     }
     // This fixture implements only the preview methods. Unsupported calls fail explicitly.
     const error = failed
@@ -139,7 +170,7 @@ export function createFixture(input: JSONObject, empty = false, failed = false) 
         error,
         revision: '1',
     }
-    const flow: NodeFlowState = {
+    let flow: NodeFlowState = {
         data: failed ? null : nodeView,
         loading: false,
         stale: false,
@@ -153,13 +184,133 @@ export function createFixture(input: JSONObject, empty = false, failed = false) 
         return () => listeners.delete(callback)
     }
     const contextAPI = { getState: () => resource, getSnapshot: () => resource.data, subscribe }
+    const records = new Map<string, NodeActionResult>()
     const nodeFlowAPI = {
         listActions: async () => ({
-            items: [],
-            snapshotUpperSequence: '0',
+            items: [...records.values()],
+            snapshotUpperSequence: String(records.size),
             nextCursor: null,
             hasMore: false,
         }),
+        getActionResult: async (query: NodeFlowActionQuery) => {
+            const result = records.get(query.eventId)
+            if (!result) throw new Error('preview action not found')
+            return result
+        },
+        watchActionResult: (query: NodeFlowActionQuery) => ({
+            getSnapshot: () => ({
+                data: records.get(query.eventId) ?? null,
+                error: null,
+                loading: false,
+                stale: false,
+                revision: String(records.size),
+                refreshing: false,
+            }),
+            getState: () => ({
+                data: records.get(query.eventId) ?? null,
+                error: null,
+                loading: false,
+                stale: false,
+                revision: String(records.size),
+                refreshing: false,
+            }),
+            subscribe,
+            refresh: async () => {},
+        }),
+        /** Explicit UI-only fixture: never invokes Goja/Workflow/Tool or real business. */
+        action: async (body: NodeFlowActionBody) => {
+            if (!nodeView.permissions.canAct || body.expectedSessionRevision !== nodeView.revision)
+                throw new Error('preview action is read-only or revision changed')
+            const projection = nodeView.composition.projection
+            if (projection.status !== 'ready') throw new Error('preview projection unavailable')
+            const action = projection.actions.find((action) => action.name === body.name)
+            if (!action || !action.availability.enabled)
+                throw new Error('preview action unavailable')
+            if (body.name !== 'submit' && body.name !== 'finish')
+                throw new Error('preview does not simulate this business action')
+            const sequence = String(records.size + 1),
+                eventId = 'preview-event-' + sequence
+            let view = projection.nodeView
+            let output = nodeView.nodeOutput
+            let rejected = false
+            if (body.name === 'submit') {
+                const keys = body.payload.keys
+                const rows = Array.isArray(view.rows) ? (view.rows as JSONObject[]) : []
+                const valid =
+                    Array.isArray(keys) &&
+                    keys.length > 0 &&
+                    keys.every((key) => typeof key === 'string') &&
+                    new Set(keys).size === keys.length
+                const selected = valid
+                    ? rows.filter((row) => keys.includes(String(row.key)) && !row.submitted)
+                    : []
+                if (!valid || selected.length !== keys.length) rejected = true
+                else {
+                    const items = selected.map((row, index) => ({
+                        id: 'preview-candidate-' + sequence + '-' + index,
+                        revision: '1',
+                        state: 'pending' as const,
+                        value: { items: [row.product!] },
+                        inputRefs: [],
+                        createdAt: '2026-10-23T00:00:00Z',
+                        updatedAt: '2026-10-23T00:00:00Z',
+                    }))
+                    output = {
+                        ...output,
+                        items: [...output.items, ...items],
+                        total: output.total + items.length,
+                    }
+                    view = {
+                        ...view,
+                        phase: 'submitted',
+                        submitted: Number(view.submitted ?? 0) + items.length,
+                        rows: rows.map((row) =>
+                            keys.includes(String(row.key)) ? { ...row, submitted: true } : row,
+                        ),
+                    }
+                }
+            } else view = { ...view, phase: 'closed' }
+            const result: NodeActionResult = {
+                eventId,
+                sequence,
+                name: body.name,
+                status: rejected ? 'rejected' : 'applied',
+                actor: { userId: 'preview-user', workspaceId: 'preview-workspace', role: 'user' },
+                createdAt: '2026-10-23T00:00:00Z',
+                updatedAt: '2026-10-23T00:00:00Z',
+                ...(rejected
+                    ? {
+                          error: {
+                              code: 'FIXTURE_SELECTION_CHANGED',
+                              message: '本地fixture选择已变化',
+                          },
+                      }
+                    : { processedRevision: String(Number(nodeView.revision) + 1) }),
+            }
+            records.set(eventId, result)
+            if (!rejected) {
+                const revision = String(Number(nodeView.revision) + 1)
+                nodeView = {
+                    ...nodeView,
+                    revision,
+                    productionFinished: true,
+                    nodeOutput: output,
+                    summary: {
+                        ...nodeView.summary,
+                        pending: output.items.filter((item) => item.state === 'pending').length,
+                        candidates: output.total,
+                    },
+                    composition: {
+                        ...nodeView.composition,
+                        snapshot: { ...nodeView.composition.snapshot, sessionRevision: revision },
+                        projection: { ...projection, nodeView: view },
+                    },
+                }
+                flow = { ...flow, data: nodeView, revision }
+            }
+            listeners.forEach((listener) => listener())
+            return { eventId, sequence, status: 'accepted' as const }
+        },
         watch: () => ({
             getSnapshot: () => flow,
             getState: () => flow,
@@ -177,7 +328,9 @@ export function createFixture(input: JSONObject, empty = false, failed = false) 
     return {
         sdk,
         context,
-        nodeView,
+        get nodeView() {
+            return nodeView
+        },
         listeners,
         notify: () => listeners.forEach((listener) => listener()),
     }
