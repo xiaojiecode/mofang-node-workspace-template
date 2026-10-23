@@ -13,6 +13,8 @@ description: 编写、校验和发布魔方 Goja JS 节点，使用 React 风格
 
 先辨别讨论、编写、目录更新、指定实例采用或实际试跑，读取已有节点、可信双Schema和目标环境。重要契约/状态/恢复/展示决策先说明取舍并确认，已有决定沿用。
 
+需求需要推导业务规则、状态转换或人工交接时，先按需使用 [节点业务设计](../mofang-node-business-design/SKILL.md)，将已确认规则映射到本技能的执行接口；简单修复不强制重新设计。
+
 ## 连接与发现
 
 入口沿用本技能scripts/mofang_node.py，先describe发现真实操作，再用管理员/客户端独立profile。读取types及实际Tool双Schema、许可和异步语义。连接和读写边界见[平台说明](../../../docs/platform.md)。密码/token不写技能、源码或报告。

@@ -1,9 +1,8 @@
 import { parseArgs } from 'node:util'
 import path from 'node:path'
-import { cp, mkdir, readdir, writeFile, readFile } from 'node:fs/promises'
-import { spawnSync } from 'node:child_process'
+import { cp, mkdir, readdir, writeFile, readFile, rm } from 'node:fs/promises'
 import { root } from '../paths.mjs'
-import { initializeManaged } from '../upstream/index.mjs'
+import { initializeGitHistory, initializeWorkspace } from '../upstream/index.mjs'
 import { nodeFiles, presets } from './templates.mjs'
 const { values } = parseArgs({
     options: {
@@ -30,6 +29,10 @@ try {
     if (error.code !== 'ENOENT') throw error
 }
 await mkdir(target, { recursive: true })
+const sourceCommit = await initializeGitHistory(target)
+// Only this newly created checkout is reset to the requested starter content.
+for (const name of ['nodes', 'shared', '.agents/managed.json'])
+    await rm(path.join(target, name), { recursive: true, force: true })
 const includes = [
     'lib',
     'tooling',
@@ -55,8 +58,7 @@ const includes = [
 for (const name of includes)
     await cp(path.join(root, name), path.join(target, name), {
         recursive: true,
-        force: false,
-        errorOnExist: true,
+        force: true,
         filter: (source) =>
             !source
                 .split(path.sep)
@@ -70,6 +72,8 @@ for (const name of includes)
                         'upstream-state.json',
                         'upstream-journal.json',
                         'upstream.lock',
+                        'upstream-merge.json',
+                        'upstream-checkout.json',
                     ].includes(part),
                 ),
     })
@@ -89,8 +93,5 @@ for (const preset of values.preset === 'all' ? presets : [values.preset]) {
         await writeFile(file, content, { flag: 'wx' })
     }
 }
-await initializeManaged(target)
-const git = spawnSync('git', ['init', '--initial-branch=main', target], { stdio: 'inherit' })
-if (git.error) throw git.error
-if (git.status !== 0) process.exit(git.status ?? 1)
+await initializeWorkspace(target, sourceCommit)
 console.log('created ' + target + '; next: npm ci && npm run check')

@@ -1,9 +1,7 @@
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
-import { writeFile } from 'node:fs/promises'
 import { root } from './paths.mjs'
 import {
-    createManifest,
     dependenciesReady,
     ensureUpstream,
     recoverUpstream,
@@ -19,16 +17,9 @@ if (command === 'upstream') {
     } else if (action === 'recover') {
         const result = await recoverUpstream()
         console.log(JSON.stringify(result))
-        if (result.status !== 'current') process.exitCode = 1
-    } else if (action === 'manifest') {
-        const manifest = await createManifest()
-        await writeFile(
-            path.join(root, '.agents/managed.json'),
-            JSON.stringify(manifest, null, 4) + '\n',
-        )
-        console.log('managed files: ' + manifest.files.length)
+        if (!['current', 'updated'].includes(result.status)) process.exitCode = 1
     } else if (action === 'dependencies-ready') await dependenciesReady()
-    else throw new Error('upstream requires sync|recover|manifest|dependencies-ready')
+    else throw new Error('upstream requires sync|recover|dependencies-ready')
 } else if (command === 'platform') {
     await ensureUpstream()
     const result = spawnSync(

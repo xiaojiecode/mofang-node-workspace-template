@@ -1,15 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import path from 'node:path'
-import { mkdir, mkdtemp, writeFile, readFile, symlink } from 'node:fs/promises'
+import { mkdir, mkdtemp, writeFile, readFile, symlink, cp } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
-import { cache } from '../tooling/paths.mjs'
+import { cache, root } from '../tooling/paths.mjs'
 import {
-    createManifest,
-    initializeManaged,
     syncUpstream,
     recoverUpstream,
     ensureUpstream,
+    dependenciesReady,
 } from '../tooling/upstream/index.mjs'
 
 const git = (directory, ...args) => {
@@ -31,270 +30,186 @@ const git = (directory, ...args) => {
 }
 async function setup() {
     await mkdir(cache, { recursive: true })
-    const area = await mkdtemp(path.join(cache, 'upstream-test-')),
+    const area = await mkdtemp(path.join(cache, 'git-upstream-')),
         source = path.join(area, 'source'),
         target = path.join(area, 'target')
     await mkdir(source)
-    await mkdir(target)
     git(source, 'init', '--initial-branch=main')
-    await writeFile(path.join(source, 'AGENTS.md'), 'baseline\n')
-    await writeFile(path.join(target, 'AGENTS.md'), 'baseline\n')
-    await initializeManaged(target)
-    const config = {
-        version: 1,
-        mode: 'managed',
-        source: { url: source, ref: 'main', allowFileSource: true },
-        related: [],
-    }
-    await writeFile(path.join(target, '.agents/upstream.json'), JSON.stringify(config))
-    async function commit(text) {
-        await writeFile(path.join(source, 'AGENTS.md'), text)
-        await mkdir(path.join(source, '.agents'), { recursive: true })
-        await writeFile(
-            path.join(source, '.agents/managed.json'),
-            JSON.stringify(await createManifest(source)),
-        )
-        git(source, 'add', '.')
-        git(source, 'commit', '-m', 'fixture')
-    }
-    await commit('upstream-one\n')
-    return {
-        source,
-        target,
-        area,
-        commit,
-        sync: () => syncUpstream({ directory: target, cache: path.join(area, 'cache') }),
-    }
-}
-
-test('受管三方哈希更新且保留用户节点；无变化再次同步current', async () => {
-    const h = await setup()
-    await mkdir(path.join(h.target, 'nodes'))
-    await writeFile(path.join(h.target, 'nodes/user.ts'), 'user-owned')
-    const first = await h.sync()
-    assert.equal(first.status, 'updated', JSON.stringify(first))
-    assert.equal(await readFile(path.join(h.target, 'AGENTS.md'), 'utf8'), 'upstream-one\n')
-    assert.equal(await readFile(path.join(h.target, 'nodes/user.ts'), 'utf8'), 'user-owned')
-    assert.equal((await h.sync()).status, 'current')
-})
-test('本地受管修改产生conflict，整份更新不覆盖用户', async () => {
-    const h = await setup()
-    await writeFile(path.join(h.target, 'AGENTS.md'), 'user-modified')
-    const result = await h.sync()
-    assert.equal(result.status, 'conflict')
-    assert.deepEqual(result.conflicts, ['AGENTS.md'])
-    assert.equal(await readFile(path.join(h.target, 'AGENTS.md'), 'utf8'), 'user-modified')
-})
-test('manifest路径越界与本地symlink均拒绝', async () => {
-    const h = await setup()
+    await mkdir(path.join(source, '.agents'))
+    await mkdir(path.join(source, 'tooling/upstream'), { recursive: true })
+    for (const file of ['tooling/cli.mjs', 'tooling/paths.mjs', 'tooling/upstream/index.mjs'])
+        await cp(path.join(root, file), path.join(source, file))
     await writeFile(
-        path.join(h.source, '.agents/managed.json'),
+        path.join(source, '.gitignore'),
+        '.agents/upstream-state.json\n.agents/upstream-merge.json\n.agents/upstream.lock\n.agents/*.next-*\nnode_modules/\n',
+    )
+    await writeFile(
+        path.join(source, '.agents/upstream.json'),
         JSON.stringify({
-            version: 1,
-            abi: 'mf.node/1',
-            nodeMajor: 22,
-            files: [{ path: '../escape', sha256: 'a'.repeat(64), deletion: 'if-unchanged' }],
-        }),
-    )
-    git(h.source, 'add', '.')
-    git(h.source, 'commit', '-m', 'unsafe')
-    assert.equal((await h.sync()).status, 'incompatible')
-    const second = await setup()
-    await mkdir(path.join(second.target, 'lib'))
-    await symlink(path.join(second.area, 'outside'), path.join(second.target, 'lib/author'))
-    await mkdir(path.join(second.source, 'lib/author'), { recursive: true })
-    await writeFile(path.join(second.source, 'lib/author/index.ts'), 'source')
-    await second.commit('upstream-two\n')
-    assert.equal((await second.sync()).status, 'incompatible')
-})
-test('并行锁、依赖待安装与未完成journal阻止工具运行', async () => {
-    const h = await setup()
-    await writeFile(
-        path.join(h.target, '.agents/upstream.lock'),
-        JSON.stringify({ pid: process.pid }),
-    )
-    assert.equal((await h.sync()).status, 'conflict')
-    assert.equal((await recoverUpstream(h.target)).status, 'conflict')
-    await writeFile(
-        path.join(h.target, '.agents/upstream-journal.json'),
-        JSON.stringify({ version: 1, entries: [] }),
-    )
-    await assert.rejects(ensureUpstream(h.target), /interrupted/)
-})
-test('中断恢复保留中断后用户改动，不能强制覆盖', async () => {
-    const h = await setup()
-    const before = await readFile(path.join(h.target, 'AGENTS.md'))
-    const { createHash } = await import('node:crypto')
-    const hash = (value) => createHash('sha256').update(value).digest('hex')
-    const backup = path.join(h.area, 'backup')
-    await writeFile(backup, before)
-    await writeFile(path.join(h.target, 'AGENTS.md'), 'after-write')
-    await writeFile(
-        path.join(h.target, '.agents/upstream-journal.json'),
-        JSON.stringify({
-            version: 1,
-            stateBefore: await readFile(path.join(h.target, '.agents/upstream-state.json'), 'utf8'),
-            stateAfter: null,
-            entries: [
-                { path: 'AGENTS.md', before: hash(before), after: hash('after-write'), backup },
-            ],
-        }),
-    )
-    await writeFile(path.join(h.target, 'AGENTS.md'), 'new-user-work')
-    assert.equal((await recoverUpstream(h.target)).status, 'conflict')
-    assert.equal(await readFile(path.join(h.target, 'AGENTS.md'), 'utf8'), 'new-user-work')
-    await writeFile(path.join(h.target, 'AGENTS.md'), 'after-write')
-    assert.equal((await recoverUpstream(h.target)).status, 'current')
-    assert.equal(await readFile(path.join(h.target, 'AGENTS.md'), 'utf8'), before.toString())
-})
-
-test('state已提交但journal未删除的崩溃窗口只完成提交，不回滚文件到旧代', async () => {
-    const h = await setup()
-    const stateFile = path.join(h.target, '.agents/upstream-state.json')
-    const stateBefore = await readFile(stateFile, 'utf8')
-    const stateAfter = {
-        ...JSON.parse(stateBefore),
-        appliedCommit: 'new-commit',
-        files: { 'AGENTS.md': 'new-hash' },
-    }
-    const { createHash } = await import('node:crypto')
-    const hash = (value) => createHash('sha256').update(value).digest('hex')
-    const backup = path.join(h.area, 'before')
-    await writeFile(backup, 'baseline\n')
-    await writeFile(path.join(h.target, 'AGENTS.md'), 'committed-new')
-    await writeFile(stateFile, JSON.stringify(stateAfter))
-    await writeFile(
-        path.join(h.target, '.agents/upstream-journal.json'),
-        JSON.stringify({
-            version: 1,
-            stateBefore,
-            stateAfter,
-            entries: [
-                {
-                    path: 'AGENTS.md',
-                    before: hash('baseline\n'),
-                    after: hash('committed-new'),
-                    backup,
-                },
-            ],
-        }),
-    )
-    const result = await recoverUpstream(h.target)
-    assert.equal(result.completedCommit, true)
-    assert.equal(await readFile(path.join(h.target, 'AGENTS.md'), 'utf8'), 'committed-new')
-    assert.deepEqual(JSON.parse(await readFile(stateFile, 'utf8')), stateAfter)
-})
-
-test('checkout重复current检查不能清掉依赖待安装，Git完成后可恢复pending标记', async () => {
-    const h = await setup()
-    await writeFile(
-        path.join(h.source, '.gitignore'),
-        '.agents/upstream-state.json\n.agents/upstream-checkout.json\n.agents/upstream.lock\n.agents/*.next-*\n',
-    )
-    await writeFile(
-        path.join(h.source, '.agents/upstream.json'),
-        JSON.stringify({
-            version: 1,
-            mode: 'checkout',
-            source: { url: h.source, ref: 'main', remote: 'origin', allowFileSource: true },
+            version: 2,
+            source: { url: source, ref: 'main', allowFileSource: true },
             related: [],
         }),
     )
-    await writeFile(
-        path.join(h.source, 'package.json'),
-        JSON.stringify({ name: 'fixture', version: '1.0.0' }),
-    )
-    git(h.source, 'add', '.')
-    git(h.source, 'commit', '-m', 'checkout baseline')
-    const checkout = path.join(h.area, 'checkout')
-    git(h.area, 'clone', h.source, checkout)
-    const before = git(checkout, 'rev-parse', 'HEAD')
-    await writeFile(
-        path.join(h.source, 'package.json'),
-        JSON.stringify({ name: 'fixture', version: '1.0.1' }),
-    )
-    git(h.source, 'add', '.')
-    git(h.source, 'commit', '-m', 'dependency revision')
-    const options = { directory: checkout, cache: path.join(h.area, 'cache-checkout') }
-    const first = await syncUpstream(options)
-    assert.equal(first.status, 'updated', JSON.stringify(first))
-    assert.equal(first.dependenciesPending, true)
-    const second = await syncUpstream(options)
-    assert.equal(second.status, 'current', JSON.stringify(second))
-    assert.equal(second.dependenciesPending, true)
-    await assert.rejects(ensureUpstream(checkout), /dependenciesPending/)
-    const head = git(checkout, 'rev-parse', 'HEAD')
-    const stateFile = path.join(checkout, '.agents/upstream-state.json')
-    const state = JSON.parse(await readFile(stateFile, 'utf8'))
-    await writeFile(stateFile, JSON.stringify({ ...state, dependenciesPending: false }))
-    await writeFile(
-        path.join(checkout, '.agents/upstream-checkout.json'),
-        JSON.stringify({
-            beforeCommit: before,
-            targetCommit: head,
-            dependenciesPending: true,
-            checkedAt: 'fixture',
-        }),
-    )
-    await assert.rejects(ensureUpstream(checkout), /interrupted/)
-    assert.equal((await recoverUpstream(checkout)).status, 'current')
-    assert.equal(JSON.parse(await readFile(stateFile, 'utf8')).dependenciesPending, true)
-    git(checkout, 'branch', '--unset-upstream')
-    const untracked = await syncUpstream(options)
-    assert.equal(untracked.status, 'incompatible', JSON.stringify(untracked))
-    assert.match(untracked.reason, /tracking branch/)
-    assert.equal(git(checkout, 'rev-parse', 'HEAD'), head)
-})
-
-test('控制目录和state/journal/config符号链接均不得跟随', async () => {
-    const h = await setup()
-    for (const name of ['upstream-state.json', 'upstream-journal.json', 'upstream.json']) {
-        const directory = path.join(h.area, name)
-        await mkdir(directory)
-        await mkdir(path.join(directory, '.agents'))
-        await symlink(
-            path.join(h.target, '.agents/upstream-state.json'),
-            path.join(directory, '.agents', name),
-        )
-        await assert.rejects(ensureUpstream(directory), /unsafe/)
-        assert.equal(
-            (await syncUpstream({ directory, cache: path.join(h.area, 'cache-control') })).status,
-            'incompatible',
-        )
+    await writeFile(path.join(source, 'rules.txt'), 'first\nsecond\nthird\nfourth\nfifth\n')
+    const commit = () => {
+        git(source, 'add', '.')
+        git(source, 'commit', '-m', 'upstream change')
+        return git(source, 'rev-parse', 'HEAD')
     }
-    const directory = path.join(h.area, 'agents-link')
-    await mkdir(directory)
-    await symlink(path.join(h.target, '.agents'), path.join(directory, '.agents'), 'dir')
-    await assert.rejects(ensureUpstream(directory), /unsafe/)
-    assert.equal(
-        (await syncUpstream({ directory, cache: path.join(h.area, 'cache-control') })).status,
-        'incompatible',
-    )
-})
+    commit()
+    git(area, 'clone', source, target)
+    const sync = () => syncUpstream({ directory: target })
+    return { area, source, target, sync, commit }
+}
 
-test('官方校验文件随清单更新，用户业务fixture保留', async () => {
+test('普通Git更新可引入任意新技能和目录，不依赖受管清单', async () => {
     const h = await setup()
-    await mkdir(path.join(h.source, 'tests'))
-    await writeFile(path.join(h.source, 'tests/required.test.mjs'), 'official-check')
-    await h.commit('with-required-checks\n')
-    await mkdir(path.join(h.target, 'shared'))
-    await writeFile(path.join(h.target, 'shared/business.test.mjs'), 'user-check')
+    for (const folder of ['.agents/skills/new-third-party', 'new-library']) {
+        await mkdir(path.join(h.source, folder), { recursive: true })
+        await writeFile(path.join(h.source, folder, 'content.md'), 'new content')
+    }
+    const upstream = h.commit()
+    const result = await h.sync()
+    assert.equal(result.status, 'updated', JSON.stringify(result))
+    assert.equal(result.appliedCommit, upstream)
+    assert.equal(git(h.target, 'rev-parse', 'HEAD'), upstream)
+    assert.equal(
+        await readFile(path.join(h.target, '.agents/skills/new-third-party/content.md'), 'utf8'),
+        'new content',
+    )
+    assert.equal(
+        await readFile(path.join(h.target, 'new-library/content.md'), 'utf8'),
+        'new content',
+    )
+    assert.equal((await h.sync()).status, 'current')
+})
+test('Git自动合并同文件不重叠修改，并保留本地业务和自定义技能', async () => {
+    const h = await setup()
+    await writeFile(path.join(h.target, 'rules.txt'), 'local-first\nsecond\nthird\nfourth\nfifth\n')
+    await mkdir(path.join(h.target, '.agents/skills/my-skill'), { recursive: true })
+    await writeFile(path.join(h.target, '.agents/skills/my-skill/SKILL.md'), 'my skill')
+    await mkdir(path.join(h.target, 'nodes'))
+    await writeFile(path.join(h.target, 'nodes/business.ts'), 'my business')
+    git(h.target, 'add', '.')
+    git(h.target, 'commit', '-m', 'business changes')
+    const local = git(h.target, 'rev-parse', 'HEAD')
+    await writeFile(
+        path.join(h.source, 'rules.txt'),
+        'first\nsecond\nthird\nfourth\nupstream-fifth\n',
+    )
+    const upstream = h.commit()
     const result = await h.sync()
     assert.equal(result.status, 'updated', JSON.stringify(result))
     assert.equal(
-        await readFile(path.join(h.target, 'tests/required.test.mjs'), 'utf8'),
-        'official-check',
+        await readFile(path.join(h.target, 'rules.txt'), 'utf8'),
+        'local-first\nsecond\nthird\nfourth\nupstream-fifth\n',
     )
+    git(h.target, 'merge-base', '--is-ancestor', local, 'HEAD')
+    git(h.target, 'merge-base', '--is-ancestor', upstream, 'HEAD')
+    assert.equal(await readFile(path.join(h.target, 'nodes/business.ts'), 'utf8'), 'my business')
     assert.equal(
-        await readFile(path.join(h.target, 'shared/business.test.mjs'), 'utf8'),
-        'user-check',
+        await readFile(path.join(h.target, '.agents/skills/my-skill/SKILL.md'), 'utf8'),
+        'my skill',
     )
-    await writeFile(path.join(h.target, 'tests/required.test.mjs'), 'local-change')
-    await writeFile(path.join(h.source, 'tests/required.test.mjs'), 'new-official-check')
-    await h.commit('required-check-revision\n')
+})
+async function conflict() {
+    const h = await setup()
+    await writeFile(path.join(h.target, 'rules.txt'), 'local replacement\n')
+    git(h.target, 'add', '.')
+    git(h.target, 'commit', '-m', 'local edit')
+    await writeFile(path.join(h.source, 'rules.txt'), 'upstream replacement\n')
+    h.commit()
     assert.equal((await h.sync()).status, 'conflict')
-    assert.equal(
-        await readFile(path.join(h.target, 'tests/required.test.mjs'), 'utf8'),
-        'local-change',
+    assert.match(git(h.target, 'status', '--porcelain'), /UU rules.txt/)
+    return h
+}
+test('冲突保留Git状态，人工解决提交后recover只补记，不重做合并', async () => {
+    const h = await conflict()
+    await assert.rejects(ensureUpstream(h.target), /unfinished/)
+    assert.equal((await h.sync()).status, 'conflict')
+    assert.equal((await recoverUpstream(h.target)).status, 'conflict')
+    await writeFile(path.join(h.target, 'rules.txt'), 'human resolution\n')
+    git(h.target, 'add', '.')
+    git(h.target, 'commit', '-m', 'resolve merge')
+    const head = git(h.target, 'rev-parse', 'HEAD')
+    const recovered = spawnSync(
+        process.execPath,
+        [path.join(h.target, 'tooling/cli.mjs'), 'upstream', 'recover'],
+        { encoding: 'utf8' },
     )
+    assert.equal(recovered.status, 0, recovered.stdout + recovered.stderr)
+    assert.equal(JSON.parse(recovered.stdout).status, 'updated')
+    assert.equal(git(h.target, 'rev-parse', 'HEAD'), head)
+    assert.equal(await readFile(path.join(h.target, 'rules.txt'), 'utf8'), 'human resolution\n')
+    await ensureUpstream(h.target)
+})
+test('git merge --abort后recover保留本地提交，不回滚用户文件', async () => {
+    const h = await conflict()
+    git(h.target, 'merge', '--abort')
+    assert.equal((await recoverUpstream(h.target)).aborted, true)
+    assert.equal(await readFile(path.join(h.target, 'rules.txt'), 'utf8'), 'local replacement\n')
+    await ensureUpstream(h.target)
+})
+test('未提交修改停止更新，不stash、覆盖或切分支', async () => {
+    const h = await setup(),
+        head = git(h.target, 'rev-parse', 'HEAD')
+    await writeFile(path.join(h.target, 'rules.txt'), 'uncommitted')
+    assert.equal((await h.sync()).status, 'conflict')
+    assert.equal(git(h.target, 'rev-parse', 'HEAD'), head)
+    assert.equal(await readFile(path.join(h.target, 'rules.txt'), 'utf8'), 'uncommitted')
+})
+test('依赖变更阻止构建，重复current不清状态，安装版本核对后解除', async () => {
+    const h = await setup()
+    await writeFile(
+        path.join(h.source, 'package-lock.json'),
+        JSON.stringify({ packages: { '': {}, 'node_modules/dep': { version: '1.0.0' } } }),
+    )
+    h.commit()
+    assert.equal((await h.sync()).dependenciesPending, true)
+    assert.equal((await h.sync()).dependenciesPending, true)
+    await assert.rejects(ensureUpstream(h.target), /dependenciesPending/)
+    await mkdir(path.join(h.target, 'node_modules'))
+    const installed = path.join(h.target, 'node_modules/.package-lock.json')
+    await writeFile(
+        installed,
+        JSON.stringify({ packages: { 'node_modules/dep': { version: '0.9.0' } } }),
+    )
+    await assert.rejects(dependenciesReady(h.target), /differs/)
+    await writeFile(
+        installed,
+        JSON.stringify({ packages: { 'node_modules/dep': { version: '1.0.0' } } }),
+    )
+    await dependenciesReady(h.target)
+    await ensureUpstream(h.target)
+})
+test('无共同祖先的工程停止，不自动合并不相关历史', async () => {
+    const h = await setup()
+    git(h.target, 'checkout', '--orphan', 'unrelated')
+    git(h.target, 'add', '.')
+    git(h.target, 'commit', '-m', 'unrelated root')
+    const result = await h.sync()
+    assert.equal(result.status, 'incompatible')
+    assert.match(result.reason, /ancestor/)
+})
+test('旧managed工程明确停止，不自动迁移', async () => {
+    const h = await setup()
+    await writeFile(
+        path.join(h.target, '.agents/upstream.json'),
+        JSON.stringify({ version: 1, mode: 'managed' }),
+    )
+    assert.equal((await h.sync()).status, 'incompatible')
+    await assert.rejects(ensureUpstream(h.target), /adoption/)
+})
+test('锁与控制文件符号链接不会被覆盖', async () => {
+    const h = await setup(),
+        lock = path.join(h.target, '.agents/upstream.lock')
+    await writeFile(lock, JSON.stringify({ pid: process.pid }))
+    assert.equal((await h.sync()).status, 'conflict')
+    assert.equal((await recoverUpstream(h.target)).status, 'conflict')
+    const other = path.join(h.area, 'linked')
+    await mkdir(other)
+    await symlink(path.join(h.target, '.agents'), path.join(other, '.agents'), 'dir')
+    await assert.rejects(ensureUpstream(other), /unsafe/)
+    assert.equal((await syncUpstream({ directory: other })).status, 'incompatible')
 })

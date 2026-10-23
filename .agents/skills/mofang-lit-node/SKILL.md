@@ -11,6 +11,8 @@ description: 为魔方节点编写、验证和发布独立 Lit 设置与业务�
 
 读取模板AGENTS并完成上游检查，按[模板说明](../../../README.md)核对现有节点、两个surface、模式和冻结引用。已有页面或输出先读取，不让用户重复提供可查字段；重要UI/契约取舍先讨论。
 
+需要规划或改善信息层级、交互、排版和状态反馈时，按需读取 [节点 UI 设计](../mofang-node-ui-design/SKILL.md)；业务决定尚不清楚时先用 [节点业务设计](../mofang-node-business-design/SKILL.md)。本技能负责宿主与 SDK 接线，不用设计建议替代真实契约。
+
 settings位于宿主右侧设置内容区，宿主保留导航和统一保存/取消；business位于有限高度上拉抽屉。标准与full-panel均保留平台必要操作区域，页面不能省略host动作或系统退路；业务内容利用剩余空间。
 
 后台React风格语法与Lit展示分别维护。运行只导入宿主许可的lit，默认导出LitElement，不打第二份Lit核心。动态属性用declare/static properties，目标取this.target，不把整个panelContext当target。

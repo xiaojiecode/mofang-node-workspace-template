@@ -31,12 +31,12 @@ lib/
   browser/       @mofang/browser，Lit 展示与宿主资源接线
 shared/          用户业务公共源码
 playground/      有界双面板本地预览
-.agents/skills/  JS、Lit 节点与 Lit 最佳实践技能完整源码，包含唯一共享平台 CLI
+.agents/skills/  节点设计、JS/Lit、Lit 最佳实践及第三方设计技能，包含唯一共享平台 CLI
 ```
 
 只有一个根包，没有 npm workspaces。别名在 tsconfig.base.json 中定义，由类型检查和构建/预览统一解析。源码允许 import/export；后台打包为单文件 `const program=...`，不引入浏览器、Node、网络或计时器。Lit 产物仅导入宿主 `lit`，不内置第二份核心。
 
-根 tsconfig.json 是 IDE 工程入口，通过 references 明确关联浏览器配置 tooling/tsconfig.browser.json、后台配置 tsconfig.goja.json 和页面程序配置 tsconfig.page-program.json。WebStorm、VS Code 及 TypeScript 语言服务可从标准入口发现后台源码，保留各运行环境的隔离。类型检查使用 npm run typecheck，它逐个检查引用工程；只运行 tsc -p tsconfig.json 不会检查所有源码。浏览器配置放在受管 tooling/ 下，现有工程可直接通过 upstream sync 更新，不需要改本机全局 IDE 配置。
+根 tsconfig.json 是 IDE 工程入口，通过 references 明确关联浏览器配置 tooling/tsconfig.browser.json、后台配置 tsconfig.goja.json 和页面程序配置 tsconfig.page-program.json。WebStorm、VS Code 及 TypeScript 语言服务可从标准入口发现后台源码，保留各运行环境的隔离。类型检查使用 npm run typecheck，它逐个检查引用工程；只运行 tsc -p tsconfig.json 不会检查所有源码。浏览器配置放在 tooling/ 下，保留模板祖先的工程通过 upstream sync 合并更新，不需要改本机全局 IDE 配置。
 
 如果 IDE 在更新后仍沿用旧工程，先重启 TypeScript 语言服务。导入报红时先确认文件所属配置和别名解析，不用 any 或忽略诊断消除报错。Product.attributes 的值是 unknown，使用前按实际类型收窄；类型回归同时校验 SDK、Product 与阶段上下文没有退化为 any。
 
@@ -72,4 +72,8 @@ fixtures/goja-test.js 使用普通 JavaScript 脚本语法，最后一个表达�
 
 平台 CLI：`npm run platform -- describe`。JS/Lit 技能分别见 [.agents/skills/mofang-js-node](.agents/skills/mofang-js-node/SKILL.md)、[.agents/skills/mofang-lit-node](.agents/skills/mofang-lit-node/SKILL.md)及 [Lit 最佳实践](.agents/skills/lit-best-practices/SKILL.md)。CLI 登录资料保存在用户指定的受限配置，密码/token 不进入源码、日志或报告。目录保存、实例采用、双面板发布和新运行分别核对目标与修订。
 
-[安全同步](docs/upstream.md)使用唯一官方源和明确受管清单。生成项目保留 nodes/、shared/、AGENTS.local.md 和自定义技能；冲突不自动 stash/reset/rebase。半更新 journal 或 dependenciesPending 会阻止构建，恢复不覆盖中断后用户新改动。技能源码已合入本模板；退役独立技能仓库由维护者在完整验收后另行执行，不是初始化或同步命令的副作用。
+设计阶段按需使用 [节点业务设计](.agents/skills/mofang-node-business-design/SKILL.md) 推导业务规则、输入输出、事件与人工交接，使用 [节点 UI 设计](.agents/skills/mofang-node-ui-design/SKILL.md) 组织有限空间内的表单、审核界面和状态反馈；实现仍遵守上述 JS/Lit 契约。
+
+另提供第三方 [Impeccable](.agents/skills/impeccable/SKILL.md)（综合设计与评审）和 [frontend-design](.agents/skills/frontend-design/SKILL.md)（视觉方向与排版），各自 UPSTREAM.json 记录固定来源修订，保留 Apache-2.0 许可及相关归属。七个技能均随初始化分发；安装技能未安装项目 hook 或全局配置。Impeccable launcher 会按其规则定位或首次获取引擎，实际运行能力需另行核对；节点宿主约束及项目材料位置优先。
+
+[Git 同步](docs/upstream.md)使用唯一官方源。新工程保留模板祖先并提交初始化内容，以后通过 fetch/merge 更新整个上游，不维护文件或技能白名单；非重叠改动自动合并，冲突按 Git 常规方式解决或撤销后执行 upstream recover。未提交修改不自动 stash/reset/rebase。未完成合并或 dependenciesPending 会阻止构建。旧无模板祖先的工程不自动迁移，后续逐个接入。技能源码已合入本模板；退役独立技能仓库由维护者另行处理，不是初始化或同步命令的副作用。

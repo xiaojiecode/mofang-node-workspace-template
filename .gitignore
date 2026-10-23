@@ -13,6 +13,7 @@ dist/
 AGENTS.local.md
 
 .agents/upstream-checkout.json
+.agents/upstream-merge.json
 .agents/*.next-*
 
 __pycache__/

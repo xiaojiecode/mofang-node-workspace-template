@@ -1,7 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import path from 'node:path'
-import { mkdtemp, mkdir, readFile, lstat, symlink, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, lstat, symlink, writeFile, access } from 'node:fs/promises'
+import { constants } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { transform } from 'esbuild'
 import { parse } from 'acorn'
@@ -31,7 +32,7 @@ for (const preset of presets)
         assert.ok(!Object.keys(files).some((file) => file.includes('executor/')))
     })
 
-test('冷初始化携带隐藏技能、共享CLI和受管基线，真实类型和构建可运行', async () => {
+test('冷初始化携带完整技能和模板Git祖先，真实类型和构建可运行', async () => {
     await mkdir(cache, { recursive: true })
     const area = await mkdtemp(path.join(cache, 'cold-')),
         target = path.join(area, 'project')
@@ -45,10 +46,37 @@ test('冷初始化携带隐藏技能、共享CLI和受管基线，真实类型�
         '.agents/skills/mofang-js-node/SKILL.md',
         '.agents/skills/mofang-js-node/scripts/mofang_cli/cli.py',
         '.agents/skills/mofang-lit-node/scripts/mofang_node.py',
+        '.agents/skills/mofang-node-business-design/SKILL.md',
+        '.agents/skills/mofang-node-business-design/references/review-example.md',
+        '.agents/skills/mofang-node-ui-design/SKILL.md',
+        '.agents/skills/mofang-node-ui-design/references/panel-review.md',
+        '.agents/skills/impeccable/SKILL.md',
+        '.agents/skills/impeccable/scripts/impeccable',
+        '.agents/skills/impeccable/reference/critique.md',
+        '.agents/skills/impeccable/LICENSE',
+        '.agents/skills/impeccable/NOTICE.md',
+        '.agents/skills/impeccable/UPSTREAM.json',
+        '.agents/skills/frontend-design/SKILL.md',
+        '.agents/skills/frontend-design/LICENSE.txt',
+        '.agents/skills/frontend-design/UPSTREAM.json',
         '.agents/upstream-state.json',
         'tooling/tsconfig.browser.json',
     ])
         assert.ok((await lstat(path.join(target, file))).isFile(), file)
+    await access(path.join(target, '.agents/skills/impeccable/scripts/impeccable'), constants.X_OK)
+    const ancestor = spawnSync('git', [
+        '-C',
+        target,
+        'merge-base',
+        '--is-ancestor',
+        spawnSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(),
+        'HEAD',
+    ])
+    assert.equal(ancestor.status, 0)
+    assert.equal(
+        spawnSync('git', ['-C', target, 'status', '--porcelain'], { encoding: 'utf8' }).stdout,
+        '',
+    )
     assert.equal(
         JSON.parse(await readFile(path.join(target, 'package.json'), 'utf8')).workspaces,
         undefined,
@@ -64,7 +92,8 @@ test('冷初始化携带隐藏技能、共享CLI和受管基线，真实类型�
     const baseline = JSON.parse(
         await readFile(path.join(target, '.agents/upstream-state.json'), 'utf8'),
     )
-    assert.ok(baseline.files['tooling/tsconfig.browser.json'])
+    assert.equal(baseline.version, 2)
+    assert.ok(baseline.sourceCommit)
     for (const script of ['typecheck', 'build', 'verify']) {
         const result = spawnSync('npm', ['run', script], {
             cwd: target,
