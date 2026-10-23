@@ -29,8 +29,12 @@ for (const code of requested ? [requested] : available) {
     const source = await readFile(path.join(dist, code, 'program.js'), 'utf8')
     const fixture = await readFile(path.join(root, 'nodes', code, 'fixtures/input.json'), 'utf8')
     const test = await readFile(path.join(root, 'nodes', code, 'fixtures/goja-test.js'), 'utf8')
+    const helper = await readFile(path.join(root, 'tooling/verify/coordinator-fixture.js'), 'utf8')
     const result = spawnSync(binary, [], {
-        input: JSON.stringify({ source, test: 'const input = ' + fixture + ';\n' + test }),
+        input: JSON.stringify({
+            source,
+            test: helper + '\nconst input = ' + fixture + ';\n' + test,
+        }),
         env,
         encoding: 'utf8',
         maxBuffer: 1024 * 1024,

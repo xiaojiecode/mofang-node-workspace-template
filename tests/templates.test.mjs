@@ -1,41 +1,67 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import path from 'node:path'
+import { mkdtemp, mkdir, readFile, lstat, symlink } from 'node:fs/promises'
+import { spawnSync } from 'node:child_process'
 import { transform } from 'esbuild'
-import { nodeFiles } from '../tooling/init/templates.mjs'
+import { nodeFiles, presets } from '../tooling/init/templates.mjs'
+import { root, cache } from '../tooling/paths.mjs'
 
-for (const kind of ['main', 'stages', 'lifecycle', 'panels']) {
-    test(kind + ' 初始化源码可被当前 TypeScript 编译链读取', async () => {
-        const files = nodeFiles('example', kind)
-        for (const [name, source] of Object.entries(files)) {
+for (const preset of presets)
+    test(preset + ' 新函数节点生成包含完整契约与独立面板', async () => {
+        const files = nodeFiles('new-node', preset)
+        for (const [name, source] of Object.entries(files))
             if (name.endsWith('.ts')) await transform(source, { loader: 'ts', target: 'es2016' })
-        }
-        assert.equal('executor/index.ts' in files, kind !== 'panels')
+        for (const name of [
+            'node.ts',
+            'run.ts',
+            'contract.ts',
+            'settings.ts',
+            'view.ts',
+            'fixtures/input.json',
+            'fixtures/goja-test.js',
+        ])
+            assert.ok(files[name], name)
+        assert.match(files['run.ts'], /abi: 'mf.node\/1'/)
+        assert.match(files['node.ts'], /code: 'new-node'/)
+        assert.ok(!Object.keys(files).some((file) => file.includes('executor/')))
     })
-}
 
-// 脚手架本身要满足规范，不能要求作者创建节点后再修补注释和缩进。
-test('初始化产物自带中文生命周期注释、默认导出注解和四空格格式', async () => {
-    const { format } = await import('prettier')
-    for (const kind of ['main', 'stages', 'lifecycle', 'panels']) {
-        const files = nodeFiles('documented-node', kind)
-        for (const [name, source] of Object.entries(files)) {
-            if (source.includes('export default'))
-                assert.match(source, /\/\/ noinspection JSUnusedGlobalSymbols\nexport default/)
-            const formatted = await format(source, {
-                parser: name.endsWith('.json') ? 'json' : 'typescript',
-                tabWidth: 4,
-                useTabs: false,
-                singleQuote: true,
-                semi: false,
-                printWidth: 100,
-                trailingComma: 'all',
-            })
-            assert.equal(source, formatted, kind + '/' + name + ' 格式不一致')
-        }
-        if (kind === 'lifecycle') {
-            assert.match(files['executor/index.ts'], /节点首次激活时的业务启动钩子/)
-            assert.match(files['executor/index.ts'], /unknown 不能自动重试/)
-            assert.match(files['executor/index.ts'], /onControl、onError 只能观察/)
-        }
+test('冷初始化携带隐藏技能、共享CLI和受管基线，真实类型和构建可运行', async () => {
+    await mkdir(cache, { recursive: true })
+    const area = await mkdtemp(path.join(cache, 'cold-')),
+        target = path.join(area, 'project')
+    const initialized = spawnSync(
+        process.execPath,
+        [path.join(root, 'tooling/init/project.mjs'), '--dir', target, '--name', 'cold-fixture'],
+        { cwd: root, encoding: 'utf8' },
+    )
+    assert.equal(initialized.status, 0, initialized.stdout + initialized.stderr)
+    for (const file of [
+        '.agents/skills/mofang-js-node/SKILL.md',
+        '.agents/skills/mofang-js-node/scripts/mofang_cli/cli.py',
+        '.agents/skills/mofang-lit-node/scripts/mofang_node.py',
+        '.agents/upstream-state.json',
+    ])
+        assert.ok((await lstat(path.join(target, file))).isFile(), file)
+    assert.equal(
+        JSON.parse(await readFile(path.join(target, 'package.json'), 'utf8')).workspaces,
+        undefined,
+    )
+    await symlink(path.join(root, 'node_modules'), path.join(target, 'node_modules'), 'dir')
+    for (const script of ['typecheck', 'build', 'verify']) {
+        const result = spawnSync('npm', ['run', script], {
+            cwd: target,
+            encoding: 'utf8',
+            env: process.env,
+        })
+        assert.equal(result.status, 0, script + ': ' + result.stdout + result.stderr)
     }
+    const lit = spawnSync(
+        'python3',
+        [path.join(target, '.agents/skills/mofang-lit-node/scripts/mofang_node.py'), 'describe'],
+        { encoding: 'utf8', env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' } },
+    )
+    assert.equal(lit.status, 0, lit.stderr)
+    assert.match(lit.stdout, /nodes/)
 })

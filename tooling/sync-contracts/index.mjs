@@ -10,7 +10,7 @@ const workspace = workspaceIndex < 0 ? process.env.MOFANG_WORKSPACE : args[works
 if (!workspace)
     throw new Error('维护者同步需要 --workspace <mofangv6>；普通开发使用仓库自带类型，不需要同步。')
 const sourceRoot = path.resolve(workspace)
-const destination = path.join(root, 'packages/contracts')
+const destination = path.join(root, 'lib/contracts')
 const hash = (value) => createHash('sha256').update(value).digest('hex')
 const sources = {}
 async function record(relative) {

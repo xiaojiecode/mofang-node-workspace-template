@@ -4,15 +4,15 @@
         "lib": ["ES2022", "DOM", "DOM.Iterable"]
     },
     "include": [
-        "packages/contracts/src/browser/**/*.ts",
-        "packages/lit-ui/src/**/*.ts",
-        "packages/lit-host/src/**/*.ts",
-        "nodes/*/settings/**/*.ts",
-        "nodes/*/business/**/*.ts",
+        "lib/contracts/src/browser/**/*.ts",
+        "lib/browser/ui/**/*.ts",
+        "lib/browser/**/*.ts",
+        "nodes/*/settings.ts",
+        "nodes/*/view.ts",
         "nodes/*/node.ts",
         "nodes/*/contract.ts",
         "nodes/*/fixtures/**/*.ts",
-        "apps/playground/src/**/*.ts",
+        "playground/src/**/*.ts",
         "tests/types/browser.ts"
     ]
 }

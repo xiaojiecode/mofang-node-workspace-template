@@ -15,7 +15,7 @@ const task = cache
 await prepareCache()
 const panels = []
 for (const minify of [true, false]) {
-    const result = await bundle(path.join(root, 'nodes/pass-through/settings/index.ts'), 'panel', {
+    const result = await bundle(path.join(root, 'nodes/copy/settings.ts'), 'panel', {
         minify,
     })
     panels.push((await transform(result.code, { format: 'cjs', target: 'es2022' })).code)
@@ -26,7 +26,7 @@ for (const [name, file] of [
     ['client', 'mf-client/vite.config.ts'],
     ['admin', 'mofang-server/web/admin/vite.config.ts'],
     ['lab', 'mf-client/vite.lab.config.ts'],
-    ['template', path.join(root, 'apps/playground/vite.config.mjs')],
+    ['template', path.join(root, 'playground/vite.config.mjs')],
 ])
     for (const command of ['serve', 'build']) {
         // runner 避免 Vite 在 node_modules 写入临时配置；旧配置仍使用 __dirname。

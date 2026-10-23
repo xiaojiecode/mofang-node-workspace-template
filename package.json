@@ -3,19 +3,16 @@
     "version": "0.1.0",
     "private": true,
     "type": "module",
-    "workspaces": [
-        "packages/*"
-    ],
     "engines": {
         "node": ">=22.12.0"
     },
     "scripts": {
-        "init": "node tooling/init/project.mjs",
-        "node:new": "node tooling/init/node.mjs",
-        "dev": "vite --config apps/playground/vite.config.mjs",
-        "typecheck": "node tooling/typecheck.mjs",
-        "build": "node tooling/build/index.mjs",
-        "verify": "node tooling/verify/artifacts.mjs",
+        "init": "node tooling/cli.mjs init",
+        "node:new": "node tooling/cli.mjs node:new",
+        "dev": "vite --config playground/vite.config.mjs",
+        "typecheck": "node tooling/cli.mjs typecheck",
+        "build": "node tooling/cli.mjs build",
+        "verify": "node tooling/cli.mjs verify",
         "test": "node --test tests/*.test.mjs",
         "test:browser": "node tooling/verify/browser.mjs",
         "verify:goja": "node tooling/verify/goja.mjs",
@@ -24,11 +21,13 @@
         "check": "npm run lint && npm run typecheck && npm run build && npm run verify && npm test && npm run test:browser && npm run verify:goja",
         "sync:contracts": "node tooling/sync-contracts/index.mjs",
         "check:contracts": "node tooling/sync-contracts/index.mjs --check",
-        "trial": "node tooling/verify/goja.mjs",
+        "trial": "node tooling/cli.mjs trial",
         "format": "npm run lint:fix",
-        "build:dev": "node tooling/build/index.mjs --development",
-        "lint": "prettier --check packages nodes tooling apps tests *.json .prettierrc.json",
-        "lint:fix": "prettier --write packages nodes tooling apps tests *.json .prettierrc.json"
+        "build:dev": "node tooling/cli.mjs build --development",
+        "lint": "prettier --check lib nodes tooling playground tests shared *.json .prettierrc.json",
+        "lint:fix": "prettier --write lib nodes tooling playground tests shared *.json .prettierrc.json",
+        "platform": "node tooling/cli.mjs platform",
+        "upstream": "node tooling/cli.mjs upstream"
     },
     "devDependencies": {
         "acorn": "8.15.0",

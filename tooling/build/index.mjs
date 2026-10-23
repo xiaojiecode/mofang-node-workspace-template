@@ -30,22 +30,15 @@ for (const code of await nodeCodes()) {
     await rm(out, { recursive: true, force: true })
     await mkdir(out, { recursive: true })
     const entries = [
-        ['settings', 'panel'],
-        ['business', 'panel'],
-        ['pageProgram', 'page-program'],
-        ...(definition.interface === 'panels' ? [] : [['executor', 'executor']]),
+        ['settings', 'panel', 'settings.ts'],
+        ['business', 'panel', 'view.ts'],
+        ['pageProgram', 'page-program', '../../lib/browser/page.ts'],
+        ...(definition.interface === 'panels' ? [] : [['executor', 'executor', 'run.ts']]),
     ]
     const artifacts = {}
     console.log(`\n${code} · ${buildMode}${report.minified ? ' · minify' : ''}`)
     console.log('产物                  编译后大小       gzip 参考       编译耗时')
-    for (const [entry, kind] of entries) {
-        const relative = definition.entries[entry]
-        if (
-            !relative ||
-            path.isAbsolute(relative) ||
-            path.relative(directory, path.resolve(directory, relative)).startsWith('..')
-        )
-            throw new Error('入口必须位于节点目录内：' + entry)
+    for (const [entry, kind, relative] of entries) {
         const {
             code: source,
             sourceBytes,
@@ -70,7 +63,7 @@ for (const code of await nodeCodes()) {
             `${file.padEnd(22)}${size(bytes).padEnd(17)}${size(gzipBytes).padEnd(16)}${durationMs.toFixed(2)} ms`,
         )
     }
-    const { interface: programInterface, entries: _, ...metadata } = definition
+    const { interface: programInterface, ...metadata } = definition
     if (programInterface !== 'panels') {
         await writeFile(
             path.join(out, 'node.json'),

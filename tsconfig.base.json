@@ -12,6 +12,11 @@
         "useDefineForClassFields": true,
         "noEmit": true,
         "skipLibCheck": false,
-        "types": []
+        "types": [],
+        "paths": {
+            "@mofang/node": ["./lib/author/index.ts"],
+            "@mofang/browser": ["./lib/browser/index.ts"],
+            "@mofang/contracts/*": ["./lib/contracts/src/*"]
+        }
     }
 }

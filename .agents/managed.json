@@ -1,0 +1,1077 @@
+{
+    "version": 1,
+    "abi": "mf.node/1",
+    "nodeMajor": 22,
+    "files": [
+        {
+            "path": ".agents/skills/lit-best-practices/AGENTS.md",
+            "sha256": "0b9687495d0cfc5e12603d1a12253d0b2b51509c43ac2e2b5dade425f0bd84c8",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/1-1-use-decorators.md",
+            "sha256": "64f16e34d155f5c4e0772f16de34819142327dee99f4b134452d77f8bcd77363",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/1-2-separate-state.md",
+            "sha256": "eea88ff3c751b9c6182753304a3dd8f673495f728b26b2f86dd19e944a7d2447",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/1-3-reflect-sparingly.md",
+            "sha256": "a1899578e9057b5bfeb1ea151bbb3f646e6aa96d0be04193b2a4b8a3353e63ec",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/1-4-default-values.md",
+            "sha256": "650a0e38b8c195df75da26273daab0c84a8fb0157b8dc3d7e6d0efaabb67bfb2",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/1-5-standard-decorators.md",
+            "sha256": "dc2f3a89141413db0638e1d3cdcc2d6f41552e2133948615bf19eb71e4e9095b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/2-1-pure-render.md",
+            "sha256": "3164d002899240590096b12153d36e857e78402297e911359fbcace6f5d8f795",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/2-2-use-nothing.md",
+            "sha256": "9e278c66e98d3e694fb76a8d8b1a2719042d7ec000e58e4c1bb6e446159aea20",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/2-3-use-repeat.md",
+            "sha256": "3c02bbfc429ce18e75c2cb9eb1ea505a66c056a36aca929db52e905d30ea28ac",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/2-4-use-cache.md",
+            "sha256": "2c13c44f21b5ab414fd3d099dbe5637d1e22f5164ecd176d250933914f2d5ce3",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/2-5-derived-state.md",
+            "sha256": "ba5be13573bb53fbf442719aa495badeb9c4ce6749cfac41db614523439f5964",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/2-6-class-style-map.md",
+            "sha256": "bd9f571a48f8ec040ba958d46820e6dd71f4be6bb60a287ea6b8362d1c4dcf52",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/3-1-static-styles.md",
+            "sha256": "5ab54ab451d511c56631582b6374d8f0bec6d53ac77c53fab72b7b50bfa386c0",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/3-2-host-styling.md",
+            "sha256": "fe2c3c97c343afd4e32beb34ac52a219e142f8654058c7406499a27540e60e95",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/3-3-css-custom-properties.md",
+            "sha256": "d1274a1a7e6ac2f2329f6dd59fef9e03975073b7f4f193b657c2a8ed363b7b1a",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/3-4-css-parts.md",
+            "sha256": "e34ef0237541b675b91ef08d724d4fe654d63463a63d81d081a3833bb42fe1fe",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/4-1-composed-events.md",
+            "sha256": "c277b1eecbca96f0b06f1798e604e13a0d3b65295f1ce013f89a56ffeff58c2d",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/4-2-event-naming.md",
+            "sha256": "d135f71d13253e92fb19298ed2d1d2d6226ed447031cce0eadf394cad2f4b127",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/4-3-cleanup-listeners.md",
+            "sha256": "03006c72a82cc812add54ad715dc990b37eb00bfbc511d52e8cb8da282882e83",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/5-1-super-call-order.md",
+            "sha256": "b373353a36c6097636dcbd63c8c93ac811158e1523436144c56997ab8cc46f0a",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/5-2-first-updated.md",
+            "sha256": "793c4990de465beb195a6f604d036517b372794ba098fda21dfd34de7c41e215",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/5-3-will-update.md",
+            "sha256": "d8fa29442972d52a8a41e73c8c1cda4f2f0636158eafeb1fc22c77c1056d97dd",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/5-4-update-complete.md",
+            "sha256": "1723c58f9eb28200c5d372f3ec599e90315feba0bb4b9e69e0ff2c670145f629",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/6-1-delegates-focus.md",
+            "sha256": "801fca570e225b0de28bada244a611732ad26b5ab416c2c6a732bf4ae3bf6a72",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/6-2-aria-attributes.md",
+            "sha256": "64826beb6bfcb4c683cb75d4fd3ba053f6267a68d143cf9b4bc4c1c3be335acb",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/6-3-form-associated.md",
+            "sha256": "7b6c70138fbb667e5ed5729a22bad50e99859c4fca010ca186ad887f18685ce1",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/6-4-element-internals.md",
+            "sha256": "3bc0017bf12b3b4e2808d4995c49529cab89433591f022d298b681d520b0b074",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/7-1-has-changed.md",
+            "sha256": "11411595d62aed15a5aed673f9c73049ed03fb20abd7cffadf3a91996787bf1e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/7-2-batch-updates.md",
+            "sha256": "0a0d3f5ff9246a88a5c6b92c2d6f3ce1f7e17d2fd409d0ce8e9d94050aab6b5b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/7-3-lazy-loading.md",
+            "sha256": "c76a453deef614711d29b2ff21fbeb810ec1d66de5b767d463bb56c056717db9",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/7-4-memoization.md",
+            "sha256": "d02784a32158242c3992122b05f9d4f74f023db619a6a2b5d29d48835709769b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/8-1-reactive-controllers.md",
+            "sha256": "61b1c871ed8ab03c3d45d17ea7d4745031240495870af3f3b182e5c1cb87216f",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/8-2-async-task.md",
+            "sha256": "b34b7127c27a597e014212b9e152f0f581e2273eefb1df439009a7fd8fccb16d",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/8-3-context.md",
+            "sha256": "3c052fe91d828ee29378d2488c987bd6c2cf15af702cc0f6b5a65eb4cc38586f",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/rules/9-1-unsafe-html.md",
+            "sha256": "2b71a8a1cf729af24e93e54b7313a5504a33af4e475abe18c0f02f0c2160149b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/lit-best-practices/SKILL.md",
+            "sha256": "e880838564f2587890199aa51da96ae3ba5084c872b2eaa258e1c37e8e9ce5b1",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/agents/openai.yaml",
+            "sha256": "ec8b799f6680989c4114aa6fcdb9890cd78c691b480934c7cf045611d57b1f00",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/assets/function-copy.ts",
+            "sha256": "2eeb445f836d04bbda92dd111768339ea9cad7afa0e80bcaf12354265406ab13",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/references/authoring.md",
+            "sha256": "522cdb5ac6d67abb429503468e06956b718f004139f4719607ff2806e84e067c",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/references/item-flow.md",
+            "sha256": "42de1e9887ff71c994dc7f8b40c6a3db30700475391055264c102ab4bf207d65",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/references/lifecycle.md",
+            "sha256": "81a47c2d9fd3aea479e15d359ff002550306bdda32c97e9dceb86a6fcaec6136",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/references/platform-cli.md",
+            "sha256": "e7bdbc97b7ffaa90295a9ecc8b647e227eaf123078b7c5ad6011e8760e424325",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/references/react-authoring.md",
+            "sha256": "5ce46fe22708b0ef0c15e5a9d0316d8b2bb93b09f21666f6265278fbd65960c3",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/references/stages.md",
+            "sha256": "af3997b0a9c656fc745ff9102a2ebfde1825e69622c52248a8055d72ff37c783",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/references/verification.md",
+            "sha256": "f90a177606d1361d21e6a567e22920fae852fc630433e8daaa65dc3db1a741da",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/scripts/mofang_cli/__init__.py",
+            "sha256": "e419bafc81ca0ef12b9ed6288601967f220e39dedc94e062c1e5947404323fce",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/scripts/mofang_cli/cli.py",
+            "sha256": "7b0c37d3e85267d72cca7ae9979308584f09c0789bc464b97eefb6bfdda3d478",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/scripts/mofang_cli/connection.py",
+            "sha256": "1dba5627e18b6577cb8f5be0ef06932f267df1d3d7084711803ce0f8de0327f2",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/scripts/mofang_cli/operations.py",
+            "sha256": "e25b539add326ea4ee5142df5e89b03793244985e0a9e92a2c9ebdcae77fcd0f",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/scripts/mofang_node.py",
+            "sha256": "71fbb460f322e0ab846f9992defaeadb47c02f0a197fd2aa317b227a68fe9cd1",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/SKILL.md",
+            "sha256": "49008a57a17d630ad8b1d3883eaa95a4939e409346179dd585279db2f572bcc8",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/tests/test_cli.py",
+            "sha256": "7bdaf36e4e91659c85df16efcb9933ad5d35435b866719ea0a3b400611296aaa",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-lit-node/agents/openai.yaml",
+            "sha256": "b7e1654de4251162a476a963246442ed4071ff3ee2834837e64b498f80df0a3e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-lit-node/assets/node-panel.ts",
+            "sha256": "63627b3d0a80c3bba6cdd6eb130574da97e84c9b6f57d6c254097b6ca48b3130",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-lit-node/references/authoring.md",
+            "sha256": "3ecea816ee34691ed66266e5980b060ac32e7eece54fa6178f71ad676430d04d",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-lit-node/references/full-drawer.md",
+            "sha256": "225d81a2e3affda169e0db6a63f2de4704849fcc11d698119791ed201f34a298",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-lit-node/references/panels.md",
+            "sha256": "64386401bbd9bda58a5c1cee4be6cfef26bf9007331962df2020cf3b0f2a3b57",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-lit-node/references/projection-actions.md",
+            "sha256": "f81b253157b2cfeeb7cf83d9e1a29326ed59fddd4bfb9e0b40bce036a0261d39",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-lit-node/references/sdk.md",
+            "sha256": "57faaf2752b7b008ff050894d20198023699e4002ff27e4e165e01fb6f682d8b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-lit-node/references/verification.md",
+            "sha256": "15cf68c17a1fa16e9f7ab4c239f82ffaceb6f7509ef2398c21b3156b18a85434",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-lit-node/scripts/mofang_node.py",
+            "sha256": "a7602371c732cbbecc497a5674ca78d13e2b2858f49fd6ff8847f825d9b3d20e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-lit-node/SKILL.md",
+            "sha256": "1e5de8aaa7689fc6c930c109839487b2df5d43f7925c60958b746e341953de62",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".editorconfig",
+            "sha256": "6a52fb423287739604f1100279818ae63c79a633078785bd28861494a5783d97",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".github/workflows/check.yml",
+            "sha256": "9e4243bb9f16cf05c090716caa3104b6124ddbffee3719062c6d065a1d9dbce6",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".gitignore",
+            "sha256": "355e4c38fe76e441f4f89545483755bf0bfcd868e8b1b4c61b320c6187cc5184",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".npmrc",
+            "sha256": "087a78bac82dc4e1cf84b8827894e3124f64d38e5d4ab28be8f504e667bccc4a",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".prettierignore",
+            "sha256": "6ad24f550ad5edb64081ed1eb020dcb212f409e33eda162a4f86fcb084ea9783",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".prettierrc.json",
+            "sha256": "f48469f2915431de531208964269c82fe441030b93c9d9433c22552fc1071ad4",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "AGENTS.md",
+            "sha256": "7510852eed092fb652617eafab68423b312bba9064ea21f07304cbf706c58608",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "docs/abi.md",
+            "sha256": "e5494f13351325339ff157457bc9acd0c2041454c9ec99970f671b63b827ecf5",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "docs/antipatterns.md",
+            "sha256": "11bc1dd00447b0ce88a93306695a145c9237b23b25c3319d5a25930fe49bb17a",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "docs/authoring.md",
+            "sha256": "41db6014bfbe6532c260f1ce501e401f513c11ea5a670bfafa04406a83ebf2d8",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "docs/platform.md",
+            "sha256": "e7bdbc97b7ffaa90295a9ecc8b647e227eaf123078b7c5ad6011e8760e424325",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "docs/upstream.md",
+            "sha256": "c5967d538a6229091f69079dfe5746b21bac679473f8429d5a3397c8065f325e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "docs/verification.md",
+            "sha256": "bff7d78e1335b887d327bcae3b082c73253d07e3b061ac7e018fb2604cb50a3c",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/author/index.ts",
+            "sha256": "a0a8b5fcffd4ec80f4cf6225e71396a99acdaabd4dc6f06a8a93db0d4b7b8852",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/author/json.ts",
+            "sha256": "b9b4b6cfa5855f1ab6c43d4e7b7530ecd27f2fb8c7cd3a3082a63c4dcd98a5b8",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/author/module-types.ts",
+            "sha256": "5dc8dce93c24fab81fef1d1149a83eeead26e15ca5f2bfcf0dff76365112a6c4",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/author/types.ts",
+            "sha256": "58503b75cb60458cdfe41c39fda79ffc7c96e166931161dff86942a955bec323",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/actions.ts",
+            "sha256": "30cee0e805587b6829ec3b059fca64069e47260e80d669486d59e7a582e5b276",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/host.ts",
+            "sha256": "a55fd417088a4038f4bada6219c206db33d228b7307e77d9ef7fde7273e6b746",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/index.ts",
+            "sha256": "430ecf8f9af60102c1dac5d9dfb51963212092ad2860a2bbf6d337ef3ce3aa2e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/page.ts",
+            "sha256": "0a6488aeced960a1a296af8e00e121cc8a4277a1a9c883a90749dd5f7a43f11b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/ui/components/controls.ts",
+            "sha256": "50d6e69538b8fe29c496314d4de09c3db016b5d07486258826a8c6fd9663dc1e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/ui/components/field.ts",
+            "sha256": "cbbaa74a768d9154870a6353f5ad3736655ba3544b97fdd4b398fe23b5080fb5",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/ui/components/status.ts",
+            "sha256": "eb70b1cf5f65fe607d100923e8bb95627aaf79f9ac13c55a2d034c9a138ffc38",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/ui/components/table.ts",
+            "sha256": "8f792d22d39000168d724b6422bb57fb58203640d28bc4d684f7bae870c59bdd",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/ui/index.ts",
+            "sha256": "27efe25b75a5c40ad59efd8b1629ab6d3022d41f7d6a86b9db11b5518e0d0b60",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/ui/product/cell.ts",
+            "sha256": "509fe5302c670762377b42ad94bf758dd34e5f89edfbec3b6d172970a3128fd8",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/ui/product/summary.ts",
+            "sha256": "519dddef490a0c7efc42f07058b1c6f0c79ba1b6e2c9b3cf78667809f2d9a440",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/browser/ui/styles/theme.ts",
+            "sha256": "b3970456997d8d95ac2e694cd69caf46f6e28f841fbbc57ad52b4ef86ef9b3f9",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/package.json",
+            "sha256": "92fd755d93c57fe88abe382501e5ca0ef83a4373bf0741d7d9080f1556b2c945",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/provenance.json",
+            "sha256": "f3b0d259d805353f43b70d749d01f98d26d87ad2105962c3d8e27a8c4b3bc0d3",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/schemas/array.json",
+            "sha256": "89187aceb86dcfdc08d46de59e69d38949452a07ed2623c99c6f3fecc75edb4c",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/schemas/boolean.json",
+            "sha256": "55f72c1406a0246726497146fbd3ce5e6c5ec94f7ba35f7b2fde280a4c93aef7",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/schemas/image.json",
+            "sha256": "c7b514745ee1ca93178be6d47a1e6b7a86e89aeab8af5ee3bf1e942585b1e614",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/schemas/integer.json",
+            "sha256": "8b9ce7a01cdf481773b480e618c85a137f1f173d4ded159236101472b15b7773",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/schemas/number.json",
+            "sha256": "a82dc255481bea3344d325ad3963ca8f02d8350c55c09a53bf91c06d10059d8b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/schemas/object.json",
+            "sha256": "19160f5a9d7402e948f6419c3c04138c96a7a7e14f10736bdc2bcacdc95a3ff8",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/schemas/product.json",
+            "sha256": "65f04d099d6206ab60c9d1d9f6b1d3358e940c4ac4582c9a930d088496efdb18",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/schemas/string.json",
+            "sha256": "a76df12d18623f3299d97348b869b7b7e0e2624a73bea4f14397a499371370f2",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/schemas/url.json",
+            "sha256": "b8e67a3af9b872f7fc3582a4513118e0535d0a61ff3a6da9be6395ef508f157c",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/schemas/video.json",
+            "sha256": "37f95a378b0960bb0383d6286b9c142a935504beb09cc7ca78853ca248658fc6",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/author.ts",
+            "sha256": "1288cdcc3f4574c0ac8f33ce3dbea42c55f1f4b491024926a9e9ea302a9b4c9b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/host.ts",
+            "sha256": "7f58979e88f0b21fb2dfb980a5681ef6fe37ba2557127d465f87c1c97a7672a1",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/index.ts",
+            "sha256": "fa6e33220dcaf2e70d5cbf3bbac38794b2b2b171a6eda4295fa80986f256b5c9",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/catalog-types.d.ts",
+            "sha256": "94ef32a54b48558bccf752657cd0336bb538c247e87832c0eb2fea5e713145ad",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/context-types.d.ts",
+            "sha256": "731fc943619b318441ab28b841ee42a12190823319fb327bf1cd08020517f291",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/create-sdk.d.ts",
+            "sha256": "8741913fad6f58e2ed534dafff8690e37b0f3b1094b10e923f5659fde8660c91",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/creation-body-types.d.ts",
+            "sha256": "fe36bd3b51e21fb526d4a8661ab32a9e402e95e45ccdff298a2e4c368b461459",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/creation-result-types.d.ts",
+            "sha256": "22aaa3c9b3d32a7db0dd9e782ba43a666b2b6814b60b8ceab12a305648d459cf",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/data-read-types.d.ts",
+            "sha256": "677f4b37ca41c84bc62331b2faf61d3d11033de409a68eff3e0d16d73c82234e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/execution-control-types.d.ts",
+            "sha256": "059a72113a9e15af4e1eec6458c2a11a198c136311cd02034a012f2ba6cda12e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/index.d.ts",
+            "sha256": "c38e9e6ec6099416aa52ba2fedc82326314ef29a4e36e6b1a42abe322d3df697",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/input-body-types.d.ts",
+            "sha256": "db69000fbc668f42629375410d2f56b6a53e73b43d212cd7f87f17ee9eb50254",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/input-receipt-types.d.ts",
+            "sha256": "58d950311868a16bc084846fb52fe24f74390f42f758249b71531b113473800e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/input-types.d.ts",
+            "sha256": "7c2da3ca0e02a6ef8a5e035a5b819341aa2337e46ac48c7e7874b6bfe8fab226",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/json-types.d.ts",
+            "sha256": "c7f338d5387da92d439d474fb8e65a25332f1373fba1037878abeea7bd7e21c9",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/message-types.d.ts",
+            "sha256": "299c0b911109cc9c5c77bb09c7fed4a7022690a64db094fde56a8f8013845e94",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/messages.d.ts",
+            "sha256": "8b217d0b1cbb900113c1e268cb4dd50c0d07753c14f444b9af12e974ffdf1e64",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/mutation-types.d.ts",
+            "sha256": "b6d86800d4d648bc22ede3dd0e9af519760f8bb324952bcd4b36d81c2132426e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/node-display-types.d.ts",
+            "sha256": "2e09a7ba21f8a41bb7270dc33a93dd9fb299e4276171e513cafacda0fd85d326",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/node-flow-client.d.ts",
+            "sha256": "b0103e23b83e3ac4f70c355935063e4673347b9e26c15d048873802ab262c4c3",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/node-flow-live.d.ts",
+            "sha256": "412f8217ecf13b0bf785ac16f29438cdaa5e0b888ffb19401a5d2e6703d8ad11",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/node-flow-query.d.ts",
+            "sha256": "6e29ea192bed468eb25f1d17de9545241c45efb3f660de42c488edb0efd8524c",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/node-flow-store.d.ts",
+            "sha256": "84e25883019ac3676a5b08a60c0f834395d88314bcc31a46bb6bfbe698e0a133",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/node-flow-types.d.ts",
+            "sha256": "cb0b2fcee9eaee4ad4b41a6ee713af00a837715f9ae18bd52ff5e7a1277dc472",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/node-tool-types.d.ts",
+            "sha256": "8ec2d83defc6c3184616e467de1517dbe25717b6dddb54ba5b08d90d8db1466b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/output-types.d.ts",
+            "sha256": "3ce719155723d59c47348f1cb8e718c99a59ee65dd2f3980b8e7f878ee6fc334",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/page-program-types.d.ts",
+            "sha256": "1e18eed59d268ad5a234ed659114835bef61d416a8f1f0ff6cfbb140d417dc1c",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/page-program.d.ts",
+            "sha256": "532b46ae58f7d1824feb1c2be55dfb1d1128818de61d7f069dc92bd61e81c2f1",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/panel-types.d.ts",
+            "sha256": "24568d2900ea629b4bfe93829544440f552ab187a74eadde76da7bca91b4dd02",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/report-body-types.d.ts",
+            "sha256": "f15caecfae3f0eb675370e5c4a1b4f60405aad58bc9b77f81c0bd68c6b32a979",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/resource-types.d.ts",
+            "sha256": "0796cd76b3a099c0c6d2725d4b07576657c4d4407227c9f8b21a6a870fc5ecc5",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/run-body-types.d.ts",
+            "sha256": "acdbed174ab48a0df24f062fc3e41c80279f7e46d0a7410e86c1869d04e26f56",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/runtime-types.d.ts",
+            "sha256": "25f58a9c5f19a9dd9ac028fadf78f49eb258837070c46ebbf09d2a62f0fa98de",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/schema.d.ts",
+            "sha256": "71d332aa1486f99878072cb495254e6f796d7d6b0035bcec72b2beb540f12336",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/sdk-error.d.ts",
+            "sha256": "e4db8ff30c86280fe4da095897d8641c4558ed4356c053bc0525db786f464375",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/serial-queue.d.ts",
+            "sha256": "f7514b7c2045b29da40f096a3390514afda4ec641b3aba63c3cb0283fe04cb7a",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/stable-value.d.ts",
+            "sha256": "f06545d5f13927cc83fe31ebf1a3f5741e1cfdd9286c2362633fa23acdbe7ee8",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/task-types.d.ts",
+            "sha256": "ab90a92b2457715d4c0080fd67c64685c7c9bdd6224578f7aa5f2d692da05b66",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/transport.d.ts",
+            "sha256": "d601e35551dffae2877a9e78793b6b24d84ed99c62d50c9367b065a474c7546a",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/types.d.ts",
+            "sha256": "ca62d54effb9820f3c631c6362cf082fe57a8a8091962a385c575331e3b6d8a2",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/wait-body-types.d.ts",
+            "sha256": "af9a7f5d56415d5e916e96d6c718e6cb158f5a5d114ea56354356977cb079279",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/wait-receipt-types.d.ts",
+            "sha256": "01c90e005689f2492f2408dfdee9e4fc7acd126fcffd3d5d0ab35b152a62e1ff",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/browser/sdk/wait-types.d.ts",
+            "sha256": "eb505bf06521a1131304ab9bdaabdc9897f63738d15a42b79ae3c3e0c56a2253",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/business/index.ts",
+            "sha256": "905b3b959e2c492e3be1e9e90415abe8e2f2b081f2603e93eaa1853fb926f32e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/goja/index.ts",
+            "sha256": "af0ce6ccc7c5db185f202c3d3dbc5a3d937c09fa5f3dc002ccdf40569897b888",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "lib/contracts/src/page-program.ts",
+            "sha256": "7efe29c8b3696b9fdb40bc3228b593e4a2fdb91b31817676592a850e32b7c0c3",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "package-lock.json",
+            "sha256": "cc43583d9e0a163f8db276d266ff76eb05a6a0a17aee07465acfc2928a2f915b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "package.json",
+            "sha256": "5b4e479d28f69df1a3fce3b0023b7579e32e5e83a01bbd3d4b8a5c82355a2040",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "playground/index.html",
+            "sha256": "3a3b52a5c8323e2ded75aed0f1acf931db195fae277611cb093f46f2032814d9",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "playground/src/fixture.ts",
+            "sha256": "cc5ea4f2c054a6439f321d18d2a247fee5608318d7218bc04c0e84d859dfd240",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "playground/src/main.ts",
+            "sha256": "707df96ed164d7710beedd074c933002d46715d3465617415f8cee68f8ed2cb2",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "playground/src/style.css",
+            "sha256": "a94e2f05908fda379507c5192eb4ad042caa73de544fc41181e675b3d4463a3a",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "playground/src/vite-env.d.ts",
+            "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "playground/vite.config.mjs",
+            "sha256": "e619e4790440eae450b0ed86a6e7ed967f0f1a0ab713916db4393d88e9cc6098",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "README.md",
+            "sha256": "07dbc3367ac6cbe8b9748abe698615cdb5a6a0564dfd325bfcc0930420bd1551",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/build/bundle.mjs",
+            "sha256": "c2576f8cf715779edd2f728cc64e2dceb32bd6076a31498ca2f28b7be82dd137",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/build/index.mjs",
+            "sha256": "cb371175e3d47041b81a66ed6df1ad6d5ce1a11e99335cd0d4772217b2015e8f",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/cli.mjs",
+            "sha256": "ae060f9f0a83514166e4493480b25e326648b96ea083d8f515eb2396b33d6b2e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/node.mjs",
+            "sha256": "9baed10bb5766dd0e258974b20b4e50eee3f40f6b6edad74406889d218204344",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/project.mjs",
+            "sha256": "973b183dde3192ce93bbcad94065b1d102c36413e3808af0c1e8733153e63962",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates.mjs",
+            "sha256": "11db59b08e016bf8ed40a877c48e69b21e682f5d2cb5518146e106d2b14570e5",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/copy/contract.ts",
+            "sha256": "8731b78e777e688ef0797abe6f66dc00b714d29021c47aa6d8a411262ea9f89e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/copy/fixtures/goja-test.js",
+            "sha256": "284c63d3c0be733715468ef7fa4a48cc88ff1c45eee1283563780d6fffcfb872",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/copy/fixtures/input.json",
+            "sha256": "7b41bb4230a4120befa8029b0bedf12c6541891d0ed389d0bd2876454f522af2",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/copy/node.ts",
+            "sha256": "c426f007465020a493c9c91865586e9b22e140b17cd309bdfc6b14d6e1461f9e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/copy/reducer.ts",
+            "sha256": "5424a2f20b81fc922a9ce61ceae5dffe22ceb67e7db6aa3899a0c7fb70151290",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/copy/run.ts",
+            "sha256": "a70597fe9baa2ff1b0d125c8a2e7a78f0ce995771e74f29d58e61a7a37e904e0",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/copy/settings.ts",
+            "sha256": "c26d0d8065780fbf1e47a87a68436be3d14e8e3f426a9c62444925a5b1b3bd46",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/copy/tasks/main.ts",
+            "sha256": "a2a06948561d99f806da49b5e7faddc526c50fb3e5d8285d24da62ee08a0d483",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/copy/view.ts",
+            "sha256": "b674da5c43782d8ba39a379eb934bd82bd772bae52c02ee8009566ed13910e5e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/human-wait/contract.ts",
+            "sha256": "6fd59ce2e82e61975221973e36607954d65ef508b0d82d2ffde51c166cec3b8e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/human-wait/fixtures/goja-test.js",
+            "sha256": "f4ab86cd56fcb204fe153b65341c4381b4d3cea264857bb7c5f6b10992aed124",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/human-wait/fixtures/input.json",
+            "sha256": "7b41bb4230a4120befa8029b0bedf12c6541891d0ed389d0bd2876454f522af2",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/human-wait/node.ts",
+            "sha256": "be3e445504e8a69a23e33c00591ac67e879c0d99d14df24b678c478734ce0de4",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/human-wait/run.ts",
+            "sha256": "6b21f06d0436d87a81c3e130ac21af8f3abd034462c2a033ecf8fb93b3b8b8d6",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/human-wait/settings.ts",
+            "sha256": "c26d0d8065780fbf1e47a87a68436be3d14e8e3f426a9c62444925a5b1b3bd46",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/human-wait/tasks/main.ts",
+            "sha256": "e78da33a7adde93a835aab1a8f3006f7c802ec84faf012c789f9c35ba6118e24",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/human-wait/view.ts",
+            "sha256": "b674da5c43782d8ba39a379eb934bd82bd772bae52c02ee8009566ed13910e5e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/multi-instance/contract.ts",
+            "sha256": "f32ebac775e53a7893b05a14ca8d2f83e85467635e1ef1d88c50e1b67ec482de",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/multi-instance/fixtures/goja-test.js",
+            "sha256": "fa72aa7c577d27d452fb24ab074d0b7d02e6267f5327dcf47f29db8bdab00ca5",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/multi-instance/fixtures/input.json",
+            "sha256": "7b41bb4230a4120befa8029b0bedf12c6541891d0ed389d0bd2876454f522af2",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/multi-instance/node.ts",
+            "sha256": "f65de6bd1e7e4a39061912c192a30a762d34d975e2ce0c712e4abf57c20700c9",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/multi-instance/run.ts",
+            "sha256": "d912ad4b37e65d9f6fff72c67dd1e9f01f72c80aecc9bce478da06ccd7c7397a",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/multi-instance/settings.ts",
+            "sha256": "c26d0d8065780fbf1e47a87a68436be3d14e8e3f426a9c62444925a5b1b3bd46",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/multi-instance/view.ts",
+            "sha256": "b674da5c43782d8ba39a379eb934bd82bd772bae52c02ee8009566ed13910e5e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/selection/contract.ts",
+            "sha256": "7ffc546d40cedde89315eaa4294d22694cbd16850ef2a969ad98b8d348552b25",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/selection/fixtures/goja-test.js",
+            "sha256": "de80df0271e06c20d31e3b21188b7a3e5168903c65c911408d3fc3b521090c1b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/selection/fixtures/input.json",
+            "sha256": "7b41bb4230a4120befa8029b0bedf12c6541891d0ed389d0bd2876454f522af2",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/selection/node.ts",
+            "sha256": "55d6e1f0bbcf4f0d4e1a03f6fa2961cffb136a02557aec89edf310684a58fb3b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/selection/reducer.ts",
+            "sha256": "c9847cf499f5e681a4adc2126c51499c27414bd5d3067ebfc458ddb81b534f17",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/selection/run.ts",
+            "sha256": "e1d01e106ac1b593bcab7c844a2eb83a174cffa702aab2cc054491b037f21eaa",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/selection/settings.ts",
+            "sha256": "c26d0d8065780fbf1e47a87a68436be3d14e8e3f426a9c62444925a5b1b3bd46",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/init/templates/selection/view.ts",
+            "sha256": "a35f93cd46b29cafdcd745ae745656d6cb670969b8b78caf3efc69095e186fb9",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/paths.mjs",
+            "sha256": "315dbcdae00609bb8d2d66b45263cadded576887f9f6ff6138e02f77182be9e6",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/sync-contracts/index.mjs",
+            "sha256": "0f588fac7ab203e93026734313266bc7ceb8728daf3a4c34515b363b934adcb5",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/typecheck.mjs",
+            "sha256": "09296ce2b99cb318d6cff6c184f8cbfbf19903fa536d157f6d1d8ec9326d7858",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/upstream/index.mjs",
+            "sha256": "4dd5c7c490fcf10c77a932a0f03edbe5d076464c087be518850d75c21f15382d",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/verify/artifacts.mjs",
+            "sha256": "193b1c6c97ee7a3b29a50ef58ebffd78379d95689f123ce43a1da377a9b0de1a",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/verify/browser.mjs",
+            "sha256": "11766f143116561eb851b1ea1ef92916832e87c5b90d3f2fd89f2e7faff00ee1",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/verify/coordinator-fixture.js",
+            "sha256": "31e0c9d483b409e6dfd2270894d49a87e3f82eb2a56a771159f657eb31405906",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/verify/goja-runner/go.mod",
+            "sha256": "49e53d001b258b62c1304514c25f189bedcae7c3df9c435cd96d450f38c44832",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/verify/goja-runner/go.sum",
+            "sha256": "f6d1e8866f7dd849633036632eb6ac54ccbbbaf2e7a52829f5386180d808b8b5",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/verify/goja-runner/main.go",
+            "sha256": "7a6c398fcb26745cb53564c2b665609a3395fac75547e904adc0e10b93a93adb",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/verify/goja.mjs",
+            "sha256": "5cf7ae9eabf3ab5fde6fb363b6b4228410a24167f914b2e13541feff9b82713e",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/verify/platform_test.go.txt",
+            "sha256": "496e3f3fb63679bd7da546fe47f5af8c9422495662ddccc38e8400c68f2b7bf4",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/verify/platform.mjs",
+            "sha256": "afe0edd743dd25b7e8b22d8054bea206bcbba44936fd35a7c7efa6a853799d6c",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/verify/runtime.mjs",
+            "sha256": "8a92a0ef35b42d2b97c59df646e6b243815bff35295c3a85107f5fa8713e29ac",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tsconfig.base.json",
+            "sha256": "3c7b70e272aac335e8cd204d7c0688502b26944d75a6877e378a84e9e11f47b5",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tsconfig.goja.json",
+            "sha256": "05f8daf709cb6024799f38e7a06e632e7882cce7343b5a36d764c9eea4025713",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tsconfig.json",
+            "sha256": "74a3c93456d90d459f7a431d7828d00eb5422663c06c415e3dc68af77dea825f",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tsconfig.page-program.json",
+            "sha256": "97b90971771d6f170531bb2697ad243b129de3fd16202d2e0178fc831886fc64",
+            "deletion": "if-unchanged"
+        }
+    ]
+}

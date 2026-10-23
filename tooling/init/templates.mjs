@@ -1,45 +1,25 @@
-import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { readdirSync, readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 
-/**
- * 根据节点编码和执行接口读取作者模板，返回“节点内相对路径 → 文件内容”。
- * 模板使用可直接阅读、格式化的 TypeScript 文件维护，保留中文函数说明和 IDE 注解。
- * 这里只替换节点标识与模式，不安装依赖、不访问平台、不保存或发布业务目录；
- * 因此 project 初始化器在尚未 npm ci 的空环境中也能使用。
- */
-export function nodeFiles(code, kind) {
-    if (!['main', 'stages', 'lifecycle', 'panels'].includes(kind)) throw new Error('未知执行接口')
-    const paths = [
-        'contract.ts',
-        'node.ts',
-        'settings/index.ts',
-        'business/index.ts',
-        'page-program/index.ts',
-        'fixtures/input.json',
-    ]
-    if (kind !== 'panels') paths.push('shared/copy-product.ts', 'executor/index.ts')
-    return Object.fromEntries(
-        paths.map((relative) => {
-            const directory =
-                relative === 'executor/index.ts'
-                    ? kind
-                    : relative === 'business/index.ts'
-                      ? kind === 'lifecycle'
-                          ? 'lifecycle'
-                          : 'stages'
-                      : 'common'
-            let source = readFileSync(
-                new URL(`./templates/${directory}/${relative}`, import.meta.url),
-                'utf8',
-            )
-                .replaceAll('__NODE_CODE__', code)
-                .replaceAll(
-                    '__NODE_TITLE__',
-                    kind === 'lifecycle' ? '生命周期原样传递' : '商品原样传递',
+export const presets = ['copy', 'selection', 'human-wait', 'multi-instance']
+/** 从同一套真实案例产生节点；不保留旧 lifecycle/main 入口转换。 */
+export function nodeFiles(code, preset = 'copy') {
+    if (!/^[a-z][a-z0-9-]{0,63}$/.test(code) || !presets.includes(preset))
+        throw new Error('invalid node code or preset')
+    const source = fileURLToPath(new URL('./templates/' + preset, import.meta.url))
+    const result = {}
+    function visit(relative = '') {
+        for (const entry of readdirSync(path.join(source, relative), { withFileTypes: true })) {
+            const name = path.posix.join(relative, entry.name)
+            if (entry.isDirectory()) visit(name)
+            else
+                result[name] = readFileSync(path.join(source, name), 'utf8').replace(
+                    new RegExp("code: '" + preset + "'", 'g'),
+                    "code: '" + code + "'",
                 )
-                .replaceAll('__NODE_INTERFACE__', kind)
-            if (kind === 'panels' && relative === 'node.ts')
-                source = source.replace(/^\s*executor: 'executor\/index\.ts',\n/m, '')
-            return [relative, source]
-        }),
-    )
+        }
+    }
+    visit()
+    return result
 }

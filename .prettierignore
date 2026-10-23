@@ -1,10 +1,10 @@
-packages/contracts/src/browser/sdk/
-packages/contracts/src/business/
+lib/contracts/src/browser/sdk/
+lib/contracts/src/business/
 dist/
 node_modules/
 .cache/
 *.go.txt
 *.js.txt
 
-packages/contracts/schemas/
-packages/contracts/provenance.json
+lib/contracts/schemas/
+lib/contracts/provenance.json

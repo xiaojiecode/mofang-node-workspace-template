@@ -45,10 +45,10 @@ test('正式压缩保持执行 fixture、钩子和阶段名称，并缩小源码
             throw error
         }
         const input = await readFile(path.join(directory, 'fixtures/input.json'), 'utf8')
-        const readable = await bundle(path.join(directory, 'executor/index.ts'), 'executor', {
+        const readable = await bundle(path.join(directory, 'run.ts'), 'executor', {
             minify: false,
         })
-        const compact = await bundle(path.join(directory, 'executor/index.ts'), 'executor', {
+        const compact = await bundle(path.join(directory, 'run.ts'), 'executor', {
             minify: true,
         })
         assert.ok(

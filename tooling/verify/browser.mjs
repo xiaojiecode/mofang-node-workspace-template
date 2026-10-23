@@ -5,7 +5,7 @@ import path from 'node:path'
 import { root, cache, nodeCodes } from '../paths.mjs'
 import { mkdir } from 'node:fs/promises'
 const server = await createServer({
-    configFile: path.join(root, 'apps/playground/vite.config.mjs'),
+    configFile: path.join(root, 'playground/vite.config.mjs'),
     server: { port: 0, strictPort: false },
 })
 let browser

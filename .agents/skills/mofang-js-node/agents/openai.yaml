@@ -1,0 +1,4 @@
+interface:
+  display_name: "魔方 JS 节点编写"
+  short_description: "编写 Goja 节点，使用 CLI 查询能力、登录后台保存并配置客户端工作流"
+  default_prompt: "使用 $mofang-js-node，通过内置 CLI 读取在线能力与双 Schema，依据当前契约编写 JavaScript 工作流节点，核对输入输出及失败分支，配合 Lit 双面板完成授权范围内的验证和发布。"

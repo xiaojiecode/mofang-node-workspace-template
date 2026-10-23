@@ -19,11 +19,13 @@
         ]
     },
     "include": [
-        "packages/contracts/src/goja/**/*.ts",
-        "packages/contracts/src/business/**/*.ts",
-        "nodes/*/executor/**/*.ts",
+        "lib/author/**/*.ts",
+        "lib/contracts/src/goja/**/*.ts",
+        "lib/contracts/src/business/**/*.ts",
+        "nodes/*/run.ts",
+        "nodes/*/tasks/**/*.ts",
         "nodes/*/contract.ts",
-        "nodes/*/shared/**/*.ts",
+        "shared/**/*.ts",
         "tests/types/goja.ts"
     ]
 }

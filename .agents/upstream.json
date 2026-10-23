@@ -1,0 +1,10 @@
+{
+    "version": 1,
+    "mode": "checkout",
+    "source": {
+        "url": "https://github.com/xiaojiecode/mofang-node-workspace-template.git",
+        "remote": "origin",
+        "ref": "main"
+    },
+    "related": []
+}

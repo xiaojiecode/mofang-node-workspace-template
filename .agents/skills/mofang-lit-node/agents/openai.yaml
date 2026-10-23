@@ -1,0 +1,4 @@
+interface:
+  display_name: "魔方 Lit 节点编写"
+  short_description: "按宿主左右设置区和上拉抽屉编写 Lit 双面板，支持 CLI 保存发布"
+  default_prompt: "使用 $mofang-lit-node，先识别宿主左右设置区和上拉业务抽屉的容器边界，通过 CLI 读取定义与能力，编写双面板并在普通抽屉尺寸验证草稿、结果及真实进度，按授权范围保存发布。"

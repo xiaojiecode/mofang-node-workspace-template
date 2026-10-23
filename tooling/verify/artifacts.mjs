@@ -136,8 +136,8 @@ export async function schemaValidator() {
     const ajv = new Ajv({ strict: false, allErrors: true })
     addFormats(ajv)
     ajv.addFormat('mf-url', { type: 'string', validate: validPlatformURL })
-    for (const file of await readdir(path.join(root, 'packages/contracts/schemas')))
-        ajv.addSchema(await readJSON(path.join(root, 'packages/contracts/schemas', file)))
+    for (const file of await readdir(path.join(root, 'lib/contracts/schemas')))
+        ajv.addSchema(await readJSON(path.join(root, 'lib/contracts/schemas', file)))
     return ajv
 }
 if (process.argv[1] === new URL(import.meta.url).pathname) {

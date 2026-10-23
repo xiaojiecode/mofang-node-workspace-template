@@ -1,6 +1,6 @@
 import type { MofangSDK, PanelProps, PageProgramContext, NodeView } from '@mofang/contracts/browser'
-import { HostPanel } from '@mofang/lit-host'
-import { productSummary, textField } from '@mofang/lit-ui'
+import { HostPanel } from '@mofang/browser'
+import { productSummary, textField } from '@mofang/browser'
 import type { Product } from '@mofang/contracts/business'
 declare const sdk: MofangSDK
 declare const props: PanelProps
