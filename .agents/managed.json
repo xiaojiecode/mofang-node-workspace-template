@@ -255,7 +255,7 @@
         },
         {
             "path": ".agents/skills/mofang-js-node/SKILL.md",
-            "sha256": "49008a57a17d630ad8b1d3883eaa95a4939e409346179dd585279db2f572bcc8",
+            "sha256": "92e5f8b2e1a6e7dc073bfb24956661d038f0310db9ebef550285306888431386",
             "deletion": "if-unchanged"
         },
         {
@@ -375,7 +375,7 @@
         },
         {
             "path": "docs/verification.md",
-            "sha256": "bff7d78e1335b887d327bcae3b082c73253d07e3b061ac7e018fb2604cb50a3c",
+            "sha256": "aceb066b7fff30d646a3669432f77e1883009d94a09900c44f04eed3a5b45275",
             "deletion": "if-unchanged"
         },
         {
@@ -790,7 +790,7 @@
         },
         {
             "path": "README.md",
-            "sha256": "07dbc3367ac6cbe8b9748abe698615cdb5a6a0564dfd325bfcc0930420bd1551",
+            "sha256": "c9d52b8eb3d2f1cf54e1e9113647224b406d4d6f241b70f6de360ac4e58f686a",
             "deletion": "if-unchanged"
         },
         {
@@ -825,17 +825,17 @@
         },
         {
             "path": "tests/templates.test.mjs",
-            "sha256": "c008dcaaa13fb7ff5990e9434d98b379cbad18e63d572ebf0a094d749ad41a59",
+            "sha256": "a69f08336280cb2b51812f3771220c09546c9c1de48c1ebb24db3b42dff03393",
             "deletion": "if-unchanged"
         },
         {
             "path": "tests/types/browser.ts",
-            "sha256": "fdf10f115426e60a1142f2661f948efbb8320085b2bd6fdfd996f962efadce8b",
+            "sha256": "0ce16a298b9352ccd687625a3d60236cf927f147200a3a66c4933185da1e2059",
             "deletion": "if-unchanged"
         },
         {
             "path": "tests/types/goja.ts",
-            "sha256": "9a0e055ba44ee6c729d707642dcacd88fce4fdd491f1276badf9700acb64dbdf",
+            "sha256": "785164101c28279ee169fa9e810efbf0520e7d9ceb9512e93c0c6b55a3620319",
             "deletion": "if-unchanged"
         },
         {
@@ -1054,8 +1054,13 @@
             "deletion": "if-unchanged"
         },
         {
+            "path": "tooling/tsconfig.browser.json",
+            "sha256": "4d6af1e1e8cdf03ef8f785492ea50953d7a97524e7468e5e9c4a0a301c45711f",
+            "deletion": "if-unchanged"
+        },
+        {
             "path": "tooling/typecheck.mjs",
-            "sha256": "09296ce2b99cb318d6cff6c184f8cbfbf19903fa536d157f6d1d8ec9326d7858",
+            "sha256": "a8e28639b5c3e61943a2c30eda20b6a145cb028735ca29f0a52777cba666ab8f",
             "deletion": "if-unchanged"
         },
         {
@@ -1125,7 +1130,7 @@
         },
         {
             "path": "tsconfig.json",
-            "sha256": "74a3c93456d90d459f7a431d7828d00eb5422663c06c415e3dc68af77dea825f",
+            "sha256": "d40d4ca257bccb635488bc8f4e31270f1b9ad6ebc1f773856cd986404a031e68",
             "deletion": "if-unchanged"
         },
         {

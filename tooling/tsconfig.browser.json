@@ -1,0 +1,17 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    },
+    "include": [
+        "../lib/contracts/src/browser/**/*.ts",
+        "../lib/browser/**/*.ts",
+        "../nodes/*/settings.ts",
+        "../nodes/*/view.ts",
+        "../nodes/*/node.ts",
+        "../nodes/*/contract.ts",
+        "../nodes/*/fixtures/**/*.ts",
+        "../playground/src/**/*.ts",
+        "../tests/types/browser.ts"
+    ]
+}

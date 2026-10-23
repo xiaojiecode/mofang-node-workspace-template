@@ -32,6 +32,8 @@ description: 编写、校验和发布魔方 Goja JS 节点，使用 React 风格
 
 类型、辅助字段和业务内容由同节点契约统一；Product/媒体内部结构使用系统可信类型。生命周期候选是items恰好一项的完整输出对象，普通阶段空items不补造商品。
 
+根tsconfig是工程发现入口，后台使用tsconfig.goja.json，浏览器和页面程序分别检查；统一运行npm run typecheck。IDE导入报红或类型变成any时先核对所属工程与别名，不添加any、忽略诊断或DOM全局绕过。Product.attributes是unknown扩展字段，使用前收窄；类型回归应同时证明上下文/输入/可信类型没有退化。
+
 ## 人工动作与结束
 
 按[必须事件验收](references/verification.md)逐项核对等待条件、用户入口、动作Schema/修订、处理结果和剩余义务。动作实际处理前重新核对guard，服务端权限/来源/状态校验保留。

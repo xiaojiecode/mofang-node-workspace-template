@@ -1,4 +1,9 @@
-import type { StageContext, InputEvent, TaskResultEvent } from '@mofang/contracts/goja'
+import type {
+    StageContext,
+    StageProgram,
+    InputEvent,
+    TaskResultEvent,
+} from '@mofang/contracts/goja'
 import type { Product, Image, Video, BuiltinTypes } from '@mofang/contracts/business'
 const product: Product = {
     collection: { source: 'fixture', sourceUrl: 'https://example.invalid' },
@@ -10,6 +15,34 @@ const product: Product = {
     references: { draftProductId: 'draft' },
 }
 void product
+// 别名丢失会把导入和下游属性退化为 any；这些断言必须保持具体类型。
+type IsAny<T> = 0 extends 1 & T ? true : false
+type ExpectFalse<T extends false> = T
+type ProductIsTyped = ExpectFalse<IsAny<Product>>
+type AttributesAreTyped = ExpectFalse<IsAny<NonNullable<Product['attributes']>>>
+type AttributeValuesAreTyped = ExpectFalse<IsAny<NonNullable<Product['attributes']>[string]>>
+const attributes = product.attributes ?? {}
+// @ts-expect-error 扩展属性是 unknown，必须先验证才能作为数字使用。
+const unverifiedWeight: number = attributes.weight
+void unverifiedWeight
+const typedTask: StageProgram<{ keyword: string }, { attempt: number }, { items: Product[] }> = {
+    entry: 'search',
+    steps: {
+        search(ctx) {
+            type ContextIsTyped = ExpectFalse<IsAny<typeof ctx>>
+            type InputIsTyped = ExpectFalse<IsAny<typeof ctx.input>>
+            const keyword: string = ctx.input.keyword
+            // @ts-expect-error 泛型输入不能读取未声明字段。
+            ctx.input.missing
+            // @ts-expect-error 泛型输入必须保留字段类型。
+            const numberKeyword: number = ctx.input.keyword
+            void keyword
+            void numberKeyword
+            return ctx.complete({ items: [product] })
+        },
+    },
+}
+void typedTask
 function invalid(ctx: StageContext, result: TaskResultEvent) {
     // @ts-expect-error Goja has no DOM.
     document.createElement('div')

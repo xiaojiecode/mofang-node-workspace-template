@@ -1,18 +1,9 @@
 {
     "extends": "./tsconfig.base.json",
-    "compilerOptions": {
-        "lib": ["ES2022", "DOM", "DOM.Iterable"]
-    },
-    "include": [
-        "lib/contracts/src/browser/**/*.ts",
-        "lib/browser/ui/**/*.ts",
-        "lib/browser/**/*.ts",
-        "nodes/*/settings.ts",
-        "nodes/*/view.ts",
-        "nodes/*/node.ts",
-        "nodes/*/contract.ts",
-        "nodes/*/fixtures/**/*.ts",
-        "playground/src/**/*.ts",
-        "tests/types/browser.ts"
+    "files": [],
+    "references": [
+        { "path": "./tooling/tsconfig.browser.json" },
+        { "path": "./tsconfig.goja.json" },
+        { "path": "./tsconfig.page-program.json" }
     ]
 }

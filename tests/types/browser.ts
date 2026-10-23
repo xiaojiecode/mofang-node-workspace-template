@@ -4,6 +4,11 @@ import { productSummary, textField } from '@mofang/browser'
 import type { Product } from '@mofang/contracts/business'
 declare const sdk: MofangSDK
 declare const props: PanelProps
+type IsAny<T> = 0 extends 1 & T ? true : false
+type ExpectFalse<T extends false> = T
+type SDKIsTyped = ExpectFalse<IsAny<MofangSDK>>
+type PanelPropsAreTyped = ExpectFalse<IsAny<PanelProps>>
+type ProductIsTyped = ExpectFalse<IsAny<Product>>
 void sdk.nodeFlow.watch({ runId: 'run', nodeInstanceId: 'node' })
 void props.settings?.onFieldChange?.('note', 'text')
 void props.ui?.onSelectTask?.({ taskId: 'task', nodeRunId: 'run' })

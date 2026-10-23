@@ -42,6 +42,7 @@ test('冷初始化携带隐藏技能、共享CLI和受管基线，真实类型�
         '.agents/skills/mofang-js-node/scripts/mofang_cli/cli.py',
         '.agents/skills/mofang-lit-node/scripts/mofang_node.py',
         '.agents/upstream-state.json',
+        'tooling/tsconfig.browser.json',
     ])
         assert.ok((await lstat(path.join(target, file))).isFile(), file)
     assert.equal(
@@ -49,6 +50,17 @@ test('冷初始化携带隐藏技能、共享CLI和受管基线，真实类型�
         undefined,
     )
     await symlink(path.join(root, 'node_modules'), path.join(target, 'node_modules'), 'dir')
+    const solution = JSON.parse(await readFile(path.join(target, 'tsconfig.json'), 'utf8'))
+    assert.deepEqual(solution.files, [])
+    assert.deepEqual(solution.references, [
+        { path: './tooling/tsconfig.browser.json' },
+        { path: './tsconfig.goja.json' },
+        { path: './tsconfig.page-program.json' },
+    ])
+    const baseline = JSON.parse(
+        await readFile(path.join(target, '.agents/upstream-state.json'), 'utf8'),
+    )
+    assert.ok(baseline.files['tooling/tsconfig.browser.json'])
     for (const script of ['typecheck', 'build', 'verify']) {
         const result = spawnSync('npm', ['run', script], {
             cwd: target,
@@ -56,6 +68,30 @@ test('冷初始化携带隐藏技能、共享CLI和受管基线，真实类型�
             env: process.env,
         })
         assert.equal(result.status, 0, script + ': ' + result.stdout + result.stderr)
+    }
+    // 逐个注入真实类型错误，防止根配置变为 solution 后 CLI 只检查了空入口。
+    for (const file of [
+        'tests/types/browser.ts',
+        'tests/types/goja.ts',
+        'tests/types/page-program.ts',
+    ]) {
+        const source = await readFile(path.join(target, file), 'utf8')
+        try {
+            await writeFile(
+                path.join(target, file),
+                source + '\nconst typecheckMustVisitThisProject: number = "invalid"\n',
+            )
+            const rejected = spawnSync('npm', ['run', 'typecheck'], {
+                cwd: target,
+                encoding: 'utf8',
+                env: process.env,
+            })
+            assert.notEqual(rejected.status, 0, file + ': typecheck skipped a referenced project')
+            assert.match(rejected.stdout + rejected.stderr, /TS2322/)
+            assert.ok((rejected.stdout + rejected.stderr).includes(path.basename(file)))
+        } finally {
+            await writeFile(path.join(target, file), source)
+        }
     }
     const lit = spawnSync(
         'python3',

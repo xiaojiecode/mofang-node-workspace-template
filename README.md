@@ -34,7 +34,11 @@ playground/      有界双面板本地预览
 .agents/skills/  JS、Lit 节点与 Lit 最佳实践技能完整源码，包含唯一共享平台 CLI
 ```
 
-只有一个根包，没有 npm workspaces。别名由根 tsconfig 和构建/预览统一解析。源码允许 import/export；后台打包为单文件 `const program=...`，不引入浏览器、Node、网络或计时器。Lit 产物仅导入宿主 `lit`，不内置第二份核心。
+只有一个根包，没有 npm workspaces。别名在 tsconfig.base.json 中定义，由类型检查和构建/预览统一解析。源码允许 import/export；后台打包为单文件 `const program=...`，不引入浏览器、Node、网络或计时器。Lit 产物仅导入宿主 `lit`，不内置第二份核心。
+
+根 tsconfig.json 是 IDE 工程入口，通过 references 明确关联浏览器配置 tooling/tsconfig.browser.json、后台配置 tsconfig.goja.json 和页面程序配置 tsconfig.page-program.json。WebStorm、VS Code 及 TypeScript 语言服务可从标准入口发现后台源码，保留各运行环境的隔离。类型检查使用 npm run typecheck，它逐个检查引用工程；只运行 tsc -p tsconfig.json 不会检查所有源码。浏览器配置放在受管 tooling/ 下，现有工程可直接通过 upstream sync 更新，不需要改本机全局 IDE 配置。
+
+如果 IDE 在更新后仍沿用旧工程，先重启 TypeScript 语言服务。导入报红时先确认文件所属配置和别名解析，不用 any 或忽略诊断消除报错。Product.attributes 的值是 unknown，使用前按实际类型收窄；类型回归同时校验 SDK、Product 与阶段上下文没有退化为 any。
 
 ## 业务与结束路径
 
