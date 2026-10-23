@@ -9,6 +9,7 @@ import {
     recoverUpstream,
     ensureUpstream,
     dependenciesReady,
+    initializeGitHistory,
 } from '../tooling/upstream/index.mjs'
 
 const git = (directory, ...args) => {
@@ -28,6 +29,23 @@ const git = (directory, ...args) => {
     assert.equal(result.status, 0, result.stderr)
     return result.stdout.trim()
 }
+
+test('从业务工程再初始化仅继承模板祖先，不复制后续业务提交', async () => {
+    const h = await setup()
+    const template = git(h.target, 'rev-parse', 'HEAD')
+    git(h.target, 'update-ref', 'refs/mofang/template', template)
+    await writeFile(path.join(h.target, 'private-business.txt'), 'project-only content')
+    git(h.target, 'add', '.')
+    git(h.target, 'commit', '-m', 'private business work')
+    const business = git(h.target, 'rev-parse', 'HEAD')
+    const generated = path.join(h.area, 'generated')
+    await mkdir(generated)
+    assert.equal(await initializeGitHistory(generated, h.target), template)
+    assert.equal(git(generated, 'rev-parse', 'HEAD'), template)
+    assert.equal(git(generated, 'rev-parse', 'refs/mofang/template'), template)
+    await assert.rejects(readFile(path.join(generated, 'private-business.txt')), { code: 'ENOENT' })
+    assert.notEqual(spawnSync('git', ['-C', generated, 'cat-file', '-e', business]).status, 0)
+})
 async function setup() {
     await mkdir(cache, { recursive: true })
     const area = await mkdtemp(path.join(cache, 'git-upstream-')),

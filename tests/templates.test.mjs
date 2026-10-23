@@ -65,12 +65,25 @@ test('冷初始化携带完整技能和模板Git祖先，真实类型和构建�
     ])
         assert.ok((await lstat(path.join(target, file))).isFile(), file)
     await access(path.join(target, '.agents/skills/impeccable/scripts/impeccable'), constants.X_OK)
+    const template = spawnSync(
+        'git',
+        ['-C', root, 'rev-parse', '--verify', 'refs/mofang/template'],
+        {
+            encoding: 'utf8',
+        },
+    )
+    const expectedAncestor =
+        template.status === 0
+            ? template.stdout.trim()
+            : spawnSync('git', ['-C', root, 'rev-parse', 'HEAD'], {
+                  encoding: 'utf8',
+              }).stdout.trim()
     const ancestor = spawnSync('git', [
         '-C',
         target,
         'merge-base',
         '--is-ancestor',
-        spawnSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(),
+        expectedAncestor,
         'HEAD',
     ])
     assert.equal(ancestor.status, 0)
