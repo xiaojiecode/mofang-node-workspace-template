@@ -210,7 +210,7 @@
         },
         {
             "path": ".agents/skills/mofang-js-node/references/node-development.md",
-            "sha256": "36b469705901dc3dca96d5cc138c03a3bf716c61f765bf2d292775d8752c8db1",
+            "sha256": "3a2e989d8db81e98ef1c2ba824a3eb8476e1cef26878942afe8f570ae17c1bf9",
             "deletion": "if-unchanged"
         },
         {
@@ -1130,7 +1130,7 @@
         },
         {
             "path": "tooling/verify/platform_test.go.txt",
-            "sha256": "496e3f3fb63679bd7da546fe47f5af8c9422495662ddccc38e8400c68f2b7bf4",
+            "sha256": "0c32748ec8553b367070f8de8aa5c6d242a1f8dd09ea95578ad9d03e315d3e60",
             "deletion": "if-unchanged"
         },
         {

@@ -88,3 +88,5 @@ export async function prepareInput(_ctx: PageProgramContext): Promise<PagePrepar
 ```
 
 node.ts的interface='node'是本地构建分类（另有panels），不会作为发布请求发送；程序本身的abi和平台validate回执的programInterface才是mf.node/1，不要混用这三个字段。
+
+verify:platform在模板checkout中保留四个官方案例的原生阶段/来源回归；生成工程只验证真实平台页面编译、模块加载、初始化与投影响应契约，不按用户节点目录名猜业务事件或命令数。用户业务由自己的完整Goja fixture验证，平台加载通过不等于真实Tool或工作流事务链路成功。
