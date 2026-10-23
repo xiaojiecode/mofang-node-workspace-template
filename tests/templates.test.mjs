@@ -4,14 +4,18 @@ import path from 'node:path'
 import { mkdtemp, mkdir, readFile, lstat, symlink, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
 import { transform } from 'esbuild'
+import { parse } from 'acorn'
 import { nodeFiles, presets } from '../tooling/init/templates.mjs'
 import { root, cache } from '../tooling/paths.mjs'
 
 for (const preset of presets)
     test(preset + ' 新函数节点生成包含完整契约与独立面板', async () => {
         const files = nodeFiles('new-node', preset)
-        for (const [name, source] of Object.entries(files))
+        for (const [name, source] of Object.entries(files)) {
             if (name.endsWith('.ts')) await transform(source, { loader: 'ts', target: 'es2016' })
+            if (name === 'fixtures/goja-test.js')
+                parse(source, { ecmaVersion: 'latest', sourceType: 'script' })
+        }
         for (const name of [
             'node.ts',
             'run.ts',

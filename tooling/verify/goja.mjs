@@ -11,13 +11,18 @@ const env = {
     GOTMPDIR: path.join(cache, 'tmp'),
 }
 const binary = path.join(cache, process.platform === 'win32' ? 'goja-check.exe' : 'goja-check')
-const built = spawnSync('go', ['build', '-mod=readonly', '-o', binary, '.'], {
-    cwd: path.join(root, 'tooling/verify/goja-runner'),
-    env,
-    stdio: 'inherit',
-})
-if (built.error) throw new Error('Goja 验证需要 Go 1.26.5+：' + built.error.message)
-if (built.status !== 0) process.exit(built.status ?? 1)
+for (const args of [
+    ['test', '-mod=readonly', './...'],
+    ['build', '-mod=readonly', '-o', binary, '.'],
+]) {
+    const result = spawnSync('go', args, {
+        cwd: path.join(root, 'tooling/verify/goja-runner'),
+        env,
+        stdio: 'inherit',
+    })
+    if (result.error) throw new Error('Goja 验证需要 Go 1.26.5+：' + result.error.message)
+    if (result.status !== 0) process.exit(result.status ?? 1)
+}
 const requested = process.argv.includes('--node')
     ? process.argv[process.argv.indexOf('--node') + 1]
     : undefined

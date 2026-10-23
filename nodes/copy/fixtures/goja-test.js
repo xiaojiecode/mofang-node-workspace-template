@@ -1,4 +1,4 @@
-return (async () => {
+;(async () => {
     const h = fixtureHarness(program)
     const first = await h.send('input', { deliveryId: 'delivery-1', values: input })
     fixtureAssert(

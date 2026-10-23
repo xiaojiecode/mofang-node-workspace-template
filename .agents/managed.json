@@ -375,7 +375,7 @@
         },
         {
             "path": "docs/verification.md",
-            "sha256": "aceb066b7fff30d646a3669432f77e1883009d94a09900c44f04eed3a5b45275",
+            "sha256": "564c02b03ab030128db5ad65f4726a2bd1b99d745202c3f6f5a776b715e4203b",
             "deletion": "if-unchanged"
         },
         {
@@ -790,7 +790,7 @@
         },
         {
             "path": "README.md",
-            "sha256": "c9d52b8eb3d2f1cf54e1e9113647224b406d4d6f241b70f6de360ac4e58f686a",
+            "sha256": "4b92338598cfa9d58b817d6bb29c0dd83e59ea47afe610e4422d608a4772a64a",
             "deletion": "if-unchanged"
         },
         {
@@ -810,7 +810,7 @@
         },
         {
             "path": "tests/minification.test.mjs",
-            "sha256": "d4ce8d301bc9c2b76e890d1925d8ef0e423a1f66f44ad096005280829fb90753",
+            "sha256": "a9f93bc66e776f66df63a8391b2928f13db7ca44beb19daffca30e9898f5133d",
             "deletion": "if-unchanged"
         },
         {
@@ -825,7 +825,7 @@
         },
         {
             "path": "tests/templates.test.mjs",
-            "sha256": "a69f08336280cb2b51812f3771220c09546c9c1de48c1ebb24db3b42dff03393",
+            "sha256": "280efd69ff2a705adb11f6955fa99ca4b28de50cf75072f41f21f856df145f6f",
             "deletion": "if-unchanged"
         },
         {
@@ -885,7 +885,7 @@
         },
         {
             "path": "tooling/init/templates/copy/fixtures/goja-test.js",
-            "sha256": "284c63d3c0be733715468ef7fa4a48cc88ff1c45eee1283563780d6fffcfb872",
+            "sha256": "86ea5dd135b7852e1306d0d3871f421fb2d864bab2b66c7b4fdafb3cc21ecf07",
             "deletion": "if-unchanged"
         },
         {
@@ -930,7 +930,7 @@
         },
         {
             "path": "tooling/init/templates/human-wait/fixtures/goja-test.js",
-            "sha256": "f4ab86cd56fcb204fe153b65341c4381b4d3cea264857bb7c5f6b10992aed124",
+            "sha256": "ce1942bff4b38175fab83fd2b56514132e567d96c270c6b22e8efbe47e6beb9d",
             "deletion": "if-unchanged"
         },
         {
@@ -970,7 +970,7 @@
         },
         {
             "path": "tooling/init/templates/multi-instance/fixtures/goja-test.js",
-            "sha256": "fa72aa7c577d27d452fb24ab074d0b7d02e6267f5327dcf47f29db8bdab00ca5",
+            "sha256": "42bca5ff0aa60b78231680ffae2da7549262625745f6e6a0d18f96116fb8ec15",
             "deletion": "if-unchanged"
         },
         {
@@ -1005,7 +1005,7 @@
         },
         {
             "path": "tooling/init/templates/selection/fixtures/goja-test.js",
-            "sha256": "de80df0271e06c20d31e3b21188b7a3e5168903c65c911408d3fc3b521090c1b",
+            "sha256": "84cb920d042ef98b07131d485df06de8cb56ac4efcdfc93b2280b024ea2b85cd",
             "deletion": "if-unchanged"
         },
         {
@@ -1094,13 +1094,18 @@
             "deletion": "if-unchanged"
         },
         {
+            "path": "tooling/verify/goja-runner/main_test.go",
+            "sha256": "14da914fdefb2132abfe5b70f9ef52c46a48bc32f798ef2188a850a0940a49fb",
+            "deletion": "if-unchanged"
+        },
+        {
             "path": "tooling/verify/goja-runner/main.go",
-            "sha256": "7a6c398fcb26745cb53564c2b665609a3395fac75547e904adc0e10b93a93adb",
+            "sha256": "840dc5ce7bd1f2de9539dbda1f47d8eec1f1b9b77a4158b81d51fab7cf2f25b3",
             "deletion": "if-unchanged"
         },
         {
             "path": "tooling/verify/goja.mjs",
-            "sha256": "5cf7ae9eabf3ab5fde6fb363b6b4228410a24167f914b2e13541feff9b82713e",
+            "sha256": "37e6502ba839cc6471454f278eb6a78e361d1cdc886b5ede241fbfbff4eed1ce",
             "deletion": "if-unchanged"
         },
         {

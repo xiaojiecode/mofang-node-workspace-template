@@ -15,15 +15,9 @@ async function execute(source, input, fixture) {
     } catch (error) {
         if (error.code !== 'ENOENT') throw error
     }
+    vm.runInContext("'use strict';\n" + source, context, { timeout: 1000 })
     const value = await vm.runInContext(
-        source +
-            '\n(async () => {\n' +
-            helper +
-            '\nconst input = ' +
-            input +
-            ';\n' +
-            fixture +
-            '\n})()',
+        "'use strict';\nvoid 0;\n" + helper + '\nconst input = ' + input + ';\n' + fixture,
         context,
         { timeout: 1000 },
     )

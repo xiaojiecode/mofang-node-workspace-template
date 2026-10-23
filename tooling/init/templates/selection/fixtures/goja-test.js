@@ -1,4 +1,4 @@
-return (async () => {
+;(async () => {
     const h = fixtureHarness(program)
     await h.send('input', { deliveryId: 'delivery-1', values: input })
     h.facts.inputClosed = true
