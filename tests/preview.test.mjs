@@ -87,3 +87,73 @@ test('明确的本地动作fixture提供新receipt/outcome，不能冒充业务�
         1,
     )
 })
+
+test('Mock host finish无参结束空结果，经真实fakeSDK receipt/outcome保留候选事实', async () => {
+    const fixture = createFixture({}, true, false, preview)
+    const request = {
+        runId: 'preview-run',
+        nodeInstanceId: 'preview-node',
+        expectedSessionRevision: '1',
+        candidates: [],
+        name: 'finish',
+        payload: {},
+    }
+    const receipt = await fixture.sdk.nodeFlow.action(request)
+    assert.equal(receipt.status, 'accepted')
+    const result = await fixture.sdk.nodeFlow.getActionResult({
+        ...request,
+        eventId: receipt.eventId,
+    })
+    assert.equal(result.name, 'finish')
+    assert.equal(result.status, 'applied')
+    assert.equal(fixture.nodeView.composition.projection.nodeView.phase, 'closed')
+    assert.equal(fixture.nodeView.nodeOutput.total, 0)
+    assert.equal(fixture.nodeView.productionFinished, true)
+    assert.equal(
+        fixture.nodeView.composition.projection.actions.every(
+            (action) => !action.availability.enabled,
+        ),
+        true,
+    )
+})
+test('Mock readonly与范围/参数/投影门禁阻止写入，不捏造必要动作', async () => {
+    const request = {
+        runId: 'preview-run',
+        nodeInstanceId: 'preview-node',
+        expectedSessionRevision: '1',
+        candidates: [],
+        name: 'finish',
+        payload: {},
+    }
+    const fixture = createFixture({}, false, false, preview)
+    fixture.setReadOnly(true)
+    await assert.rejects(fixture.sdk.nodeFlow.action(request), (error) => error.kind === 'rejected')
+    fixture.setReadOnly(false)
+    assert.equal(fixture.nodeView.permissions.canAct, true)
+    await assert.rejects(
+        fixture.sdk.nodeFlow.action({ ...request, runId: 'foreign' }),
+        (error) => error.kind === 'rejected',
+    )
+    await assert.rejects(
+        fixture.sdk.nodeFlow.action({ ...request, payload: { unknown: true } }),
+        (error) => error.kind === 'rejected',
+    )
+    const unavailable = createFixture({}, false, false, {
+        ...preview,
+        composition: {
+            ...preview.composition,
+            projection: { status: 'unavailable', code: 'broken', message: '投影错误' },
+        },
+    })
+    await assert.rejects(
+        unavailable.sdk.nodeFlow.action(request),
+        (error) => error.kind === 'rejected',
+    )
+    const empty = createFixture({})
+    assert.equal(empty.nodeView.composition.projection.actions.length, 0)
+    const records = await fixture.sdk.nodeFlow.listActions({
+        runId: 'preview-run',
+        nodeInstanceId: 'preview-node',
+    })
+    assert.equal(records.items.length, 0)
+})

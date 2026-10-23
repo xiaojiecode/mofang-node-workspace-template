@@ -11,6 +11,7 @@ const managedRoots = [
     'tooling/',
     'playground/',
     'docs/',
+    'tests/',
     '.agents/skills/mofang-js-node/',
     '.agents/skills/mofang-lit-node/',
     '.agents/skills/lit-best-practices/',
@@ -348,7 +349,15 @@ async function syncPrimary({ directory = defaultRoot, cache = defaultCache } = {
                     status: 'incompatible',
                     reason: 'tracking remote does not match configured source',
                 }
-            const upstream = git(directory, ['rev-parse', '--abbrev-ref', '@{upstream}'])
+            let upstream
+            try {
+                upstream = git(directory, ['rev-parse', '--abbrev-ref', '@{upstream}'])
+            } catch {
+                return {
+                    status: 'incompatible',
+                    reason: 'checkout has no usable tracking branch; local branch preserved',
+                }
+            }
             if (upstream !== remote + '/' + config.source.ref)
                 return {
                     status: 'incompatible',

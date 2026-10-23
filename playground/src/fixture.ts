@@ -151,6 +151,17 @@ export function createFixture(
                           projection: {
                               ...projection,
                               nodeView: { ...projection.nodeView, rows: [], total: 0, received: 0 },
+                              actions: projection.actions.map((action) =>
+                                  action.name === 'submit'
+                                      ? {
+                                            ...action,
+                                            availability: {
+                                                enabled: false,
+                                                reason: '本地 Mock 无商品可提交，可通过宿主结束选品',
+                                            },
+                                        }
+                                      : action,
+                              ),
                           },
                       }
                     : {}),
@@ -185,6 +196,10 @@ export function createFixture(
     }
     const contextAPI = { getState: () => resource, getSnapshot: () => resource.data, subscribe }
     const records = new Map<string, NodeActionResult>()
+    const writablePermissions = nodeView.permissions
+    let readOnly = false
+    const refusal = (message: string, kind: 'rejected' | 'conflict' = 'rejected') =>
+        Object.assign(new Error(message), { kind, retryable: false })
     const nodeFlowAPI = {
         listActions: async () => ({
             items: [...records.values()],
@@ -219,15 +234,23 @@ export function createFixture(
         }),
         /** Explicit UI-only fixture: never invokes Goja/Workflow/Tool or real business. */
         action: async (body: NodeFlowActionBody) => {
-            if (!nodeView.permissions.canAct || body.expectedSessionRevision !== nodeView.revision)
-                throw new Error('preview action is read-only or revision changed')
+            if (
+                failed ||
+                readOnly ||
+                !nodeView.permissions.canAct ||
+                body.runId !== nodeView.runId ||
+                body.nodeInstanceId !== nodeView.nodeInstanceId
+            )
+                throw refusal('本地 Mock 不可写或目标范围不匹配')
+            if (body.expectedSessionRevision !== nodeView.revision)
+                throw refusal('本地 Mock 修订已经变化', 'conflict')
+            if (!Array.isArray(body.candidates)) throw refusal('本地 Mock 需要显式候选引用数组')
             const projection = nodeView.composition.projection
-            if (projection.status !== 'ready') throw new Error('preview projection unavailable')
+            if (projection.status !== 'ready') throw refusal('preview projection unavailable')
             const action = projection.actions.find((action) => action.name === body.name)
-            if (!action || !action.availability.enabled)
-                throw new Error('preview action unavailable')
+            if (!action || !action.availability.enabled) throw refusal('preview action unavailable')
             if (body.name !== 'submit' && body.name !== 'finish')
-                throw new Error('preview does not simulate this business action')
+                throw refusal('preview does not simulate this business action')
             const sequence = String(records.size + 1),
                 eventId = 'preview-event-' + sequence
             let view = projection.nodeView
@@ -269,7 +292,11 @@ export function createFixture(
                         ),
                     }
                 }
-            } else view = { ...view, phase: 'closed' }
+            } else {
+                if (Object.keys(body.payload).length || body.candidates.length)
+                    throw refusal('本地 Mock finish必须显式空payload和候选引用')
+                view = { ...view, phase: 'closed' }
+            }
             const result: NodeActionResult = {
                 eventId,
                 sequence,
@@ -303,7 +330,17 @@ export function createFixture(
                     composition: {
                         ...nodeView.composition,
                         snapshot: { ...nodeView.composition.snapshot, sessionRevision: revision },
-                        projection: { ...projection, nodeView: view },
+                        projection: {
+                            ...projection,
+                            nodeView: view,
+                            actions: projection.actions.map((action) => ({
+                                ...action,
+                                availability: {
+                                    enabled: false,
+                                    reason: 'Mock 生产已结束，已有候选仍需处理',
+                                },
+                            })),
+                        },
                     },
                 }
                 flow = { ...flow, data: nodeView, revision }
@@ -332,6 +369,26 @@ export function createFixture(
             return nodeView
         },
         listeners,
+        setReadOnly(value: boolean) {
+            readOnly = value
+            nodeView = {
+                ...nodeView,
+                permissions: value
+                    ? {
+                          ...writablePermissions,
+                          canAct: false,
+                          canEdit: false,
+                          canRelease: false,
+                          canDiscard: false,
+                          canEndReview: false,
+                          canControl: false,
+                          canResolveUnknown: false,
+                      }
+                    : writablePermissions,
+            }
+            flow = { ...flow, data: failed ? null : nodeView }
+            listeners.forEach((listener) => listener())
+        },
         notify: () => listeners.forEach((listener) => listener()),
     }
 }

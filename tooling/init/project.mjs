@@ -35,7 +35,6 @@ const includes = [
     'tooling',
     'playground',
     'tests',
-    'shared',
     'docs',
     '.agents',
     '.github',
@@ -80,6 +79,9 @@ for (const file of ['package.json', 'package-lock.json']) {
     if (file === 'package-lock.json') value.packages[''].name = values.name
     await writeFile(path.join(target, file), JSON.stringify(value, null, 4) + '\n')
 }
+// shared belongs to the current user's business; a fresh scaffold starts empty.
+await mkdir(path.join(target, 'shared'), { recursive: true })
+await writeFile(path.join(target, 'shared/.gitkeep'), '')
 for (const preset of values.preset === 'all' ? presets : [values.preset]) {
     for (const [relative, content] of Object.entries(nodeFiles(preset, preset))) {
         const file = path.join(target, 'nodes', preset, relative)

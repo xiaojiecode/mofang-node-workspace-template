@@ -239,6 +239,11 @@ test('checkout重复current检查不能清掉依赖待安装，Git完成后可�
     await assert.rejects(ensureUpstream(checkout), /interrupted/)
     assert.equal((await recoverUpstream(checkout)).status, 'current')
     assert.equal(JSON.parse(await readFile(stateFile, 'utf8')).dependenciesPending, true)
+    git(checkout, 'branch', '--unset-upstream')
+    const untracked = await syncUpstream(options)
+    assert.equal(untracked.status, 'incompatible', JSON.stringify(untracked))
+    assert.match(untracked.reason, /tracking branch/)
+    assert.equal(git(checkout, 'rev-parse', 'HEAD'), head)
 })
 
 test('控制目录和state/journal/config符号链接均不得跟随', async () => {
@@ -264,5 +269,32 @@ test('控制目录和state/journal/config符号链接均不得跟随', async () 
     assert.equal(
         (await syncUpstream({ directory, cache: path.join(h.area, 'cache-control') })).status,
         'incompatible',
+    )
+})
+
+test('官方校验文件随清单更新，用户业务fixture保留', async () => {
+    const h = await setup()
+    await mkdir(path.join(h.source, 'tests'))
+    await writeFile(path.join(h.source, 'tests/required.test.mjs'), 'official-check')
+    await h.commit('with-required-checks\n')
+    await mkdir(path.join(h.target, 'shared'))
+    await writeFile(path.join(h.target, 'shared/business.test.mjs'), 'user-check')
+    const result = await h.sync()
+    assert.equal(result.status, 'updated', JSON.stringify(result))
+    assert.equal(
+        await readFile(path.join(h.target, 'tests/required.test.mjs'), 'utf8'),
+        'official-check',
+    )
+    assert.equal(
+        await readFile(path.join(h.target, 'shared/business.test.mjs'), 'utf8'),
+        'user-check',
+    )
+    await writeFile(path.join(h.target, 'tests/required.test.mjs'), 'local-change')
+    await writeFile(path.join(h.source, 'tests/required.test.mjs'), 'new-official-check')
+    await h.commit('required-check-revision\n')
+    assert.equal((await h.sync()).status, 'conflict')
+    assert.equal(
+        await readFile(path.join(h.target, 'tests/required.test.mjs'), 'utf8'),
+        'local-change',
     )
 })

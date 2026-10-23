@@ -370,7 +370,7 @@
         },
         {
             "path": "docs/upstream.md",
-            "sha256": "c5967d538a6229091f69079dfe5746b21bac679473f8429d5a3397c8065f325e",
+            "sha256": "6b53fb3657ab3368f676dd0341a058fe478a3df32faee21664ddf34c8fa90428",
             "deletion": "if-unchanged"
         },
         {
@@ -400,7 +400,7 @@
         },
         {
             "path": "lib/browser/actions.ts",
-            "sha256": "30cee0e805587b6829ec3b059fca64069e47260e80d669486d59e7a582e5b276",
+            "sha256": "61c065c3ba9cf8b15c59acb4feccdb5c823f171e4683f65b9bfea937d5450d55",
             "deletion": "if-unchanged"
         },
         {
@@ -765,12 +765,12 @@
         },
         {
             "path": "playground/src/fixture.ts",
-            "sha256": "f2d1497dc5d8f522d96c71eea35d39caaefa08843e1a9ad85bf7dc1b5d7a206e",
+            "sha256": "1d51a92a9a065efc1fab01989ffb1a527cae3d6436deecc61fcf7f86a4643d0b",
             "deletion": "if-unchanged"
         },
         {
             "path": "playground/src/main.ts",
-            "sha256": "dfe3a27305ffe876c97c74dddfd255947c2242320bda5e73a6da4edcdc025f53",
+            "sha256": "9fb52d53c5c7b52c3d8fdac4e29745403c886834f21dfbce4880b930f76ff58c",
             "deletion": "if-unchanged"
         },
         {
@@ -791,6 +791,61 @@
         {
             "path": "README.md",
             "sha256": "07dbc3367ac6cbe8b9748abe698615cdb5a6a0564dfd325bfcc0930420bd1551",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tests/actions.test.mjs",
+            "sha256": "5ecb3d3db2308b27e9bb0adec557bb48800c6be27a1340151f5484f6637d4129",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tests/artifacts.test.mjs",
+            "sha256": "97f447da69e468ad68ba2254111cc48846f13730ae46cb02849c08b01d6310a4",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tests/author.test.mjs",
+            "sha256": "28da9457ca70bfc1e4859922f8c3bd777a2c515548e0b3123f56c3e1716ee095",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tests/minification.test.mjs",
+            "sha256": "d4ce8d301bc9c2b76e890d1925d8ef0e423a1f66f44ad096005280829fb90753",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tests/preview.test.mjs",
+            "sha256": "fa933d25930d79b343f8627ebc4d71624dfe32f974e250ebfc217c0a4c31d056",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tests/runtime.test.mjs",
+            "sha256": "353b02ce9125a3e236478eb478f39bc0651a54e69020f3830e2b8686ce9b7a25",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tests/templates.test.mjs",
+            "sha256": "c008dcaaa13fb7ff5990e9434d98b379cbad18e63d572ebf0a094d749ad41a59",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tests/types/browser.ts",
+            "sha256": "fdf10f115426e60a1142f2661f948efbb8320085b2bd6fdfd996f962efadce8b",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tests/types/goja.ts",
+            "sha256": "9a0e055ba44ee6c729d707642dcacd88fce4fdd491f1276badf9700acb64dbdf",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tests/types/page-program.ts",
+            "sha256": "3ce35b5674adf57138beddafc21fd66c46ad756cd3cfc3887a447512224193aa",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tests/upstream.test.mjs",
+            "sha256": "c0cd603ade36a236457b0f90b8d3e4c5e16353b83d4a42aa28a7a3cbcbe6e0c5",
             "deletion": "if-unchanged"
         },
         {
@@ -815,7 +870,7 @@
         },
         {
             "path": "tooling/init/project.mjs",
-            "sha256": "973b183dde3192ce93bbcad94065b1d102c36413e3808af0c1e8733153e63962",
+            "sha256": "2447213a1db4822a798e1bb1e8ea513fa0c4bd45d56f375460ba6c17f398bfa3",
             "deletion": "if-unchanged"
         },
         {
@@ -959,6 +1014,11 @@
             "deletion": "if-unchanged"
         },
         {
+            "path": "tooling/init/templates/selection/fixtures/preview.json",
+            "sha256": "5f13bcb18cd9afbf0639865ea2bc9161a037271355f77aa2db5f6a46a47bb6ab",
+            "deletion": "if-unchanged"
+        },
+        {
             "path": "tooling/init/templates/selection/node.ts",
             "sha256": "55d6e1f0bbcf4f0d4e1a03f6fa2961cffb136a02557aec89edf310684a58fb3b",
             "deletion": "if-unchanged"
@@ -1000,7 +1060,7 @@
         },
         {
             "path": "tooling/upstream/index.mjs",
-            "sha256": "4dd5c7c490fcf10c77a932a0f03edbe5d076464c087be518850d75c21f15382d",
+            "sha256": "b7d09eeb5fbafd42e1e3feb0f5b013be1a5b8c55b05701774e3d7d3ee3286128",
             "deletion": "if-unchanged"
         },
         {
@@ -1010,7 +1070,7 @@
         },
         {
             "path": "tooling/verify/browser.mjs",
-            "sha256": "9f4e2266c197c1007ee1c47d098bb1bf7f5e7999d493f07a796d0a8c7c3733f6",
+            "sha256": "2555ca8cf043ee9f82f15cdf40b400d9850344ac76b671d2d9bc0aa7faf121a8",
             "deletion": "if-unchanged"
         },
         {

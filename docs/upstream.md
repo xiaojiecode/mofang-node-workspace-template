@@ -4,6 +4,8 @@
 
 checkout 模式仅在工作树干净、远端URL和 tracking 分支精确一致时 fetch + ff-only；不自动 stash/reset/rebase/切分支。生成项目是 managed 模式，从隔离缓存获取官方提交及 .agents/managed.json，校验格式/ABI/每文件摘要/路径，对本地L、已应用B、上游U做三方比较。本地与B/U都不同时整份更新冲突，绝不覆盖 nodes/、shared/、AGENTS.local.md、自定义技能或凭据。项目自定义包名在受管 package/lock 中保留。
 
+官方 `tests/` 为受管通用校验，随工具和规范更新；业务专属fixture与断言放 `nodes/<code>/fixtures` 或 `shared/`，不混入官方校验。新增受管文件与本地同名内容不同时会明确冲突，需要先核对来源再采用，不能因目录归属而覆盖已有改动。若旧bootstrap尚不支持新的受管根，应明确停止为incompatible；维护者在已授权升级中核对原文件摘要、备份并采用可信提交的bootstrap，再正常同步，不能放宽未知路径或盲目重置基线。
+
 受管资产按 `upstream manifest` 逐文件列举；发布前由维护者生成并一起提交。同步在写入前准备备份和文件，持有独占锁并保存 journal，逐文件写前重验哈希，最后保存完整状态标记。多文件更新不是文件系统原子；中断会留下 journal 并阻止 build/verify/trial/platform。`upstream recover` 只恢复仍等于写入前/后的文件，若中断后用户修改过则保留并报 conflict；活锁持有进程不能强删。
 
 package/lock 变化会置 dependenciesPending；先按可信 lock 完成 npm ci，再运行 `node tooling/cli.mjs upstream dependencies-ready` 校验安装版本并清除。同步本身不运行远端脚本或自动安装依赖；半更新和依赖未就绪时不加载业务构建。不要用改用户节点掩盖ABI/依赖不兼容。

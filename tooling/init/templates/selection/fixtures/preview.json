@@ -1,0 +1,116 @@
+{
+    "status": "waiting",
+    "mode": "manual",
+    "reviewPoint": false,
+    "inputClosed": true,
+    "productionFinished": false,
+    "nodeView": null,
+    "nodeOutput": {
+        "runId": "preview-run",
+        "nodeInstanceId": "preview-node",
+        "sessionId": "preview-session",
+        "items": [],
+        "total": 0,
+        "page": 1,
+        "pageSize": 20
+    },
+    "summary": {
+        "queued": 0,
+        "running": 0,
+        "waiting": 0,
+        "unknown": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "pendingEvents": 0,
+        "candidates": 0,
+        "pending": 0,
+        "released": 0,
+        "removed": 0
+    },
+    "permissions": {
+        "canEdit": false,
+        "canRelease": false,
+        "canDiscard": false,
+        "canAct": true,
+        "canEndReview": false,
+        "canControl": false,
+        "canResolveUnknown": false
+    },
+    "composition": {
+        "abi": "mf.node/1",
+        "snapshot": {
+            "sourceHash": "b07aa3a79b6e2311ff9ca22c3c2f6e86e645ff34637517edf8c3e57b6b5960be",
+            "sessionRevision": "1",
+            "configDigest": "9b94dd90c9da129ae46f25fd006c282e33021f98f077c7b475b3498b9da20c49",
+            "factsDigest": "e435ed647be705574a7e82db4e75be25c04cd7fac2b1534b252a5d1734790114"
+        },
+        "projection": {
+            "status": "ready",
+            "nodeView": {
+                "phase": "ready",
+                "inputReason": "completed",
+                "rows": [
+                    {
+                        "key": "preview-delivery",
+                        "product": {
+                            "collection": {
+                                "source": "fixture",
+                                "sourceUrl": "https://example.invalid/item/1"
+                            },
+                            "basic": {
+                                "title": "模板示例商品",
+                                "price": 12.5,
+                                "currency": "USD"
+                            }
+                        },
+                        "submitted": false
+                    }
+                ],
+                "nextStep": "本地 Mock 输入已关闭，可勾选提交或不提交并结束；不调用真实 API。"
+            },
+            "actions": [
+                {
+                    "name": "submit",
+                    "label": "提交所选商品",
+                    "description": "逐件生成候选，随后按运行模式流转或审核",
+                    "presentation": "panel",
+                    "payloadSchema": {
+                        "type": "object",
+                        "required": ["keys"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "keys": {
+                                "type": "array",
+                                "minItems": 1,
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            }
+                        }
+                    },
+                    "payloadSchemaDigest": "d493a815be69aa68c4809eed1cd57c404e11ef7e9f1c0c28c0a241017ee8b708",
+                    "availability": {
+                        "enabled": true
+                    }
+                },
+                {
+                    "name": "finish",
+                    "label": "不提交商品，结束选品",
+                    "description": "不提交未选择的商品，已有候选仍需处理",
+                    "presentation": "host",
+                    "payloadSchema": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": false
+                    },
+                    "payloadSchemaDigest": "99334726611ccf58a148b0814696bfa6fe08c1b2d027e946beccf5a74331c9aa",
+                    "availability": {
+                        "enabled": true
+                    }
+                }
+            ]
+        }
+    }
+}

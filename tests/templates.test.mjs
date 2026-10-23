@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import path from 'node:path'
-import { mkdtemp, mkdir, readFile, lstat, symlink } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, lstat, symlink, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
 import { transform } from 'esbuild'
 import { nodeFiles, presets } from '../tooling/init/templates.mjs'
@@ -64,4 +64,24 @@ test('冷初始化携带隐藏技能、共享CLI和受管基线，真实类型�
     )
     assert.equal(lit.status, 0, lit.stderr)
     assert.match(lit.stdout, /nodes/)
+    // Reusing a generated workspace as scaffolding must not carry its user's business helpers.
+    await writeFile(path.join(target, 'shared/user-business.ts'), "export const owner = 'user'\n")
+    const second = path.join(area, 'second-project')
+    const regenerated = spawnSync(
+        process.execPath,
+        [
+            path.join(target, 'tooling/init/project.mjs'),
+            '--dir',
+            second,
+            '--name',
+            'second-fixture',
+        ],
+        { cwd: target, encoding: 'utf8' },
+    )
+    assert.equal(regenerated.status, 0, regenerated.stdout + regenerated.stderr)
+    await assert.rejects(lstat(path.join(second, 'shared/user-business.ts')), { code: 'ENOENT' })
+    assert.equal(
+        await readFile(path.join(target, 'shared/user-business.ts'), 'utf8'),
+        "export const owner = 'user'\n",
+    )
 })
