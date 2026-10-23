@@ -12,9 +12,15 @@ python3 <技能目录>/scripts/mofang_node.py describe nodes update
 
 全局参数 `--profile`、`--state-dir`、`--timeout` 放在命令组之前。成功输出 `{"ok":true,"data":...}`；API、权限、输入和网络错误输出 `{"ok":false,"error":{"code":...,"message":...,"status":...}}` 并非零退出。`--help` 的参数错误走 argparse 的 stderr 和退出码 2。不要从退出 0 推断运行已经完成，仍需检查回执、发布状态与运行状态。
 
+## 开发入口与费用边界
+
+先运行 `guide` 取得离线开发事实、作者 API、接口字段含义、修订条件和effect，再按[节点开发入口](node-development.md)补齐业务条件。`describe` 只展示本地CLI目录，不探测远端ABI；`doctor --bundle <dist/编码>` 仅读取类型/目录/声明工具的元数据，并调用不落库的validate。未提供bundle时ABI为not_checked；403或连接失败不等于ABI不支持。
+
+默认不执行可能计费的Tool、模型、原子能力execute或工作流start；仅用户明确要求实际调用/试跑时才在授权范围执行。开发、查Schema、编译/validate不代表这种授权。本CLI没有直接执行Tool的命令。
+
 ## 环境和身份
 
-先让用户指定网关根地址及要操作的环境。页面地址只有实际代理 `/v1` 时才可作为 base-url；不要带具体 `/workflow/new` 路由或把页面查询参数当作网关前缀。后台与客户端身份独立，使用不同 profile。
+网关固定映射：`https://dev.api.mofang.com` 为测试、`https://api.mofang.com` 为正式、`https://pre.api.mofang.com` 为预发。按用户已指定的环境直接选择对应网关和独立profile；尚未指定时仅澄清目标环境。页面地址只有实际代理 `/v1` 时才可作为 base-url；不要带具体 `/workflow/new` 路由或把页面查询参数当作网关前缀。后台与客户端身份独立，使用不同 profile。
 
 ```bash
 # 交互式输入管理员密码；密码不出现在命令行或输出中。
@@ -45,16 +51,16 @@ python3 <技能目录>/scripts/mofang_node.py --profile demo-user auth verify \
 
 ```bash
 python3 <技能目录>/scripts/mofang_node.py --profile demo-admin capabilities list \
-    --query keyword=FastMoss --query page=1 --query size=50
+    --query channel_code=fastmoss --query page=1 --query size=50
 python3 <技能目录>/scripts/mofang_node.py --profile demo-admin capabilities get \
     --tool fastmoss_product_search
 python3 <技能目录>/scripts/mofang_node.py --profile demo-admin capabilities get --id <能力ID>
 python3 <技能目录>/scripts/mofang_node.py --profile demo-admin types list
 ```
 
-列表用于发现，完整定义以 get 为准；`--tool` 按精确 tool_name 匹配，必要时分页检索，再调用详情。读取 `input_schema`、`output_schema`、两者的 registered 标记、effective_enabled、async_execution 和 requires_workflow_context。字段未注册、缺失或上游不提供输出 Schema 时，明确记录缺口，不根据名字或样例猜造结构。异步能力须区分提交回执与最终结果，不能把任务号当作商品结果。没有后台目录读取权限时报告权限缺口，不使用内部无鉴权接口。
+列表用于发现，完整定义以 get 为准；`--tool` 分页读取未过滤目录后按精确tool_name匹配，再调用详情；keyword模糊查询不覆盖所有工具编码，空搜索结果不能证明能力不存在。读取 `input_schema`、`output_schema`、两者的 registered 标记、effective_enabled、async_execution 和 requires_workflow_context。字段未注册、缺失或上游不提供输出 Schema 时，明确记录缺口，不根据名字或样例猜造结构。异步能力须区分提交回执与最终结果，不能把任务号当作商品结果。没有后台目录读取权限时报告权限缺口，不使用内部无鉴权接口。
 
-节点主流类型从在线 `types list` 选择；作者开发类型从已安装节点模板的 `packages/contracts` 读取。原子能力的工具名、请求与响应以在线详情为准，无须搜索后端适配器源码。
+节点主流类型从在线 `types list` 选择；作者开发类型从已安装节点模板的 `lib/contracts` 读取。原子能力的工具名、请求与响应以在线详情为准，无须搜索后端适配器源码。
 
 ## 节点校验、创建和更新
 

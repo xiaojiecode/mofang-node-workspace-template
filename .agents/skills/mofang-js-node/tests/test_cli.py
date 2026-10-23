@@ -115,6 +115,7 @@ class CLITest(unittest.TestCase):
         self.assertEqual(result["data"]["input_schema"], schema)
         self.assertEqual(result["data"]["output_schema"], schema)
         self.assertIn("page=2", self.server.requests[-2][1])
+        self.assertTrue(all("keyword=" not in r[1] for r in self.server.requests[-3:-1]))
         self.assertEqual(self.server.requests[-1][1], "/v1/admin/atomic-capabilities/7")
 
     def test_node_bundle_update_preserves_revision_and_consumes_identity(self):
@@ -303,6 +304,151 @@ class CLITest(unittest.TestCase):
         self.assertEqual((code, result["error"]["code"]), (1, "unsafe_state"))
         with self.assertRaises(CLIError):
             HTTPClient("https://account:secret@example.invalid")
+
+    def bundle(self, tools=None):
+        folder = self.root / "node-bundle"
+        folder.mkdir()
+        value = {"code": "fixture", "name": "Fixture", "inputSchema": {}, "outputSchema": {}, "source": "const program = {}", "tools": tools or [], "maxToolCalls": 8, "timeoutSeconds": 0}
+        (folder / "node.json").write_text(json.dumps(value))
+        return str(folder)
+
+    def doctor_responses(self, validation=None, nodes=None):
+        return [(200, {"code": 0, "data": {"items": []}}),
+                (200, {"code": 0, "data": {"items": nodes or []}}),
+                (200, {"code": 0, "data": validation or {"valid": True, "programInterface": "mf.node/1", "scope": "syntax_and_contract"}})]
+
+    def test_guide_is_offline_and_describe_does_not_claim_remote_abi(self):
+        code, result = self.call(["guide"])
+        self.assertEqual(code, 0)
+        data = result["data"]
+        self.assertEqual(data["environments"]["test"], "https://dev.api.mofang.com")
+        self.assertEqual(data["environments"]["production"], "https://api.mofang.com")
+        self.assertEqual(data["environments"]["preproduction"], "https://pre.api.mofang.com")
+        self.assertEqual(data["remote_abi"], "not_checked")
+        self.assertFalse(self.state.exists())
+        self.assertEqual(self.server.requests, [])
+        validation = next(x for x in data["interfaces"] if x["command"] == "nodes validate")
+        self.assertEqual(validation["http_paths"], {"admin": "/v1/admin/workflow/nodes/javascript/validate"})
+        self.assertEqual(validation["effect"], "validate_without_persistence")
+        self.assertIn("source", validation["contract"]["body_fields"])
+        start = next(x for x in data["interfaces"] if x["command"] == "workflows start")
+        self.assertEqual(start["effect"], "execution_may_incur_cost")
+
+    def test_doctor_without_bundle_only_discovers_and_does_not_probe_guessed_paths(self):
+        self.login()
+        self.server.requests = []
+        self.server.responses = self.doctor_responses()[:2]
+        code, result = self.call(["doctor"])
+        self.assertEqual(code, 0, result)
+        self.assertEqual(result["data"]["status"], "discovered")
+        self.assertFalse(result["data"]["ready_for_catalog_save"])
+        self.assertEqual(result["data"]["remote_abi"]["status"], "not_checked")
+        self.assertEqual([r[:2] for r in self.server.requests], [("GET", "/v1/admin/workflow/type-schemas"), ("GET", "/v1/admin/workflow/nodes")])
+
+    def test_doctor_validates_new_abi_without_creating_or_executing(self):
+        self.login()
+        self.server.requests = []
+        self.server.responses = self.doctor_responses()
+        code, result = self.call(["doctor", "--bundle", self.bundle()])
+        self.assertEqual(code, 0, result)
+        self.assertTrue(result["data"]["ready_for_catalog_save"])
+        self.assertEqual(result["data"]["tool_execution_count"], 0)
+        self.assertEqual([r[1] for r in self.server.requests], ["/v1/admin/workflow/type-schemas", "/v1/admin/workflow/nodes", "/v1/admin/workflow/nodes/javascript/validate"])
+        self.assertNotIn("test-admin-token", json.dumps(result))
+
+    def test_doctor_legacy_validation_success_is_not_new_abi_support(self):
+        self.login()
+        self.server.responses = self.doctor_responses({"valid": True, "programInterface": "stages"})
+        code, result = self.call(["doctor", "--bundle", self.bundle()])
+        self.assertEqual(code, 1)
+        self.assertFalse(result["data"]["ready_for_catalog_save"])
+        self.assertEqual(result["error"]["code"], "doctor_blocked")
+
+    def test_doctor_permission_failure_does_not_mean_abi_unsupported(self):
+        self.login()
+        self.server.responses = self.doctor_responses()
+        self.server.responses[0] = (403, {"code": 403, "message": "denied"})
+        code, result = self.call(["doctor", "--bundle", self.bundle()])
+        self.assertEqual(code, 1)
+        self.assertEqual(result["data"]["status"], "blocked")
+        self.assertEqual(result["data"]["remote_abi"]["status"], "supported")
+
+    def test_doctor_missing_tool_schema_blocks_without_tool_execution(self):
+        self.login()
+        self.server.requests = []
+        responses = self.doctor_responses()
+        self.server.responses = responses[:2] + [
+            (200, {"code": 0, "data": {"list": [{"id": 7, "tool_name": "search"}], "total": 1}}),
+            (200, {"code": 0, "data": {"tool_name": "search", "input_schema": {}}}),
+            responses[2],
+        ]
+        code, result = self.call(["doctor", "--bundle", self.bundle(["search"])])
+        self.assertEqual(code, 1)
+        errors = [x["error"]["code"] for x in result["data"]["checks"] if x["status"] == "failed"]
+        self.assertIn("capability_schema_missing", errors)
+        self.assertEqual([r[1] for r in self.server.requests if r[0] != "GET"], ["/v1/admin/workflow/nodes/javascript/validate"])
+
+    def test_doctor_existing_go_definition_cannot_be_overwritten(self):
+        self.login()
+        self.server.requests = []
+        self.server.responses = self.doctor_responses(nodes=[{"code": "fixture", "codeRuntime": "go", "editable": False}])
+        code, result = self.call(["doctor", "--bundle", self.bundle()])
+        self.assertEqual(code, 1)
+        self.assertFalse(result["data"]["ready_for_catalog_save"])
+        self.assertFalse(any(r[1].endswith("/javascript") for r in self.server.requests))
+
+    def test_doctor_client_cannot_validate_bundle(self):
+        self.login("client")
+        self.server.requests = []
+        self.server.responses = self.doctor_responses()[:2]
+        code, result = self.call(["doctor", "--bundle", self.bundle()], profile="client")
+        self.assertEqual(code, 1)
+        self.assertTrue(all(r[0] == "GET" for r in self.server.requests))
+
+    def test_doctor_unknown_capability_flags_are_not_readiness(self):
+        self.login()
+        responses = self.doctor_responses()
+        self.server.responses = responses[:2] + [
+            (200, {"code": 0, "data": {"list": [{"id": 7, "tool_name": "search"}], "total": 1}}),
+            (200, {"code": 0, "data": {"tool_name": "search", "input_schema": {}, "output_schema": {}}}),
+            responses[2],
+        ]
+        code, result = self.call(["doctor", "--bundle", self.bundle(["search"])])
+        self.assertEqual(code, 1)
+        failures = [x for x in result["data"]["checks"] if x["status"] == "failed"]
+        self.assertEqual(failures[0]["error"]["code"], "capability_metadata_missing")
+        self.assertIn("async_execution", failures[0]["error"]["message"])
+
+    def test_describe_action_fields_match_http_wrappers(self):
+        for action, expected in [("action", "receipt.eventId"), ("action-result", "result.eventId"), ("actions", "items[]")]:
+            code, result = self.call(["describe", "runs", action])
+            self.assertEqual(code, 0)
+            contract = result["data"][0]["contract"]
+            self.assertIn(expected, contract["response_fields_to_inspect"])
+            self.assertNotIn("outcome", contract["response_fields_to_inspect"])
+            if action == "action":
+                self.assertIn("动作name", contract["body_fields"]["name"]["meaning"])
+
+    def test_doctor_accepts_explicit_false_flags_and_does_not_echo_private_metadata(self):
+        self.login()
+        responses = self.doctor_responses()
+        capability = {"tool_name": "search", "input_schema": {}, "output_schema": {}, "input_schema_registered": True, "output_schema_registered": True, "effective_enabled": True, "async_execution": False, "requires_workflow_context": False, "vendor_secret": "must-not-echo"}
+        self.server.responses = responses[:2] + [
+            (200, {"code": 0, "data": {"list": [{"id": 7, "tool_name": "search"}], "total": 1}}),
+            (200, {"code": 0, "data": capability}), responses[2],
+        ]
+        code, result = self.call(["doctor", "--bundle", self.bundle(["search"])])
+        self.assertEqual(code, 0, result)
+        check = next(x for x in result["data"]["checks"] if x["name"] == "capability:search")
+        self.assertIs(check["data"]["async_execution"], False)
+        self.assertNotIn("must-not-echo", json.dumps(result))
+
+    def test_doctor_rejects_unrelated_collection_json(self):
+        self.login()
+        self.server.responses = [(200, {"code": 0, "data": {"unexpected": True}}), (200, {"code": 0, "data": {"items": []}})]
+        code, result = self.call(["doctor"])
+        self.assertEqual(code, 1)
+        self.assertEqual(result["data"]["checks"][0]["error"]["code"], "invalid_response")
 
 
 if __name__ == "__main__":

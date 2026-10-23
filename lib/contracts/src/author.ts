@@ -22,9 +22,9 @@ export type NodeDefinition = Omit<
     interface: 'node' | 'panels'
 }
 export type JavaScriptValidation = {
-    programInterface: 'node'
+    programInterface: 'mf.node/1'
     valid: true
-    entry: string
+    entry: 'initialize'
     steps: string[]
     scope: 'syntax_and_contract'
     toolAvailability: 'checked_on_submission'

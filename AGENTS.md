@@ -21,6 +21,8 @@ nodes/、shared/、业务fixture和自定义技能的已提交修改参与普通
 
 ## 先确定任务与契约
 
+网关固定映射：dev.api.mofang.com=测试，api.mofang.com=正式，pre.api.mofang.com=预发，具体目标按用户指令。普通节点开发默认只读能力元数据、双Schema和修订并使用本地Mock；Tool可能计费，只有用户明确要求实际调用/试跑时才执行，不为取样或验收自动起跑。先运行CLI guide取得开发条件，doctor仅读取并仅对显式bundle做不落库validate；describe是离线目录，不能证明远端ABI。
+
 先区分讨论、审查、实施或实际试跑。契约、状态、并发、恢复、展示入口和外部操作的重要取舍先说明事实、选项和影响，等待确认；已确认范围内局部命名与常规验证自行完成。
 
 编写后台先读 .agents/skills/mofang-js-node/SKILL.md，编写双面板读 .agents/skills/mofang-lit-node/SKILL.md，并按需读取 .agents/skills/lit-best-practices/SKILL.md 的相关规则；宿主约束与本文件优先。在线能力和Schema通过正常CLI发现，不靠函数名、旧日志或示例猜测真实上游结构。

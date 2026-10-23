@@ -23,6 +23,7 @@ nodes/<code>/
   contract.ts    本节点类型与状态/动作 Schema
   settings.ts    宿主受控设置面板
   view.ts        Lit 业务面板
+  page.ts        可选节点级页面准备程序，缺省要求真实item输入
   tasks/         当前 StageProgram 阶段程序
   fixtures/      明确的本地验证数据
 lib/
@@ -60,7 +61,7 @@ npm run verify:goja
 npm run verify:platform -- --workspace /path/to/mofangv6
 ```
 
-`npm run check` 执行格式/类型/构建/产物/回归/浏览器/Goja。平台验证使用真实 Go 模块和页面编译器，不启动服务或写库；它不替代 Workflow 事务、权限、Tool 账本或完整业务。更完整的分层要求见 [验证表](docs/verification.md)。
+`npm run check` 执行格式/类型/构建/产物/回归/CLI回环测试/浏览器/Goja。平台验证使用真实 Go 模块和页面编译器，不启动服务或写库；它不替代 Workflow 事务、权限、Tool 账本或完整业务。更完整的分层要求见 [验证表](docs/verification.md)。
 
 fixtures/goja-test.js 使用普通 JavaScript 脚本语法，最后一个表达式提供验证结果。异步测试写成 `(async () => { /* 断言 */ return { passed: true } })()`，不写文件顶层 return。运行器分别加载程序与 fixture，检查异常、Promise 拒绝、未结清及缺少结果；函数内部 return 仍用于结果和分支控制。
 
@@ -69,6 +70,8 @@ fixtures/goja-test.js 使用普通 JavaScript 脚本语法，最后一个表达�
 缓存显式设置 `MF_CACHE_DIR`；npm 缓存用 `NPM_CONFIG_CACHE`，Go/Vite/浏览器材料由工具归该目录。正式 build 安全压缩并输出大小/耗时，属性名不混淆；build:dev 只改变可读性。fixture 页面明确是本地数据，不作为真实业务成功证据。
 
 ## 平台、技能与更新
+
+先运行 `npm run platform -- guide` 取得离线开发条件、作者API和常用接口；再用 `npm run platform -- --profile test-admin doctor --bundle dist/<编码>` 做只读环境预检和不落库ABI校验。未提供bundle不宣称远端ABI；仅查Schema和开发不授权执行可能计费的Tool。完整入口见[节点开发指南](.agents/skills/mofang-js-node/references/node-development.md)。
 
 平台 CLI：`npm run platform -- describe`。JS/Lit 技能分别见 [.agents/skills/mofang-js-node](.agents/skills/mofang-js-node/SKILL.md)、[.agents/skills/mofang-lit-node](.agents/skills/mofang-lit-node/SKILL.md)及 [Lit 最佳实践](.agents/skills/lit-best-practices/SKILL.md)。CLI 登录资料保存在用户指定的受限配置，密码/token 不进入源码、日志或报告。目录保存、实例采用、双面板发布和新运行分别核对目标与修订。
 
