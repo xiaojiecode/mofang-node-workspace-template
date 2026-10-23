@@ -1,11 +1,9 @@
 import path from 'node:path'
 import { build } from 'esbuild'
 import { root } from '../paths.mjs'
-export const litMode =
-    process.env.MF_LIT_MODE ??
-    (process.argv.includes('--development') ? 'development' : 'production')
-if (!['production', 'development'].includes(litMode))
-    throw new Error('MF_LIT_MODE 必须为 production 或 development')
+// 两种构建仅在可读性和压缩上不同，指令始终匹配统一宿主 ABI。
+export const litMode = 'production'
+export const buildMode = process.argv.includes('--development') ? 'development' : 'production'
 export const forbiddenGoja = new Set([
     'fetch',
     'XMLHttpRequest',
@@ -35,7 +33,7 @@ export const forbiddenGoja = new Set([
  */
 export async function bundle(file, kind, options = {}) {
     const started = performance.now()
-    const minify = options.minify ?? litMode === 'production'
+    const minify = options.minify ?? buildMode === 'production'
     const panel = kind === 'panel'
     // The platform manifest accepts ordinary functions; lower async methods before submission.
     const result = await build({

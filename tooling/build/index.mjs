@@ -4,15 +4,15 @@ import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 import { version as esbuildVersion } from 'esbuild'
 import { root, dist, nodeCodes } from '../paths.mjs'
-import { bundle, loadDefinition, litMode } from './bundle.mjs'
+import { bundle, loadDefinition, litMode, buildMode } from './bundle.mjs'
 
 /** 统一以 KiB 展示字节数；manifest 中保留整数 bytes，便于机器比较。 */
 const size = (bytes) => `${(bytes / 1024).toFixed(2)} KiB`
 const milliseconds = (value) => Number(value.toFixed(2))
 const started = performance.now()
 const report = {
-    mode: litMode,
-    minified: litMode === 'production',
+    mode: buildMode,
+    minified: buildMode === 'production',
     esbuildVersion,
     nodes: [],
     artifacts: 0,
@@ -36,7 +36,7 @@ for (const code of await nodeCodes()) {
         ...(definition.interface === 'panels' ? [] : [['executor', 'executor']]),
     ]
     const artifacts = {}
-    console.log(`\n${code} · ${litMode}${report.minified ? ' · minify' : ''}`)
+    console.log(`\n${code} · ${buildMode}${report.minified ? ' · minify' : ''}`)
     console.log('产物                  编译后大小       gzip 参考       编译耗时')
     for (const [entry, kind] of entries) {
         const relative = definition.entries[entry]
@@ -89,7 +89,7 @@ for (const code of await nodeCodes()) {
                 code,
                 interface: programInterface,
                 litMode,
-                build: { minified: report.minified, esbuildVersion, durationMs },
+                build: { mode: buildMode, minified: report.minified, esbuildVersion, durationMs },
                 artifacts,
             },
             null,

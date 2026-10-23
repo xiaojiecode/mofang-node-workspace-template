@@ -62,7 +62,7 @@ npm run check
 
 公共组件在编译时分别内联进双面板，最终只保留 `lit` 运行时导入。官方 Lit 指令的代码可以内联，所引用的核心映射到宿主 `lit`，不打入第二份核心。面板根类只导出，由平台按产物哈希注册。
 
-官方指令必须匹配宿主的 Lit 构建模式：`npm run build` 默认生成生产产物，用于已部署的生产客户端；本地 Vite 开发宿主使用 `npm run build:dev`。两者都固定 Lit 3.3.3。manifest 记录模式，产物预览会加载匹配的核心；源码预览使用开发版。不要把生产指令与开发核心混用。组件、类型和业务逻辑共用，模式只控制编译条件。
+节点面板与所有宿主统一使用 Lit 3.3.3 的生产运行时，包括本地 Vite、测试和正式部署。`npm run build` 生成压缩产物，`npm run build:dev` 生成可读产物；两者只在压缩和调试可读性上不同，指令使用相同 ABI，可跨环境加载。跨宿主回归使用 `npm run verify:runtime -- --workspace <mofangv6>`，覆盖浏览器入口、渲染、受控输入与只读行为。manifest 的 `litMode` 固定为 production，`build.mode` 记录构建方式。宿主固定解析 Lit 核心及子路径的生产入口，不根据环境切换运行时；预览也使用同一核心。
 
 
 ## 代码格式、注释与构建报告
@@ -71,7 +71,7 @@ npm run check
 
 生命周期、阶段执行、页面数据程序与通用函数含中文说明，覆盖调用时机、参数、返回和副作用限制。`export default` 前保留 `// noinspection JSUnusedGlobalSymbols`，供 IDE 识别由构建器或宿主消费的入口。脚手架源码在 `tooling/init/templates/`，初始化项目和 `node:new` 均从这些文件生成；修改模板后需运行对应脚手架检查。
 
-正式 `npm run build` 使用 esbuild 的语法、标识符和空白压缩、tree shaking 与 UTF-8 输出；保留属性名、函数/类名及宿主 ABI，Goja 仍降级到 ES2016。源码中文注释只用于开发，不进入发布产物。`npm run build:dev` 保留可读代码，并匹配开发版 Lit 核心。
+正式 `npm run build` 使用 esbuild 的语法、标识符和空白压缩、tree shaking 与 UTF-8 输出；保留属性名、函数/类名及宿主 ABI，Goja 仍降级到 ES2016。源码中文注释只用于开发，不进入发布产物。`npm run build:dev` 保留可读代码，仍使用同一生产版 Lit 核心。
 
 每个产物输出编译后大小、gzip 参考大小与编译耗时，结尾汇总节点数、产物数、总体积和总耗时。`dist/<code>/manifest.json` 保存字节数、来源字节数、gzip 大小、摘要及耗时；`dist/build-report.json` 保存整次汇总。gzip 使用 level 9 独立估算，不代表宿主实际传输方式；源字节数是该入口依赖文件大小之和，不能当作未经压缩的 bundle 大小。
 

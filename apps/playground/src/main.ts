@@ -23,7 +23,6 @@ const previous: ReturnType<typeof createFixture>[] = []
 const elements: Array<LitElement & PanelProps> = []
 const draft: Record<string, unknown> = { note: '本地预览' }
 const artifacts = new URLSearchParams(location.search).has('artifacts')
-const productionRuntimeURL = '/__production-lit.js'
 function renderDraft() {
     document.querySelector('#draft')!.textContent = JSON.stringify(draft, null, 2)
     document.querySelector('#mode')!.textContent = readOnly ? '只读' : '可编辑'
@@ -59,14 +58,8 @@ async function mount() {
                     .default
             const response = await fetch('/__artifact/' + active + '/' + surface)
             if (!response.ok) throw new Error('请先 npm run build')
-            const { compiled, litMode } = (await response.json()) as {
-                compiled: string
-                litMode: 'production' | 'development'
-            }
-            const lit: typeof import('lit') =
-                litMode === 'development'
-                    ? await import('lit')
-                    : await import(/* @vite-ignore */ productionRuntimeURL)
+            const { compiled } = (await response.json()) as { compiled: string }
+            const lit = await import('lit')
             const module = { exports: {} as { default: typeof LitElement } }
             new Function('require', 'module', 'exports', compiled)(
                 (name: string) => {
