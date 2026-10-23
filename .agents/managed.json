@@ -195,7 +195,7 @@
         },
         {
             "path": ".agents/skills/mofang-js-node/references/authoring.md",
-            "sha256": "522cdb5ac6d67abb429503468e06956b718f004139f4719607ff2806e84e067c",
+            "sha256": "6b8a133f1a7d889f8a46f111ae7b312516bb5eb3f12d7558f9aa6a6638a95737",
             "deletion": "if-unchanged"
         },
         {
@@ -209,8 +209,13 @@
             "deletion": "if-unchanged"
         },
         {
+            "path": ".agents/skills/mofang-js-node/references/node-development.md",
+            "sha256": "36b469705901dc3dca96d5cc138c03a3bf716c61f765bf2d292775d8752c8db1",
+            "deletion": "if-unchanged"
+        },
+        {
             "path": ".agents/skills/mofang-js-node/references/platform-cli.md",
-            "sha256": "e7bdbc97b7ffaa90295a9ecc8b647e227eaf123078b7c5ad6011e8760e424325",
+            "sha256": "70f570ab0fa7cfa889468730a0e598dd523ad86838537477200eed866b380f88",
             "deletion": "if-unchanged"
         },
         {
@@ -235,7 +240,7 @@
         },
         {
             "path": ".agents/skills/mofang-js-node/scripts/mofang_cli/cli.py",
-            "sha256": "7b0c37d3e85267d72cca7ae9979308584f09c0789bc464b97eefb6bfdda3d478",
+            "sha256": "14d6bbde14818b677bbfe215cbe554f87e0758411e6a2f611f75c21fecf2f4b9",
             "deletion": "if-unchanged"
         },
         {
@@ -244,8 +249,18 @@
             "deletion": "if-unchanged"
         },
         {
+            "path": ".agents/skills/mofang-js-node/scripts/mofang_cli/contracts.py",
+            "sha256": "3f029a4ea5241a1921c6e74b8afd6326d9b50184fc7202ef7a281c0259c70667",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": ".agents/skills/mofang-js-node/scripts/mofang_cli/development.py",
+            "sha256": "8f89dcfa7971a394c79da2459d4955a6c7fd159b40638c285209752e2e455924",
+            "deletion": "if-unchanged"
+        },
+        {
             "path": ".agents/skills/mofang-js-node/scripts/mofang_cli/operations.py",
-            "sha256": "e25b539add326ea4ee5142df5e89b03793244985e0a9e92a2c9ebdcae77fcd0f",
+            "sha256": "4e43073f11d5072642ea5d27897f351550091abb9984c95d3a740050fe1d3c31",
             "deletion": "if-unchanged"
         },
         {
@@ -255,12 +270,12 @@
         },
         {
             "path": ".agents/skills/mofang-js-node/SKILL.md",
-            "sha256": "92e5f8b2e1a6e7dc073bfb24956661d038f0310db9ebef550285306888431386",
+            "sha256": "e939876a855f6a9941bb365790d642545abe9d6dfa58e60a1b8f593806c14e84",
             "deletion": "if-unchanged"
         },
         {
             "path": ".agents/skills/mofang-js-node/tests/test_cli.py",
-            "sha256": "7bdaf36e4e91659c85df16efcb9933ad5d35435b866719ea0a3b400611296aaa",
+            "sha256": "516d66838aa6864308a5c4b5fe60259ac57f269fada3f04867efc1ff376e5587",
             "deletion": "if-unchanged"
         },
         {
@@ -290,7 +305,7 @@
         },
         {
             "path": ".agents/skills/mofang-lit-node/references/projection-actions.md",
-            "sha256": "f81b253157b2cfeeb7cf83d9e1a29326ed59fddd4bfb9e0b40bce036a0261d39",
+            "sha256": "1aa67ee15cb722e48bef77f790394468be3340e0e48112c857c5d241966176e3",
             "deletion": "if-unchanged"
         },
         {
@@ -310,7 +325,7 @@
         },
         {
             "path": ".agents/skills/mofang-lit-node/SKILL.md",
-            "sha256": "1e5de8aaa7689fc6c930c109839487b2df5d43f7925c60958b746e341953de62",
+            "sha256": "3d8e961659b9bd12cf5d7bced8a25c5ddd9caa98c3139d3948543c6bd661f693",
             "deletion": "if-unchanged"
         },
         {
@@ -345,7 +360,7 @@
         },
         {
             "path": "AGENTS.md",
-            "sha256": "7510852eed092fb652617eafab68423b312bba9064ea21f07304cbf706c58608",
+            "sha256": "34b10f73cf58d9dc58cfafb7b1353412bd6acb1c5cd905e2a6e8dc5b86f2ff7a",
             "deletion": "if-unchanged"
         },
         {
@@ -365,7 +380,7 @@
         },
         {
             "path": "docs/platform.md",
-            "sha256": "e7bdbc97b7ffaa90295a9ecc8b647e227eaf123078b7c5ad6011e8760e424325",
+            "sha256": "0c09756c23e1a6dbe9c76c55d2acf7e83469efde402a31672aa461e00575829d",
             "deletion": "if-unchanged"
         },
         {
@@ -375,7 +390,7 @@
         },
         {
             "path": "docs/verification.md",
-            "sha256": "564c02b03ab030128db5ad65f4726a2bd1b99d745202c3f6f5a776b715e4203b",
+            "sha256": "68f8f7cfc9d8220d46afb1d06a3f1044dc751d8e50329544ed576d5cf5584a13",
             "deletion": "if-unchanged"
         },
         {
@@ -520,7 +535,7 @@
         },
         {
             "path": "lib/contracts/src/author.ts",
-            "sha256": "1288cdcc3f4574c0ac8f33ce3dbea42c55f1f4b491024926a9e9ea302a9b4c9b",
+            "sha256": "531e8a03e0142231b8f5180c4ffe304cece5eadffa7de23b63190893fe1d0ff6",
             "deletion": "if-unchanged"
         },
         {
@@ -755,7 +770,7 @@
         },
         {
             "path": "package.json",
-            "sha256": "5b4e479d28f69df1a3fce3b0023b7579e32e5e83a01bbd3d4b8a5c82355a2040",
+            "sha256": "00b6b2b8decf18a6fc223c855fbb989258d4359fccc942dc4d783cf90f3d9a19",
             "deletion": "if-unchanged"
         },
         {
@@ -790,7 +805,7 @@
         },
         {
             "path": "README.md",
-            "sha256": "4b92338598cfa9d58b817d6bb29c0dd83e59ea47afe610e4422d608a4772a64a",
+            "sha256": "538933f3ae03d0ec11ea959fdcb1205d3105955fdcb9e9ca3b3a5fc7f01ce663",
             "deletion": "if-unchanged"
         },
         {
@@ -825,12 +840,12 @@
         },
         {
             "path": "tests/templates.test.mjs",
-            "sha256": "280efd69ff2a705adb11f6955fa99ca4b28de50cf75072f41f21f856df145f6f",
+            "sha256": "c4e143eb167b5910195879668137b621f1502412a2c1396cbe10280ca57c4fce",
             "deletion": "if-unchanged"
         },
         {
             "path": "tests/types/browser.ts",
-            "sha256": "0ce16a298b9352ccd687625a3d60236cf927f147200a3a66c4933185da1e2059",
+            "sha256": "81845bcab28e8216da3746d8d52dbe8b561a9fcc4bc51f0e4db94e2bfd42f0a8",
             "deletion": "if-unchanged"
         },
         {
@@ -855,7 +870,7 @@
         },
         {
             "path": "tooling/build/index.mjs",
-            "sha256": "cb371175e3d47041b81a66ed6df1ad6d5ce1a11e99335cd0d4772217b2015e8f",
+            "sha256": "bc74f1237efe1fcd42eb1498bbc4cf91d0400e3f83ed94c2462cf9a1fd1c0466",
             "deletion": "if-unchanged"
         },
         {
@@ -1076,6 +1091,11 @@
         {
             "path": "tooling/verify/browser.mjs",
             "sha256": "2555ca8cf043ee9f82f15cdf40b400d9850344ac76b671d2d9bc0aa7faf121a8",
+            "deletion": "if-unchanged"
+        },
+        {
+            "path": "tooling/verify/cli.mjs",
+            "sha256": "cdcd975fc0035ecbdba530d9e02e1cff7be86427cd2c32b958f55d0cec079361",
             "deletion": "if-unchanged"
         },
         {

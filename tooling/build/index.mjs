@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { mkdir, writeFile, rm, readFile } from 'node:fs/promises'
+import { access, mkdir, writeFile, rm, readFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 import { version as esbuildVersion } from 'esbuild'
@@ -29,10 +29,17 @@ for (const code of await nodeCodes()) {
     const out = path.join(dist, code)
     await rm(out, { recursive: true, force: true })
     await mkdir(out, { recursive: true })
+    let pageSource = '../../lib/browser/page.ts'
+    try {
+        await access(path.join(directory, 'page.ts'))
+        pageSource = 'page.ts'
+    } catch (error) {
+        if (error.code !== 'ENOENT') throw error
+    }
     const entries = [
         ['settings', 'panel', 'settings.ts'],
         ['business', 'panel', 'view.ts'],
-        ['pageProgram', 'page-program', '../../lib/browser/page.ts'],
+        ['pageProgram', 'page-program', pageSource],
         ...(definition.interface === 'panels' ? [] : [['executor', 'executor', 'run.ts']]),
     ]
     const artifacts = {}

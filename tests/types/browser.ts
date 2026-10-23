@@ -2,6 +2,16 @@ import type { MofangSDK, PanelProps, PageProgramContext, NodeView } from '@mofan
 import { HostPanel } from '@mofang/browser'
 import { productSummary, textField } from '@mofang/browser'
 import type { Product } from '@mofang/contracts/business'
+import type { JavaScriptValidation } from '@mofang/contracts/author'
+const moduleValidation: JavaScriptValidation = {
+    programInterface: 'mf.node/1',
+    valid: true,
+    entry: 'initialize',
+    steps: ['initialize', 'handle', 'project'],
+    scope: 'syntax_and_contract',
+    toolAvailability: 'checked_on_submission',
+}
+void moduleValidation
 declare const sdk: MofangSDK
 declare const props: PanelProps
 type IsAny<T> = 0 extends 1 & T ? true : false

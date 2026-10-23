@@ -27,6 +27,7 @@
 | A21 | 真实业务采用 FastMoss 等 | 保留原工具/阶段/report/页面；明确真实/mock 范围；同一运行完整到最终结清 | 授权真实链路 |
 | A22 | 根工程发现、三种配置、类型退化与冷初始化 | IDE 从根 references 找到 run/tasks；逐个工程真实 tsc；Product/SDK/阶段输入不是 any，扩展属性保持 unknown；Goja/页面程序仍拒绝 DOM、fetch、Node 全局 | 类型+IDE |
 | A23 | fixture 普通脚本语法与最后表达式 | 示例和冷生成文件无顶层 return；异步成功返回完整结果，await 后失败、pending、缺少结果及源程序失败均被拒绝，不能回用源程序完成值 | 脚本解析+真实 Goja |
+| A24 | guide/describe离线事实与doctor预检边界 | 无会话也可离线guide；完整路径/身份/字段和effect；doctor只有GET与显式bundle validate，403/旧ABI/缺Schema/Go只读定义分别失败，无Tool执行/保存/发布；CLI回环测试纳入check | CLI+契约 |
 
 每份验收记录必须包含源提交/冻结 hash、用例输入、期望与实际结果、完整退出状态及未覆盖项。fixture/Mock 通过只证明所覆盖的本地分支，不能替代 RPC、数据库锁/事务、页面可达、真实 Tool 或演示环境。新 author library 的实现不能成为测试唯一 oracle；至少在真实 pkg/jsprogram/Workflow/浏览器边界各验证一次关键反例。
 

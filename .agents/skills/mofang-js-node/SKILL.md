@@ -15,9 +15,31 @@ description: 编写、校验和发布魔方 Goja JS 节点，使用 React 风格
 
 ## 连接与发现
 
-入口沿用本技能scripts/mofang_node.py，先describe发现真实操作，再用管理员/客户端独立profile。读取types及实际Tool双Schema、许可和异步语义。连接和读写边界见[平台说明](../../../docs/platform.md)。密码/token不写技能、源码或报告。
+先运行 `python3 <本技能>/scripts/mofang_node.py guide`，一次取得环境、作者API、文件职责、接口字段和结束规则；按[节点开发入口](references/node-development.md)补齐条件，保留已有业务。
 
-核对目标平台实际支持mf.node/1。新能力尚未实现就报告具体缺口，不因本地包或案例存在而猜方法。后台业务仍经AgentCtl/Tool，不直连HTTP、数据库、文件或浏览器。
+| 网关根地址 | 环境 |
+| --- | --- |
+| `https://dev.api.mofang.com` | 测试 |
+| `https://api.mofang.com` | 正式 |
+| `https://pre.api.mofang.com` | 预发 |
+
+按用户已指定环境使用独立admin/client profile。默认只读能力元数据、双Schema和修订并运行本地Mock。**Tool可能计费；开发节点不等于授权执行Tool，只有用户明确要求实际调用/试跑时才执行。**不为猜响应或验收而自动执行Tool、模型、原子能力execute或启动工作流；已有明确授权在同一范围内沿用。
+
+`describe`是离线目录，包含完整http_paths、身份、字段解释、条件和effect，不证明远端版本。运行`--profile <同环境管理员> doctor --bundle <dist/编码>`读取目录/Schema并调用不落库validate；检查每条check和ready_for_catalog_save，不能把discovered当作ABI已确认。密码/token不写文档或报告。
+
+| 常用操作 | 正式HTTP入口 | 必要条件 |
+| --- | --- | --- |
+| 能力目录/详情，只读 | `GET /v1/admin/atomic-capabilities`、`GET /v1/admin/atomic-capabilities/{id}` | admin；精确tool_name及完整双Schema |
+| 可信类型，只读 | `GET /v1/admin/workflow/type-schemas` | admin；client对应`/v1/workflow/type-schemas` |
+| 当前源码/修订，只读 | `GET /v1/admin/workflow/nodes/{code}/javascript` | admin；核对editable和目录身份/修订 |
+| ABI/契约校验，不落库 | `POST /v1/admin/workflow/nodes/javascript/validate` | admin；完整bundle；valid且programInterface=mf.node/1 |
+| 创建/更新目录 | `POST /v1/admin/workflow/nodes/javascript`、`PUT /v1/admin/workflow/nodes/{code}/javascript` | 用户要求保存；更新携带expectedCatalogInstanceId/Revision |
+| 两份页面 | `GET/PUT /v1/admin/workflow/nodes/{code}/page` | admin；显式surface；business同时提供programSource |
+| 页面发布/回执 | `POST /v1/admin/workflow/nodes/{code}/page/releases`、`GET /v1/admin/workflow/page-releases/{releaseId}` | 用户授权scope/targets，不自动all_instances |
+
+完整请求条件、鉴权和CLI示例见[平台CLI](references/platform-cli.md)。
+
+通过实际validate回执核对mf.node/1；不存在约定的`/nodes/javascript/abi`或`/workflow/abi`探测端点。403先区分权限/会话；不根据离线describe、域名或猜测地址的404断言版本。Git本地dev、远端dev与实际部署构建分别核对。新能力缺失不降级旧根ABI；后台真实调用仍经AgentCtl/Tool，不直连HTTP、数据库、文件或浏览器。
 
 ## 函数节点作者 API
 

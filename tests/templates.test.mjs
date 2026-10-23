@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import path from 'node:path'
 import { mkdtemp, mkdir, readFile, lstat, symlink, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
+import { pathToFileURL } from 'node:url'
 import { transform } from 'esbuild'
 import { parse } from 'acorn'
 import { nodeFiles, presets } from '../tooling/init/templates.mjs'
@@ -65,6 +66,16 @@ test('冷初始化携带隐藏技能、共享CLI和受管基线，真实类型�
         await readFile(path.join(target, '.agents/upstream-state.json'), 'utf8'),
     )
     assert.ok(baseline.files['tooling/tsconfig.browser.json'])
+    // 只在隔离冷工程中覆写copy，保留真实商品输入契约并验证构建选择page.ts。
+    await writeFile(
+        path.join(target, 'nodes/copy/page.ts'),
+        `
+import type { PagePreparation, PageProgramContext } from '@mofang/contracts/page-program'
+export async function prepareInput(_context: PageProgramContext): Promise<PagePreparation> {
+    return { kind: 'requires_input', fields: ['item'], reason: 'cold-node-page-override' }
+}
+`,
+    )
     for (const script of ['typecheck', 'build', 'verify']) {
         const result = spawnSync('npm', ['run', script], {
             cwd: target,
@@ -73,6 +84,21 @@ test('冷初始化携带隐藏技能、共享CLI和受管基线，真实类型�
         })
         assert.equal(result.status, 0, script + ': ' + result.stdout + result.stderr)
     }
+    // 自定义程序与默认程序都保持真实输入要求，差异证明没有忽略节点级入口。
+    const pageContext = {
+        context: { input: {} },
+        deliveries: [],
+        read() {
+            throw new Error('unexpected data read')
+        },
+    }
+    const selectionPage = await import(
+        pathToFileURL(path.join(target, 'dist/selection/pageProgram.js')).href
+    )
+    assert.deepEqual((await selectionPage.prepareInput(pageContext)).fields, ['item'])
+    const copyPage = await import(pathToFileURL(path.join(target, 'dist/copy/pageProgram.js')).href)
+    assert.deepEqual((await copyPage.prepareInput(pageContext)).fields, ['item'])
+    assert.equal((await copyPage.prepareInput(pageContext)).reason, 'cold-node-page-override')
     // 逐个注入真实类型错误，防止根配置变为 solution 后 CLI 只检查了空入口。
     for (const file of [
         'tests/types/browser.ts',

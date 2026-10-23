@@ -6,6 +6,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 from .connection import CLIError
+from .contracts import operation_contract
 
 
 @dataclass(frozen=True)
@@ -69,8 +70,24 @@ def read_object(filename):
 
 
 def describe(group=None, action=None):
-    return [{"command": f"{g} {a}", **asdict(op), "body_path_fields": path_fields(op.path)}
-            for (g, a), op in OPERATIONS.items() if (not group or group == g) and (not action or action == a)]
+    rows = []
+    for (g, a), op in OPERATIONS.items():
+        if (group and group != g) or (action and action != a):
+            continue
+        roles = ["admin"] if op.admin else ["admin", "client"]
+        if op.method == "GET":
+            effect = "read"
+        elif (g, a) in (("nodes", "validate"), ("panels", "compile")):
+            effect = "validate_without_persistence"
+        elif (g, a) in (("workflows", "start"), ("runs", "action")):
+            effect = "execution_may_incur_cost"
+        else:
+            effect = "write_requires_user_scope"
+        rows.append({"command": f"{g} {a}", **asdict(op), "body_path_fields": path_fields(op.path),
+                     "discovery_scope": "offline_operation_catalog", "remote_abi": "not_checked",
+                     "http_paths": {role: api_path(op, role, op.path) for role in roles},
+                     "effect": effect, "contract": operation_contract(g, a, op)})
+    return rows
 
 
 def path_fields(path):

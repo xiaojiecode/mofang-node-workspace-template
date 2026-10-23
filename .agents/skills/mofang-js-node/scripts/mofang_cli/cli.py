@@ -10,6 +10,7 @@ import sys
 
 from .connection import CLIError, HTTPClient, Sessions, base_url
 from .operations import OPERATIONS, api_path, describe, path_fields, prepare
+from .development import doctor, guide
 
 
 def secret(args, prompt):
@@ -67,7 +68,8 @@ def auth(args, sessions):
 def capability_by_name(client, tool):
     page = 1
     while True:
-        value = client.call("GET", "/v1/admin/atomic-capabilities", query={"page": page, "size": 100, "keyword": tool})
+        # keyword只覆盖显示信息，不能证明精确tool_name不存在；按正式分页目录匹配身份。
+        value = client.call("GET", "/v1/admin/atomic-capabilities", query={"page": page, "size": 100})
         if not isinstance(value, dict) or not isinstance(value.get("list"), list) or not isinstance(value.get("total"), int):
             raise CLIError("invalid_response", "原子能力列表结构不完整")
         for item in value["list"]:
@@ -82,6 +84,8 @@ def capability_by_name(client, tool):
 
 
 def run(args):
+    if args.group == "guide":
+        return guide()
     if args.group == "describe":
         rows = describe(args.resource, args.operation)
         if not rows:
@@ -90,6 +94,10 @@ def run(args):
     sessions = Sessions(args.state_dir, args.profile)
     if args.group == "auth":
         return auth(args, sessions)
+    if args.group == "doctor":
+        session = sessions.load()
+        client = HTTPClient(session["base_url"], session["access_token"], args.timeout)
+        return doctor(client, session, args, capability_by_name)
     op = OPERATIONS[(args.group, args.action)]
     session = sessions.load()
     # 权限先于请求；后台作者与客户端所有者始终使用各自的正式入口。
@@ -111,6 +119,9 @@ def parser():
     cli.add_argument("--state-dir", default=os.environ.get("MOFANG_NODE_STATE_DIR", str(Path.home() / ".local/share/mofang-node-cli")), help="私有会话目录；目录 0700、文件 0600")
     cli.add_argument("--timeout", type=float, default=30, help="HTTP 超时秒数；无自动重试")
     groups = cli.add_subparsers(dest="group", required=True)
+    groups.add_parser("guide", help="离线开发入口：环境、作者规则、文件、条件、接口与费用边界；不访问网络")
+    diagnosis = groups.add_parser("doctor", help="只读环境预检；提供bundle才执行不落库validate，绝不执行Tool或发布")
+    diagnosis.add_argument("--bundle", help="已构建dist/<code>，读取node.json；不提供时不推断远端ABI")
     info = groups.add_parser("describe", help="离线查看操作路径、角色、必填字段及请求示例")
     info.add_argument("resource", nargs="?")
     info.add_argument("operation", nargs="?")
@@ -164,6 +175,9 @@ def main(argv=None):
         if not math.isfinite(args.timeout) or args.timeout <= 0:
             raise CLIError("invalid_argument", "timeout 必须是正数")
         data = run(args)
+        if args.group == "doctor" and data["status"] == "blocked":
+            print(json.dumps({"ok": False, "data": data, "error": {"code": "doctor_blocked", "message": "环境预检存在缺口，见checks；未执行Tool或发布"}}, ensure_ascii=False, allow_nan=False))
+            return 1
         print(json.dumps({"ok": True, "data": data}, ensure_ascii=False, allow_nan=False))
         return 0
     except CLIError as exc:

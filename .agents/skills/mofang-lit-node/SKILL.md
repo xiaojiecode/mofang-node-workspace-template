@@ -17,7 +17,11 @@ settings位于宿主右侧设置内容区，宿主保留导航和统一保存/�
 
 ## 连接与工程
 
-CLI入口复用相邻mofang-js-node脚本，两个技能一起安装。先describe/读取类型、定义和settings/business修订，平台操作见[连接说明](../../../docs/platform.md)。密码/token不入文档。
+CLI复用相邻mofang-js-node脚本，两个技能一起安装。先运行`guide`取得完整条件和接口，再用`--profile <同环境管理员> doctor --bundle <dist/编码>`读取真实环境并静态校验。`describe`是离线目录，不证明远端ABI；开发流程见[共用节点指南](../mofang-js-node/references/node-development.md)，接口条件见[平台CLI](../mofang-js-node/references/platform-cli.md)。密码/token不入文档。
+
+网关：`https://dev.api.mofang.com`是测试，`https://api.mofang.com`是正式，`https://pre.api.mofang.com`是预发，按用户指定环境选择独立profile。默认只读元数据/Schema和本地Mock；Tool可能计费，只有用户明确要求实际调用/试跑时才执行，不为取样自动调用Tool、模型或真实起跑；已有授权在同一范围内沿用。
+
+常用面板接口：`GET/PUT /v1/admin/workflow/nodes/{code}/page`（显式surface和目录身份/修订），`POST /v1/admin/workflow/nodes/page/compile`（不落库），`POST /v1/admin/workflow/nodes/{code}/page/releases`（显式scope/targets）和`GET /v1/admin/workflow/page-releases/{releaseId}`（查询原回执）。业务读取为`GET /v1/workflow/runs/{runId}/nodes/{nodeInstanceId}/view`，动作POST同资源`/actions`，结果GET`/actions/{eventId}`；面板运行时通过宿主SDK访问，不自建HTTP链路。
 
 node.ts保存目录元数据、contract.ts维护契约，settings.ts与view.ts独立构建；公共展示在lib/browser，后台不得引用它。保存发布每个surface后回读，实例发布有明确目标；页面发布不等于执行定义采用。
 
