@@ -253,6 +253,7 @@ export async function initializeGitHistory(directory, source = defaultRoot) {
 export async function initializeWorkspace(directory, sourceCommit) {
     await save(directory, 'upstream.json', {
         version: 2,
+        kind: 'project',
         source: { url: official, ref: 'main' },
         related: [],
     })

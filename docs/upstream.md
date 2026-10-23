@@ -4,6 +4,8 @@
 
 新工程从模板提交取得 Git 祖先，再提交包名、所选节点和初始化配置。refs/mofang/template 记录最近采用的模板提交；从已有生成工程再初始化时只取该模板祖先，不带入后续业务提交。初始化不会配置业务 origin，业务仓库远端由项目维护者设置。
 
+配置的 kind=template/project 仅区分官方模板案例校验与生成工程的通用 ABI 校验，两者均使用相同 Git 合并更新方式。
+
 更新要求工作树干净，执行 fetch 和普通 merge，把整个上游提交合入当前分支。没有受管清单或逐技能白名单；新增技能、工具及其它文件都按 Git 处理。本地已提交的不重叠修改自动合并，nodes/、shared/ 和自定义技能也参与正常合并。包名修改保存在工程自身提交中，后续若上游也修改同处内容则按真实冲突处理，不静默重写包名。
 
 出现冲突后查看 `git status`，编辑冲突文件，执行 `git add` 和 `git commit`；放弃这次合并则执行 `git merge --abort`。之后运行 `node tooling/cli.mjs upstream recover` 补记合并结果或确认撤销。recover 不重写文件、不重新合并；Git 未结清的冲突会阻止构建。同步不会自动 stash/reset/rebase、切分支或安装依赖。AGENTS.local.md 仍为项目本地忽略文件。

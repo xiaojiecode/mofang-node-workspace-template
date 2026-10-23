@@ -1,5 +1,6 @@
 {
     "version": 2,
+    "kind": "template",
     "source": {
         "url": "https://github.com/xiaojiecode/mofang-node-workspace-template.git",
         "ref": "main"
