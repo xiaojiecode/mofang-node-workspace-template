@@ -10,7 +10,7 @@ export default {
     interface: 'lifecycle',
     inputSchema,
     outputSchema,
-    timeoutSeconds: 60,
+    timeoutSeconds: 600,
     tools: [],
     maxToolCalls: 8,
     entries: {
