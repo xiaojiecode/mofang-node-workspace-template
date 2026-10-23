@@ -104,7 +104,7 @@ func TestEngineeringTemplate(t *testing.T) {
 					t.Fatal(err)
 				}
 				identity := 0
-				hook := jsprogram.HookContext{RunID: "fixture-run", NodeInstanceID: "fixture-node", State: state, View: json.RawMessage(`null`), Config: json.RawMessage(`{}`), Event: event, AllocateID: func() (string, error) { identity++; return fmt.Sprintf("fixture-%d", identity), nil }}
+				hook := jsprogram.HookContext{Policy: jsprogram.HookPolicy{Mode: "manual"}, RunID: "fixture-run", NodeInstanceID: "fixture-node", State: state, View: json.RawMessage(`null`), Config: json.RawMessage(`{}`), Event: event, AllocateID: func() (string, error) { identity++; return fmt.Sprintf("fixture-%d", identity), nil }}
 				started, err := program.RunHook(ctx, "onStart", hook)
 				if err != nil {
 					t.Fatal(err)
