@@ -2,7 +2,7 @@
 
 统一维护 Goja 后台函数节点和 Lit 设置/业务面板。后台作者 API 是具名状态、不可变快照、显式 updater/reducer 和自定义 Hook；前端保持 Lit。新产物只支持 `mf.node/1`，不读取或转换旧 createState/lifecycle 对象。
 
-官方唯一模板与技能源：[mofang-node-workspace-template](https://github.com/xiaojiecode/mofang-node-workspace-template)。先读 [AGENTS.md](AGENTS.md) 和本项目可选 AGENTS.local.md，首次修改/运行前执行 `node tooling/cli.mjs upstream sync --startup`；它会保留本地改动并明确报告离线/冲突，不能把未同步说成最新。
+官方唯一模板与技能源：[mofang-node-workspace-template](https://github.com/xiaojiecode/mofang-node-workspace-template)。先读 [AGENTS.md](AGENTS.md) 和本项目可选 AGENTS.local.md，日常开发不要求检查或同步上游更新。需要更新模板时，手动执行 `node tooling/cli.mjs upstream sync`，详见 [Git 同步](docs/upstream.md)；未完成合并、恢复记录和依赖状态的本地安全检查仍保留。
 
 ## 创建与开发
 

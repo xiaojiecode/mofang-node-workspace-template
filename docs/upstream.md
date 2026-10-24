@@ -1,6 +1,8 @@
 # 工作区 Git 同步
 
-每轮首次修改/运行前执行 `node tooling/cli.mjs upstream sync --startup`，再读取更新后的 AGENTS、AGENTS.local.md 和相关技能。配置在 .agents/upstream.json，version=2，官方唯一源为 mofang-node-workspace-template。
+日常开发不要求检查或同步上游更新。需要更新模板时，手动执行 `node tooling/cli.mjs upstream sync`；成功后再读取更新后的 AGENTS、AGENTS.local.md 和相关技能。配置在 .agents/upstream.json，version=2，官方唯一源为 mofang-node-workspace-template。
+
+CLI 保留未完成合并、恢复记录和依赖状态的本地安全检查，不会因此联网检查更新，也不要求每轮先同步。
 
 新工程从模板提交取得 Git 祖先，再提交包名、所选节点和初始化配置。refs/mofang/template 记录最近采用的模板提交；从已有生成工程再初始化时只取该模板祖先，不带入后续业务提交。初始化不会配置业务 origin，业务仓库远端由项目维护者设置。
 
