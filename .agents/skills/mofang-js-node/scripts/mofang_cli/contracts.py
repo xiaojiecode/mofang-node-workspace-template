@@ -53,7 +53,17 @@ def operation_contract(group, action, operation):
                     else ["catalogInstanceId", "catalogRevision", "definitionHash"])
     if group == "nodes" and action == "source":
         response = ["code", "codeRuntime", "editable", "source", "tools", "maxToolCalls", "catalogInstanceId", "catalogRevision", "definitionHash"]
-    if group == "capabilities":
+    if group == "capabilities" and action == "call":
+        for name, meaning in {"jsonrpc": "CLI 固定生成 2.0。", "id": "CLI 为本次调用生成的 UUID；仅作请求关联，不是重试幂等键。",
+                              "method": "CLI 固定生成 tools/call。", "params": "name 来自 --tool，arguments 来自 --file（省略为 {}），_meta.workspace_id 来自 --workspace-id。"}.items():
+            fields[name] = {"required": True, "meaning": meaning}
+        conditions += ["仅用户明确授权实际调用时执行；只接受客户端 profile 和客户端 access token，禁止管理员 execute 入口或按管理员 ID 推导客户端身份。",
+                       "CLI 必填 --tool 与 --workspace-id；--file 只提供 arguments 对象，省略为 {}，不能提供整份 JSON-RPC 请求或覆盖调用身份。",
+                       "CLI 生成 jsonrpc/id/method/params，将工作区放在 params._meta.workspace_id；用户身份和工作区成员权限由服务端校验。",
+                       "无自动重试、轮询或管理员回退；断连保留 request_id，结果未知时先核对。工作流专属能力仍通过真实节点 ctx.call 执行。",
+                       "保留完整 MCP result；CLI 成功只表示协议调用没有报错，pending、失败项及最终业务状态仍须按能力输出 Schema 检查。"]
+        response = ["tool_name", "workspace_id", "request_id", "result.content", "result.isError", "result.structuredContent"]
+    elif group == "capabilities":
         conditions += ["仅查询元数据，不是执行能力。get --tool 按 tool_name 精确匹配后读取详情。",
                        "读取完整 input_schema/output_schema、registered/effective_enabled、async_execution/requires_workflow_context；缺失明确报告，不执行付费调用猜结构。"]
         response = ["tool_name", "input_schema", "output_schema", "input_schema_registered", "output_schema_registered", "effective_enabled", "async_execution", "requires_workflow_context"]

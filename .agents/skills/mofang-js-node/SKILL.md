@@ -27,11 +27,14 @@ description: 编写、校验和发布魔方 Goja JS 节点，使用 React 风格
 
 按用户已指定环境使用独立admin/client profile。默认只读能力元数据、双Schema和修订并运行本地Mock。**Tool可能计费；开发节点不等于授权执行Tool，只有用户明确要求实际调用/试跑时才执行。**不为猜响应或验收而自动执行Tool、模型、原子能力execute或启动工作流；已有明确授权在同一范围内沿用。
 
+独立试调用使用 `--profile <环境-client> capabilities call --tool <精确名称> --workspace-id <工作区ID> [--file <参数.json>]`，通过客户端 `/toomcp` 执行。禁止使用管理端 `/v1/admin/atomic-capabilities/:id/execute`，也不能将管理员 ID 当作客户端用户 ID、按手机号自动代换或伪造工作流身份。没有客户端会话时走正常客户端登录或导入用户已有会话。目录与双Schema仍使用admin只读接口；节点运行中的业务能力仍由子任务 `ctx.call` 执行。
+
 `describe`是离线目录，包含完整http_paths、身份、字段解释、条件和effect，不证明远端版本。运行`--profile <同环境管理员> doctor --bundle <dist/编码>`读取目录/Schema并调用不落库validate；检查每条check和ready_for_catalog_save，不能把discovered当作ABI已确认。密码/token不写文档或报告。
 
 | 常用操作 | 正式HTTP入口 | 必要条件 |
 | --- | --- | --- |
 | 能力目录/详情，只读 | `GET /v1/admin/atomic-capabilities`、`GET /v1/admin/atomic-capabilities/{id}` | admin；精确tool_name及完整双Schema |
+| 原子能力独立试调用 | `POST /toomcp`，JSON-RPC `tools/call` | client access token；显式workspace-id；用户授权实际调用 |
 | 可信类型，只读 | `GET /v1/admin/workflow/type-schemas` | admin；client对应`/v1/workflow/type-schemas` |
 | 当前源码/修订，只读 | `GET /v1/admin/workflow/nodes/{code}/javascript` | admin；核对editable和目录身份/修订 |
 | ABI/契约校验，不落库 | `POST /v1/admin/workflow/nodes/javascript/validate` | admin；完整bundle；valid且programInterface=mf.node/1 |

@@ -1,6 +1,6 @@
 # 通过 CLI 连接魔方平台
 
-用于按环境登录后台或客户端、查询原子能力、校验保存节点与双面板、配置工作流。Python 3.10+，仅标准库，不安装或注册 MCP。后台业务调用仍由节点的 ctx.call 执行；本 CLI 不直接调用三方工具。
+用于按环境登录后台或客户端、查询和试调用原子能力、校验保存节点与双面板、配置工作流。Python 3.10+，仅标准库，不安装或注册 MCP。独立试调用走平台客户端 MCP HTTP 入口；节点运行中的业务调用仍由子任务 ctx.call 执行。
 
 CLI 源码在本技能的 `scripts/`；Lit 技能的同名入口复用它。安装时同时保留同级 `mofang-js-node` 和 `mofang-lit-node`。在任意工程目录执行，均无需魔方服务端源码。
 
@@ -16,7 +16,7 @@ python3 <技能目录>/scripts/mofang_node.py describe nodes update
 
 先运行 `guide` 取得离线开发事实、作者 API、接口字段含义、修订条件和effect，再按[节点开发入口](node-development.md)补齐业务条件。`describe` 只展示本地CLI目录，不探测远端ABI；`doctor --bundle <dist/编码>` 仅读取类型/目录/声明工具的元数据，并调用不落库的validate。未提供bundle时ABI为not_checked；403或连接失败不等于ABI不支持。
 
-默认不执行可能计费的Tool、模型、原子能力execute或工作流start；仅用户明确要求实际调用/试跑时才在授权范围执行。开发、查Schema、编译/validate不代表这种授权。本CLI没有直接执行Tool的命令。
+默认不执行可能计费的Tool、模型或工作流start；仅用户明确要求实际调用/试跑时才在授权范围执行。开发、查Schema、编译/validate不代表这种授权。`capabilities call` 必须使用客户端会话，禁止改用后台原子能力 execute 接口。
 
 ## 环境和身份
 
@@ -61,6 +61,23 @@ python3 <技能目录>/scripts/mofang_node.py --profile demo-admin types list
 列表用于发现，完整定义以 get 为准；`--tool` 分页读取未过滤目录后按精确tool_name匹配，再调用详情；keyword模糊查询不覆盖所有工具编码，空搜索结果不能证明能力不存在。读取 `input_schema`、`output_schema`、两者的 registered 标记、effective_enabled、async_execution 和 requires_workflow_context。字段未注册、缺失或上游不提供输出 Schema 时，明确记录缺口，不根据名字或样例猜造结构。异步能力须区分提交回执与最终结果，不能把任务号当作商品结果。没有后台目录读取权限时报告权限缺口，不使用内部无鉴权接口。
 
 节点主流类型从在线 `types list` 选择；作者开发类型从已安装节点模板的 `lib/contracts` 读取。原子能力的工具名、请求与响应以在线详情为准，无须搜索后端适配器源码。
+
+## 使用客户端身份试调用
+
+先用同环境管理员读取能力详情并确认输入输出、可用性与工作流上下文要求。用户已明确要求实际调用后，用独立客户端 profile 和显式工作区执行：
+
+```bash
+python3 <技能目录>/scripts/mofang_node.py --profile test-client capabilities call \
+    --tool platform_product.collection_box_products --workspace-id <工作区ID>
+python3 <技能目录>/scripts/mofang_node.py --profile test-client capabilities call \
+    --tool platform_product.store_products --workspace-id <工作区ID> --file <参数.json>
+```
+
+`--file` 仅放能力 arguments，例如 `{"keyword":"测试"}`；省略时为 `{}`，`--file -` 从 stdin 读取。CLI 生成 `POST /toomcp` 的 JSON-RPC `tools/call` 请求，将工作区放在 `params._meta.workspace_id`。客户端用户身份由服务端从 access token 认证，工作区成员权限也由服务端校验。profile 必须为 client，令牌的客户端 access 类型另做错用检查；本地检查不代替服务端签名验证。不要使用管理员令牌、按相同数字或手机号映射用户、直连数据库代替调用，或为了绕过权限填写其它用户身份。
+
+没有客户端会话时用上述 `auth login --role client` 或 `auth import --role client`；会话过期按正常刷新/登录处理，不回退管理员 execute。需要真实工作流身份的能力沿节点 `ctx.call` 调试，不在此命令中伪造运行标识。
+
+成功输出保留 `tool_name/workspace_id/request_id/result`，其中 result 是完整 MCP 回执。JSON-RPC error、MCP `isError=true` 返回非零退出码；业务 pending、部分失败和最终完成仍按能力输出 Schema 判断，不能只看 CLI `ok`。命令不自动重试或轮询；断连时输出结果未知和 request_id，先核对原请求，不能重新提交来判断是否成功。
 
 ## 节点校验、创建和更新
 

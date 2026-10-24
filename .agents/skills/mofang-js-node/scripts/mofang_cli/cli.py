@@ -11,6 +11,7 @@ import sys
 from .connection import CLIError, HTTPClient, Sessions, base_url
 from .operations import OPERATIONS, api_path, describe, path_fields, prepare
 from .development import doctor, guide
+from .capabilities import call_capability
 
 
 def secret(args, prompt):
@@ -103,6 +104,8 @@ def run(args):
     # 权限先于请求；后台作者与客户端所有者始终使用各自的正式入口。
     api_path(op, session["role"], op.path)
     client = HTTPClient(session["base_url"], session["access_token"], args.timeout)
+    if args.group == "capabilities" and args.action == "call":
+        return call_capability(client, session, args)
     if args.group == "capabilities" and args.action == "get" and args.tool:
         return capability_by_name(client, args.tool)
     path, body, query = prepare(op, args)
@@ -114,7 +117,7 @@ def run(args):
 
 
 def parser():
-    cli = argparse.ArgumentParser(description="魔方节点 CLI：正式 HTTP 接口，不依赖 MCP 或服务端源码。全局参数放在命令组之前。")
+    cli = argparse.ArgumentParser(description="魔方节点 CLI：通过正式 HTTP 接口及客户端 MCP HTTP 入口操作，无需安装 MCP 或服务端源码。全局参数放在命令组之前。")
     cli.add_argument("--profile", default="default", help="会话名，后台与客户端分别使用不同 profile")
     cli.add_argument("--state-dir", default=os.environ.get("MOFANG_NODE_STATE_DIR", str(Path.home() / ".local/share/mofang-node-cli")), help="私有会话目录；目录 0700、文件 0600")
     cli.add_argument("--timeout", type=float, default=30, help="HTTP 超时秒数；无自动重试")
@@ -145,6 +148,9 @@ def parser():
             if name != group:
                 continue
             sub = actions.add_parser(action, help=f"{op.method} {op.path}" + ("（管理员）" if op.admin else ""))
+            if (group, action) == ("capabilities", "call"):
+                sub.add_argument("--tool", required=True, help="精确 tool_name；仅用户明确要求时执行真实能力")
+                sub.add_argument("--workspace-id", required=True, help="当前客户端用户有权访问的工作区 ID；不推导默认空间")
             for key in path_fields(op.path):
                 if group == "capabilities":
                     identity = sub.add_mutually_exclusive_group(required=True)
@@ -153,7 +159,7 @@ def parser():
                 else:
                     sub.add_argument("--" + key.replace("_", "-"), required=True)
             if op.method != "GET":
-                sub.add_argument("--file", help="请求体 JSON 对象文件；- 表示 stdin。字段用 describe 查看")
+                sub.add_argument("--file", help="能力 arguments JSON 对象；- 表示 stdin，省略时为 {}" if (group, action) == ("capabilities", "call") else "请求体 JSON 对象文件；- 表示 stdin。字段用 describe 查看")
                 if group == "nodes":
                     sub.add_argument("--bundle", help="读取工程模板 dist/<code>/node.json")
                     sub.add_argument("--source-file", help="以原文填入 source")
@@ -182,7 +188,7 @@ def main(argv=None):
         return 0
     except CLIError as exc:
         print(json.dumps(exc.json(), ensure_ascii=False))
-        return 1
+        return exc.exit_code
     except (OSError, ValueError, TypeError) as exc:
         print(json.dumps(CLIError("invalid_input_or_state", "输入或会话文件无效；检查格式、文件权限及正文数值").json(), ensure_ascii=False))
         return 1

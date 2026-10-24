@@ -13,14 +13,18 @@ from urllib import error, parse, request
 
 
 class CLIError(Exception):
-    def __init__(self, code, message, status=None):
+    def __init__(self, code, message, status=None, details=None, exit_code=1):
         super().__init__(message)
         self.code, self.message, self.status = code, message, status
+        self.details = details
+        self.exit_code = exit_code
 
     def json(self):
         value = {"code": self.code, "message": self.message}
         if self.status is not None:
             value["status"] = self.status
+        if self.details is not None:
+            value["details"] = self.details
         return {"ok": False, "error": value}
 
 
@@ -51,7 +55,7 @@ class HTTPClient:
             handlers.append(request.ProxyHandler({}))
         self.opener = request.build_opener(*handlers)
 
-    def call(self, method, path, body=None, query=None, bare=False):
+    def call(self, method, path, body=None, query=None, bare=False, jsonrpc=False):
         url = self.url + path
         if query:
             url += "?" + parse.urlencode(query)
@@ -84,6 +88,28 @@ class HTTPClient:
             raise CLIError("invalid_response", "服务端未返回 JSON；写请求请先回读核对结果", status) from exc
         if not isinstance(value, dict):
             raise CLIError("invalid_response", "服务端响应必须是 JSON 对象", status)
+        if jsonrpc and value.get("jsonrpc") == "2.0":
+            if value.get("id") != body["id"]:
+                raise CLIError("invalid_response", "JSON-RPC 响应 ID 与本次请求不一致；不要自动重发", status)
+            if "error" in value:
+                rpc_error = value["error"]
+                if not isinstance(rpc_error, dict):
+                    raise CLIError("invalid_response", "JSON-RPC error 必须是对象", status)
+                message = str(rpc_error.get("message") or "客户端原子能力调用被拒绝")
+                if self.token:
+                    message = message.replace(self.token, "<redacted>")
+                details = {"rpc_code": rpc_error.get("code")}
+                if "data" in rpc_error:
+                    data = rpc_error["data"]
+                    if self.token:
+                        data = json.loads(json.dumps(data).replace(self.token, "<redacted>"))
+                    details["rpc_data"] = data
+                raise CLIError("mcp_rpc_error", message, status, details)
+            if 200 <= status < 300 and isinstance(value.get("result"), dict):
+                return value["result"]
+            raise CLIError("invalid_response", "JSON-RPC 缺少有效 result；不要自动重发", status)
+        if jsonrpc and 200 <= status < 300:
+            raise CLIError("invalid_response", "服务端未返回 JSON-RPC 2.0 回执；不要自动重发", status)
         if 200 <= status < 300 and bare and "code" not in value:
             return value
         if 200 <= status < 300 and value.get("code") == 0 and "data" in value:

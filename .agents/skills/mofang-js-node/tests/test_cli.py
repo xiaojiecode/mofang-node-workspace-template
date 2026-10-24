@@ -1,6 +1,7 @@
 """使用回环 HTTP 替身验证真实 CLI；不登录或写入真实魔方环境。"""
 
 import contextlib
+import base64
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import io
 import json
@@ -117,6 +118,125 @@ class CLITest(unittest.TestCase):
         self.assertIn("page=2", self.server.requests[-2][1])
         self.assertTrue(all("keyword=" not in r[1] for r in self.server.requests[-3:-1]))
         self.assertEqual(self.server.requests[-1][1], "/v1/admin/atomic-capabilities/7")
+
+    def client_access_session(self, subject="access"):
+        self.login("client")
+        payload = base64.urlsafe_b64encode(json.dumps({"sub": subject, "uid": 1109}).encode()).decode().rstrip("=")
+        token = "header." + payload + ".test-signature"
+        file = self.state / "client.json"
+        session = json.loads(file.read_text())
+        session["access_token"] = token
+        file.write_text(json.dumps(session))
+        self.server.requests = []
+        return token
+
+    def capability_call(self, extra=(), workspace="1081", profile="client"):
+        with mock.patch("mofang_cli.capabilities.uuid.uuid4", return_value="call-test"):
+            return self.call(["capabilities", "call", "--tool", "platform_product.store_products", "--workspace-id", workspace, *extra], profile=profile)
+
+    def test_capability_call_uses_client_mcp_and_explicit_workspace(self):
+        token = self.client_access_session()
+        result = {"content": [{"type": "text", "text": '{"list":[{"id":"product-1"}],"total":1}'}], "isError": False}
+        self.server.responses = [(200, {"jsonrpc": "2.0", "id": "call-test", "result": result})]
+        code, value = self.capability_call(self.body({"keyword": "测试"}))
+        self.assertEqual(code, 0, value)
+        self.assertEqual(value["data"], {"tool_name": "platform_product.store_products", "workspace_id": 1081, "request_id": "call-test", "result": result})
+        self.assertEqual(self.server.requests, [("POST", "/toomcp", {"jsonrpc": "2.0", "id": "call-test", "method": "tools/call", "params": {"name": "platform_product.store_products", "arguments": {"keyword": "测试"}, "_meta": {"workspace_id": 1081}}}, "Bearer " + token)])
+        self.assertNotIn(token, json.dumps(value))
+
+    def test_capability_call_default_arguments_and_pending_are_preserved(self):
+        self.client_access_session()
+        result = {"content": [{"type": "text", "text": '{"status":"pending","jobId":"job-1"}'}]}
+        self.server.responses = [(200, {"jsonrpc": "2.0", "id": "call-test", "result": result})]
+        code, value = self.capability_call()
+        self.assertEqual(code, 0, value)
+        self.assertEqual(value["data"]["result"], result)
+        self.assertEqual(self.server.requests[0][2]["params"]["arguments"], {})
+        self.assertEqual(len(self.server.requests), 1)
+
+    def test_capability_call_rejects_admin_before_network(self):
+        self.login("admin")
+        self.server.requests = []
+        code, value = self.capability_call(profile="admin")
+        self.assertEqual((code, value["error"]["code"]), (1, "client_required"))
+        self.assertEqual(self.server.requests, [])
+
+    def test_capability_call_rejects_mislabeled_admin_and_refresh_tokens(self):
+        for subject in ("admin", "refresh"):
+            with self.subTest(subject=subject):
+                self.client_access_session(subject)
+                code, value = self.capability_call()
+                self.assertEqual((code, value["error"]["code"]), (1, "client_access_token_required"))
+                self.assertEqual(self.server.requests, [])
+
+    def test_capability_call_requires_valid_explicit_workspace(self):
+        self.client_access_session()
+        for workspace in ("0", "-1", "1.0", "abc", "9223372036854775808", "１２"):
+            with self.subTest(workspace=workspace):
+                code, value = self.capability_call(workspace=workspace)
+                self.assertEqual((code, value["error"]["code"]), (1, "invalid_argument"))
+                self.assertEqual(self.server.requests, [])
+        with self.assertRaises(SystemExit):
+            self.call(["capabilities", "call", "--tool", "tool"], profile="client")
+
+    def test_capability_call_requires_object_arguments(self):
+        self.client_access_session()
+        code, value = self.capability_call(self.body([]))
+        self.assertEqual((code, value["error"]["code"]), (1, "invalid_json_file"))
+        self.assertEqual(self.server.requests, [])
+
+    def test_capability_call_rpc_errors_are_nonzero_and_not_retried(self):
+        token = self.client_access_session()
+        for status in (200, 403):
+            with self.subTest(status=status):
+                self.server.requests = []
+                self.server.responses = [(status, {"jsonrpc": "2.0", "id": "call-test", "error": {"code": -32000, "message": "非本工作空间 " + token, "data": {"category": "policy_denied", "retryable": False, "detail": token}}})]
+                code, value = self.capability_call()
+                self.assertEqual((code, value["error"]["code"]), (1, "mcp_rpc_error"))
+                self.assertEqual(value["error"]["details"]["rpc_code"], -32000)
+                self.assertEqual(value["error"]["details"]["rpc_data"], {"category": "policy_denied", "retryable": False, "detail": "<redacted>"})
+                self.assertEqual(value["error"]["details"]["request_id"], "call-test")
+                self.assertNotIn(token, json.dumps(value))
+                self.assertEqual(len(self.server.requests), 1)
+
+    def test_capability_call_tool_failure_preserves_receipt(self):
+        self.client_access_session()
+        result = {"content": [{"type": "text", "text": '{"failures":[{"reasonCode":"unavailable"}]}'}], "isError": True}
+        self.server.responses = [(200, {"jsonrpc": "2.0", "id": "call-test", "result": result})]
+        code, value = self.capability_call()
+        self.assertEqual((code, value["error"]["code"]), (1, "tool_execution_failed"))
+        self.assertEqual(value["error"]["details"]["result"], result)
+
+    def test_capability_call_rejects_unrelated_or_malformed_receipts(self):
+        self.client_access_session()
+        for response in ({"code": 0, "data": {}}, {"jsonrpc": "2.0", "id": "other", "result": {"content": []}}, {"jsonrpc": "2.0", "id": "call-test", "result": {"content": [], "isError": "false"}}):
+            with self.subTest(response=response):
+                self.server.responses = [(200, response)]
+                code, value = self.capability_call()
+                self.assertEqual((code, value["error"]["code"]), (1, "invalid_response"))
+
+    def test_capability_call_disconnect_is_unknown_and_keeps_request_id(self):
+        self.client_access_session()
+        self.server.responses = [(-1, None)]
+        code, value = self.capability_call()
+        self.assertEqual((code, value["error"]["code"]), (1, "write_outcome_unknown"))
+        self.assertEqual(value["error"]["details"]["request_id"], "call-test")
+        self.assertEqual(len(self.server.requests), 1)
+
+    def test_capability_call_interrupt_is_unknown_and_keeps_request_id(self):
+        self.client_access_session()
+        with mock.patch("mofang_cli.connection.HTTPClient.call", side_effect=KeyboardInterrupt) as request:
+            code, value = self.capability_call()
+        self.assertEqual((code, value["error"]["code"]), (130, "interrupted"))
+        self.assertEqual(value["error"]["details"], {"request_id": "call-test", "tool_name": "platform_product.store_products", "workspace_id": 1081})
+        request.assert_called_once()
+
+    def test_describe_capability_call_is_client_only_and_marks_cost(self):
+        code, value = self.call(["describe", "capabilities", "call"])
+        self.assertEqual(code, 0, value)
+        self.assertEqual(value["data"][0]["http_paths"], {"client": "/toomcp"})
+        self.assertEqual(value["data"][0]["effect"], "execution_may_incur_cost")
+        self.assertEqual(self.server.requests, [])
 
     def test_node_bundle_update_preserves_revision_and_consumes_identity(self):
         self.login()

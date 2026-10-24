@@ -17,6 +17,7 @@ class Operation:
     required: tuple = ()
     example: object = None
     query: tuple = ()
+    client_only: bool = False
 
 
 # path 中的字段只能通过路径提供，不能重复放入 query/body。
@@ -26,6 +27,8 @@ OPERATIONS = {
     ("runs", "actions"): Operation("GET", "/runs/{run_id}/nodes/{instance_id}/actions", query=("view", "cursor", "afterSequence", "limit", "name", "actorUserId")),
     ("capabilities", "list"): Operation("GET", "/atomic-capabilities", True, query=("page", "size", "keyword", "category_code", "channel_code", "status")),
     ("capabilities", "get"): Operation("GET", "/atomic-capabilities/{id}", True),
+    ("capabilities", "call"): Operation("POST", "/toomcp", required=("jsonrpc", "id", "method", "params"), client_only=True,
+        example={"jsonrpc": "2.0", "id": "<本次请求ID>", "method": "tools/call", "params": {"name": "<精确tool_name>", "arguments": {}, "_meta": {"workspace_id": 123}}}),
     ("types", "list"): Operation("GET", "/type-schemas"),
     ("nodes", "list"): Operation("GET", "/nodes", query=("kind", "category")),
     ("nodes", "get"): Operation("GET", "/nodes/{code}"),
@@ -74,12 +77,12 @@ def describe(group=None, action=None):
     for (g, a), op in OPERATIONS.items():
         if (group and group != g) or (action and action != a):
             continue
-        roles = ["admin"] if op.admin else ["admin", "client"]
+        roles = ["client"] if op.client_only else ["admin"] if op.admin else ["admin", "client"]
         if op.method == "GET":
             effect = "read"
         elif (g, a) in (("nodes", "validate"), ("panels", "compile")):
             effect = "validate_without_persistence"
-        elif (g, a) in (("workflows", "start"), ("runs", "action")):
+        elif (g, a) in (("workflows", "start"), ("runs", "action"), ("capabilities", "call")):
             effect = "execution_may_incur_cost"
         else:
             effect = "write_requires_user_scope"
@@ -165,6 +168,10 @@ def prepare(op, args):
 
 
 def api_path(op, role, path):
+    if op.client_only and role != "client":
+        raise CLIError("client_required", "此操作需要客户端 profile，不能使用管理员身份")
+    if op.path == "/toomcp":
+        return path
     if op.admin and role != "admin":
         raise CLIError("admin_required", "此操作需要管理员 profile；不能复用客户端身份")
     prefix = "/v1/admin" if op.path.startswith("/atomic-capabilities") else "/v1/admin/workflow" if role == "admin" else "/v1/workflow"
