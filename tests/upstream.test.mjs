@@ -169,13 +169,80 @@ test('git merge --abort后recover保留本地提交，不回滚用户文件', as
     assert.equal(await readFile(path.join(h.target, 'rules.txt'), 'utf8'), 'local replacement\n')
     await ensureUpstream(h.target)
 })
-test('未提交修改停止更新，不stash、覆盖或切分支', async () => {
+test('未提交修改在无更新时保持原样，有更新时本地快照并合并', async () => {
     const h = await setup(),
         head = git(h.target, 'rev-parse', 'HEAD')
-    await writeFile(path.join(h.target, 'rules.txt'), 'uncommitted')
-    assert.equal((await h.sync()).status, 'conflict')
+    await writeFile(path.join(h.target, 'rules.txt'), 'local-first\nsecond\nthird\nfourth\nfifth\n')
+    assert.equal((await h.sync()).status, 'current')
     assert.equal(git(h.target, 'rev-parse', 'HEAD'), head)
-    assert.equal(await readFile(path.join(h.target, 'rules.txt'), 'utf8'), 'uncommitted')
+    await writeFile(path.join(h.target, 'new-business.ts'), 'local business')
+    await writeFile(path.join(h.target, 'staged.txt'), 'staged')
+    git(h.target, 'add', 'staged.txt')
+    await writeFile(path.join(h.target, 'staged.txt'), 'unstaged after staged')
+    await writeFile(
+        path.join(h.source, 'rules.txt'),
+        'first\nsecond\nthird\nfourth\nupstream-fifth\n',
+    )
+    const upstream = h.commit()
+    const result = await h.sync()
+    assert.equal(result.status, 'updated', JSON.stringify(result))
+    assert.equal(
+        await readFile(path.join(h.target, 'rules.txt'), 'utf8'),
+        'local-first\nsecond\nthird\nfourth\nupstream-fifth\n',
+    )
+    assert.equal(await readFile(path.join(h.target, 'new-business.ts'), 'utf8'), 'local business')
+    assert.equal(await readFile(path.join(h.target, 'staged.txt'), 'utf8'), 'unstaged after staged')
+    assert.match(git(h.target, 'log', '--format=%s', '-2'), /同步上游前保存本地改动/)
+    git(h.target, 'merge-base', '--is-ancestor', upstream, 'HEAD')
+    assert.equal(git(h.target, 'status', '--porcelain'), '')
+    assert.equal(git(h.target, 'stash', 'list'), '')
+    const stagedCommit = git(h.target, 'log', '--format=%H', '--grep=保存已暂存改动', '-1')
+    assert.equal(git(h.target, 'show', stagedCommit + ':staged.txt'), 'staged')
+})
+test('未提交重叠修改冲突后撤销仍保留本地快照及新文件', async () => {
+    const h = await setup()
+    await writeFile(path.join(h.target, 'rules.txt'), 'local dirty content')
+    await writeFile(path.join(h.target, 'new.txt'), 'local new file')
+    await writeFile(path.join(h.source, 'rules.txt'), 'upstream replacement')
+    h.commit()
+    assert.equal((await h.sync()).status, 'conflict')
+    assert.match(git(h.target, 'status', '--porcelain'), /UU rules.txt/)
+    git(h.target, 'merge', '--abort')
+    assert.equal((await recoverUpstream(h.target)).aborted, true)
+    assert.equal(await readFile(path.join(h.target, 'rules.txt'), 'utf8'), 'local dirty content')
+    assert.equal(await readFile(path.join(h.target, 'new.txt'), 'utf8'), 'local new file')
+})
+test('关联仓库的未提交修改也保存为本地快照再合并', async () => {
+    const h = await setup(),
+        related = await setup()
+    const repo = path.join(h.target, 'reference')
+    git(h.target, 'clone', related.source, repo)
+    const configPath = path.join(h.target, '.agents/upstream.json')
+    const config = JSON.parse(await readFile(configPath, 'utf8'))
+    config.related = [
+        {
+            path: 'reference',
+            role: 'reference',
+            url: related.source,
+            ref: 'main',
+            allowFileSource: true,
+        },
+    ]
+    await writeFile(configPath, JSON.stringify(config))
+    await writeFile(
+        path.join(h.target, '.gitignore'),
+        (await readFile(path.join(h.target, '.gitignore'), 'utf8')) + 'reference/\n',
+    )
+    git(h.target, 'add', '.')
+    git(h.target, 'commit', '-m', '配置关联仓库')
+    await writeFile(path.join(repo, 'new.txt'), 'local reference work')
+    await writeFile(path.join(related.source, 'upstream.txt'), 'upstream reference work')
+    related.commit()
+    const result = await h.sync()
+    assert.equal(result.related[0].status, 'updated', JSON.stringify(result))
+    assert.equal(await readFile(path.join(repo, 'new.txt'), 'utf8'), 'local reference work')
+    assert.equal(await readFile(path.join(repo, 'upstream.txt'), 'utf8'), 'upstream reference work')
+    assert.equal(git(repo, 'status', '--porcelain'), '')
 })
 test('依赖变更阻止构建，重复current不清状态，安装版本核对后解除', async () => {
     const h = await setup()
@@ -230,4 +297,55 @@ test('锁与控制文件符号链接不会被覆盖', async () => {
     await symlink(path.join(h.target, '.agents'), path.join(other, '.agents'), 'dir')
     await assert.rejects(ensureUpstream(other), /unsafe/)
     assert.equal((await syncUpstream({ directory: other })).status, 'incompatible')
+})
+
+test('未完成 cherry-pick 的索引冲突不能被自动快照提交', async () => {
+    const h = await setup()
+    await writeFile(path.join(h.source, 'rules.txt'), 'upstream replacement')
+    const upstream = h.commit()
+    await writeFile(path.join(h.target, 'rules.txt'), 'local replacement')
+    git(h.target, 'add', '.')
+    git(h.target, 'commit', '-m', '保存本地修改')
+    git(h.target, 'fetch', 'origin')
+    const cherry = spawnSync('git', ['-C', h.target, 'cherry-pick', upstream], { encoding: 'utf8' })
+    assert.notEqual(cherry.status, 0)
+    const before = git(h.target, 'rev-parse', 'HEAD')
+    const index = git(h.target, 'ls-files', '--unmerged')
+    assert.ok(index)
+    const result = await h.sync()
+    assert.equal(result.status, 'conflict')
+    assert.equal(git(h.target, 'rev-parse', 'HEAD'), before)
+    assert.equal(git(h.target, 'ls-files', '--unmerged'), index)
+    git(h.target, 'rev-parse', '--verify', 'CHERRY_PICK_HEAD')
+})
+for (const marker of ['rebase-merge', 'rebase-apply', 'sequencer', 'REVERT_HEAD']) {
+    test('未完成 ' + marker + ' 时保留普通本地修改且不创建快照', async () => {
+        const h = await setup()
+        await writeFile(path.join(h.source, 'new.txt'), 'upstream')
+        h.commit()
+        await writeFile(path.join(h.target, 'local.txt'), 'local')
+        const head = git(h.target, 'rev-parse', 'HEAD')
+        const file = path.resolve(h.target, git(h.target, 'rev-parse', '--git-path', marker))
+        await writeFile(file, 'pending operation')
+        const result = await h.sync()
+        assert.equal(result.status, 'conflict')
+        assert.equal(git(h.target, 'rev-parse', 'HEAD'), head)
+        assert.equal(await readFile(path.join(h.target, 'local.txt'), 'utf8'), 'local')
+    })
+}
+
+test('暂存版本与工作区恢复到HEAD的版本都能保存并继续同步', async () => {
+    const h = await setup()
+    const original = await readFile(path.join(h.target, 'rules.txt'), 'utf8')
+    await writeFile(path.join(h.target, 'rules.txt'), 'staged-only-version')
+    git(h.target, 'add', 'rules.txt')
+    await writeFile(path.join(h.target, 'rules.txt'), original)
+    await writeFile(path.join(h.source, 'added.txt'), 'upstream')
+    h.commit()
+    const result = await h.sync()
+    assert.equal(result.status, 'updated', JSON.stringify(result))
+    assert.equal(await readFile(path.join(h.target, 'rules.txt'), 'utf8'), original)
+    const stagedCommit = git(h.target, 'log', '--format=%H', '--grep=保存已暂存改动', '-1')
+    assert.equal(git(h.target, 'show', stagedCommit + ':rules.txt'), 'staged-only-version')
+    assert.equal(git(h.target, 'status', '--porcelain'), '')
 })

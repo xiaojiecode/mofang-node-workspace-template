@@ -66,6 +66,27 @@ function sourceAllowed(source) {
 function merging(directory) {
     return runGit(directory, ['rev-parse', '--verify', 'MERGE_HEAD']).status === 0
 }
+/** 未完成的 Git 操作或未合并索引必须保留现场，不能被快照提交误当成普通修改。 */
+async function unfinishedGitOperation(directory) {
+    if (git(directory, ['ls-files', '--unmerged'])) return 'unmerged index'
+    for (const name of [
+        'MERGE_HEAD',
+        'CHERRY_PICK_HEAD',
+        'REVERT_HEAD',
+        'rebase-merge',
+        'rebase-apply',
+        'sequencer',
+    ]) {
+        const file = path.resolve(directory, git(directory, ['rev-parse', '--git-path', name]))
+        try {
+            await lstat(file)
+            return name
+        } catch (error) {
+            if (error.code !== 'ENOENT') throw error
+        }
+    }
+    return null
+}
 function isAncestor(directory, before, after) {
     return runGit(directory, ['merge-base', '--is-ancestor', before, after]).status === 0
 }
@@ -90,6 +111,27 @@ export function commitGit(directory, args) {
     if (runGit(directory, ['config', 'user.email']).status !== 0)
         identity.push('-c', 'user.email=workspace@mofang.invalid')
     return runGit(directory, [...identity, ...args])
+}
+/** 更新前把已暂存、未暂存和未忽略的新文件保存为本地提交，不推送业务内容。 */
+async function snapshotChanges(directory) {
+    if (await unfinishedGitOperation(directory))
+        throw new Error('Git operation is unfinished; local changes preserved')
+    if (!git(directory, ['status', '--porcelain'])) return
+    const staged = runGit(directory, ['diff', '--cached', '--quiet'])
+    if (staged.status !== 0 && staged.status !== 1) throw new Error('could not inspect Git index')
+    if (staged.status === 1) {
+        const savedIndex = commitGit(directory, ['commit', '-m', 'chore: 同步上游前保存已暂存改动'])
+        if (savedIndex.status !== 0)
+            throw new Error('could not save staged changes; index preserved')
+    }
+    if (!git(directory, ['status', '--porcelain'])) return
+    git(directory, ['add', '--all'])
+    const remaining = runGit(directory, ['diff', '--cached', '--quiet'])
+    if (remaining.status === 0) return
+    if (remaining.status !== 1) throw new Error('could not inspect snapshot index')
+    const saved = commitGit(directory, ['commit', '-m', 'chore: 同步上游前保存本地改动'])
+    if (saved.status !== 0)
+        throw new Error('could not save local changes; index and working files preserved')
 }
 /** 构建门禁只检查 Git 未完成合并、操作中断与依赖状态，不做文件白名单。 */
 export async function ensureUpstream(directory = defaultRoot) {
@@ -197,20 +239,13 @@ async function syncPrimary({ directory = defaultRoot } = {}) {
                 reason: 'legacy workspace requires explicit Git-history adoption; no automatic migration',
             }
         sourceAllowed(config.source)
-        if (merging(directory))
-            return {
-                status: 'conflict',
-                reason: 'Git merge is unfinished; resolve and commit or abort',
-            }
+        const operation = await unfinishedGitOperation(directory)
+        if (operation)
+            return { status: 'conflict', reason: 'Git operation is unfinished: ' + operation }
         if (await json(path.join(directory, '.agents/upstream-merge.json')))
             return {
                 status: 'interrupted',
                 reason: 'run upstream recover before starting another update',
-            }
-        if (git(directory, ['status', '--porcelain']))
-            return {
-                status: 'conflict',
-                reason: 'commit or otherwise handle local changes before merging; no automatic stash/reset/rebase',
             }
         try {
             git(directory, ['fetch', '--no-tags', config.source.url, config.source.ref])
@@ -220,7 +255,7 @@ async function syncPrimary({ directory = defaultRoot } = {}) {
                 reason: 'could not fetch configured upstream; check network/authentication/ref',
             }
         }
-        const beforeCommit = git(directory, ['rev-parse', 'HEAD']),
+        let beforeCommit = git(directory, ['rev-parse', 'HEAD']),
             targetCommit = git(directory, ['rev-parse', 'FETCH_HEAD'])
         if (runGit(directory, ['merge-base', beforeCommit, targetCommit]).status !== 0)
             return {
@@ -228,9 +263,19 @@ async function syncPrimary({ directory = defaultRoot } = {}) {
                 reason: 'no shared Git ancestor; explicit adoption is required',
                 sourceCommit: targetCommit,
             }
+        if (!isAncestor(directory, targetCommit, beforeCommit)) {
+            await snapshotChanges(directory)
+            beforeCommit = git(directory, ['rev-parse', 'HEAD'])
+        }
         const marker = { version: 2, beforeCommit, targetCommit }
         await save(directory, 'upstream-merge.json', marker)
-        const merged = commitGit(directory, ['merge', '--no-edit', targetCommit])
+        const merged = commitGit(directory, [
+            'merge',
+            '--no-edit',
+            '-m',
+            '合并官方节点模板更新',
+            targetCommit,
+        ])
         if (merged.status !== 0)
             return {
                 status: merging(directory) ? 'conflict' : 'interrupted',
@@ -265,12 +310,7 @@ export async function initializeWorkspace(directory, sourceCommit) {
         dependenciesPending: false,
     })
     git(directory, ['add', '--all'])
-    const committed = commitGit(directory, [
-        'commit',
-        '--allow-empty',
-        '-m',
-        'Initialize node workspace',
-    ])
+    const committed = commitGit(directory, ['commit', '--allow-empty', '-m', '初始化节点工作区'])
     if (committed.status !== 0) throw new Error('could not commit initialized workspace')
 }
 export async function dependenciesReady(directory = defaultRoot) {
@@ -334,23 +374,38 @@ export async function syncUpstream(options = {}) {
                 source.ref.includes('..')
             )
                 throw new Error('invalid related ref')
-            if (git(repo, ['status', '--porcelain'])) {
+            const operation = await unfinishedGitOperation(repo)
+            if (operation) {
                 entry.status = 'conflict'
-                entry.reason = 'local changes preserved'
-            } else {
-                const remote = source.remote ?? 'origin'
-                if (
-                    git(repo, ['remote', 'get-url', remote]) !== source.url ||
-                    git(repo, ['rev-parse', '--abbrev-ref', '@{upstream}']) !==
-                        remote + '/' + source.ref
-                )
-                    throw new Error('related tracking source mismatch')
-                git(repo, ['fetch', remote, source.ref])
-                const before = git(repo, ['rev-parse', 'HEAD'])
-                git(repo, ['merge', '--ff-only', remote + '/' + source.ref])
-                entry.appliedCommit = git(repo, ['rev-parse', 'HEAD'])
-                entry.status = before === entry.appliedCommit ? 'current' : 'updated'
+                throw new Error('related Git operation is unfinished: ' + operation)
             }
+            const remote = source.remote ?? 'origin'
+            if (
+                git(repo, ['remote', 'get-url', remote]) !== source.url ||
+                git(repo, ['rev-parse', '--abbrev-ref', '@{upstream}']) !==
+                    remote + '/' + source.ref
+            )
+                throw new Error('related tracking source mismatch')
+            git(repo, ['fetch', remote, source.ref])
+            const target = git(repo, ['rev-parse', remote + '/' + source.ref])
+            let before = git(repo, ['rev-parse', 'HEAD'])
+            if (!isAncestor(repo, target, before)) {
+                if (runGit(repo, ['merge-base', before, target]).status !== 0)
+                    throw new Error('related repository has no shared ancestor')
+                await snapshotChanges(repo)
+                before = git(repo, ['rev-parse', 'HEAD'])
+                const merged = commitGit(repo, [
+                    'merge',
+                    '--no-edit',
+                    '-m',
+                    '合并关联仓库更新',
+                    target,
+                ])
+                if (merged.status !== 0)
+                    throw new Error('related merge did not complete; local snapshot preserved')
+            }
+            entry.appliedCommit = git(repo, ['rev-parse', 'HEAD'])
+            entry.status = before === entry.appliedCommit ? 'current' : 'updated'
         } catch (error) {
             entry.reason = error.message
         }

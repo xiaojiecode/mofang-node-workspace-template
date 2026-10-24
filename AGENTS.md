@@ -12,9 +12,9 @@ build/check/trial/publish前工具仍须检查未完成合并、恢复记录与�
 
 需要更新模板时，手动执行 `node tooling/cli.mjs upstream sync`。成功后重新读取更新后的AGENTS、项目本地规则与本任务相关SKILL，并记录官方上游commit、已应用commit与同步状态。命令不存在、网络/认证失败、冲突、不兼容或中断时明确报告具体状态，不声称最新；继续不依赖更新的调查，不自动强制覆盖。
 
-官方唯一源为本模板仓库，配置见 .agents/upstream.json。新工程保留模板 Git 祖先，初始化会提交工程名称及所选节点；更新要求工作树干净，通过 fetch 和普通 merge 合并整个上游提交，不维护文件或技能目录白名单。
+官方唯一源为本模板仓库，配置见 .agents/upstream.json。新工程保留模板 Git 祖先，初始化会提交工程名称及所选节点；更新无需预先清理工作树；存在上游更新时，先将未提交内容保存为本地快照提交，再通过 fetch 和普通 merge 合并整个上游提交，不维护文件或技能目录白名单。
 
-nodes/、shared/、业务fixture和自定义技能的已提交修改参与普通 Git 合并，不因目录名自动覆盖或排除；AGENTS.local.md 保持项目本地忽略。非重叠修改自动合并，真实冲突保留 Git 状态，人工解决并提交，或 git merge --abort，再运行 upstream recover。未提交修改先由用户处理，不自动stash、reset、rebase或切分支。旧无模板祖先的工程本次不自动迁移，不使用 allow-unrelated-histories。只处理显式登记的相关源，不从文档URL猜仓库，不自动连接远程数据库。
+nodes/、shared/、业务fixture和自定义技能的已提交修改参与普通 Git 合并，不因目录名自动覆盖或排除；AGENTS.local.md 保持项目本地忽略。非重叠修改自动合并，真实冲突保留 Git 状态，人工解决并提交，或 git merge --abort，再运行 upstream recover。未提交修改不再阻断同步，也不要求用户先处理；同步工具保存本地快照后直接合并，保留现有业务内容，不自动推送业务提交、reset、rebase或切分支。旧无模板祖先的工程本次不自动迁移，不使用 allow-unrelated-histories。只处理显式登记的相关源，不从文档URL猜仓库，不自动连接远程数据库。
 
 同步工具须防并行；Git 保存合并冲突和撤销信息，upstream recover 仅补记已完成合并或确认已撤销，不重新写业务文件。离线不是成功；新ABI或依赖不兼容不能通过改业务节点来掩盖。未完成合并、恢复记录或 dependenciesPending 清除前禁止build/verify/trial/publish。依赖安装和脚本执行按实际变更与任务授权核对，不在冲突未解决时运行新工具。
 
