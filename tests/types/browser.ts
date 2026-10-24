@@ -21,6 +21,16 @@ type SDKIsTyped = ExpectFalse<IsAny<MofangSDK>>
 type PanelPropsAreTyped = ExpectFalse<IsAny<PanelProps>>
 type ProductIsTyped = ExpectFalse<IsAny<Product>>
 void sdk.nodeFlow.watch({ runId: 'run', nodeInstanceId: 'node' })
+// 宿主 HTTP 能力仅声明 JSON 参数，不向作者暴露底层鉴权请求实例。
+void sdk.http.request<{ items: string[] }>({
+    method: 'GET',
+    path: '/v1/example/items',
+    query: { page: 1 },
+})
+// @ts-expect-error HTTP 仅支持公开的五种方法。
+void sdk.http.request({ method: 'TRACE', path: '/v1/example/items' })
+// @ts-expect-error 页面不能覆盖宿主认证请求头。
+void sdk.http.request({ method: 'GET', path: '/v1/example/items', headers: { Authorization: 'x' } })
 void props.settings?.onFieldChange?.('note', 'text')
 void props.ui?.onSelectTask?.({ taskId: 'task', nodeRunId: 'run' })
 // @ts-expect-error The host callback takes an identity object, not a task ID string.

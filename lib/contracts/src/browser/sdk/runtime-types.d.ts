@@ -93,6 +93,8 @@ export type NodeActionQuery = Readonly<{
  * 这里实现一次，React 与 Lit 适配器只做订阅和暴露，不各自实现一套。
  */
 export interface MofangSDK {
+    http: import('./http').MofangHttp;
+    toast: import('./toast').MofangToast;
     nodeFlow: NodeFlowAPI;
     messages: import('./message-types').MofangMessages;
     /** 整个 store 的根状态；只在任一资源内容变化时才换引用。 */

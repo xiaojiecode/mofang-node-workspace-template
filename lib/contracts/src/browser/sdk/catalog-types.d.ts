@@ -66,21 +66,11 @@ export type GraphEdge = {
     fromKey: string;
     toKey: string;
 };
-export type NodePanelSnapshot = {
-    sourceCode: string;
-    compiledJs: string;
-    sourceHash: string;
-    compiledHash: string;
-    compilerVersion: string;
-    revision: number;
-    updatedAt: string;
-};
 export type WorkflowGraph = {
     nodes: GraphNode[];
     edges: GraphEdge[];
     globalsJson: JsonValue;
     agentSnapshots: Record<string, WorkflowNode>;
-    panelSnapshots?: Record<string, NodePanelSnapshot>;
     /** 服务端冻结的实例定义副本；不作为客户端可编辑配置。 */
     readonly nodeInstanceDefinitions?: Readonly<Record<string, JsonObject>>;
 };

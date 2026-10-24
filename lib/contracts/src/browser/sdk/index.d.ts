@@ -1,5 +1,6 @@
 export { createMofangSDK } from './create-sdk';
 export type { ExecutionControlReceipt } from './execution-control-types';
+export type { MofangHttp, MofangHttpMethod, MofangHttpPayload, MofangHttpQuery, MofangHttpQueryValue, MofangHttpRequest } from './http';
 export type * from './message-types';
 export { matchesMessage } from './message-types';
 export type * from './node-flow-types';
@@ -12,5 +13,6 @@ export { classifyErrorCode, failureFromReceipt, MofangSDKError, toMofangSDKError
 export type { SerialQueue } from './serial-queue';
 export { createSerialQueue } from './serial-queue';
 export { isDeeplyEqual, keepStableValue } from './stable-value';
+export type { MofangToast, NodeToastLevel, NodeToastMessage } from './toast';
 export type { MofangRequestOptions, MofangSDKOperation, MofangSDKReadOperation, MofangSDKWriteOperation, MofangTransport, MofangTransportPayload, NodeFlowWriteOperation } from './transport';
 export type * from './types';

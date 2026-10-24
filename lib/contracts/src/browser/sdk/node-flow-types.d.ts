@@ -52,6 +52,10 @@ export type NodeCandidatePage = NodeFlowTarget & Readonly<{
 /** 节点总视图；JS 业务展示数据与平台状态、候选页分别保留。 */
 export type NodeView = NodeFlowTarget & Readonly<{
     sessionId: ID;
+    toasts?: readonly (import('./toast').NodeToastMessage & Readonly<{
+        id: ID;
+        sequence: string;
+    }>)[];
     revision: Revision;
     status: 'running' | 'closing' | 'waiting' | 'paused' | 'succeeded' | 'failed' | 'cancelled';
     mode: 'auto' | 'manual';
@@ -203,6 +207,8 @@ export type NodeFlowActionView = Readonly<{
     label: string;
     description: string;
     presentation: 'host' | 'panel';
+    /** 显式新一轮执行，保留 state 并按本轮替换输出。 */
+    rerun?: boolean;
     payloadSchema: JSONObject;
     payloadSchemaDigest: string;
     availability: NodeActionAvailability;
