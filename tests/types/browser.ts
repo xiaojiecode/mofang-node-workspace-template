@@ -33,16 +33,16 @@ void sdk.http.request({ method: 'TRACE', path: '/v1/example/items' })
 void sdk.http.request({ method: 'GET', path: '/v1/example/items', headers: { Authorization: 'x' } })
 void props.settings?.onFieldChange?.('note', 'text')
 void props.ui?.onSelectTask?.({ taskId: 'task', nodeRunId: 'run' })
-// @ts-expect-error The host callback takes an identity object, not a task ID string.
+// @ts-expect-error 宿主回调接收身份对象，不能只传任务 ID 字符串。
 void props.ui?.onSelectTask?.('task')
 void textField({ name: 'x', label: 'x', value: '', readOnly: true })
 void productSummary({
     basic: { title: 'x' },
     references: { shopProductId: 'shop' },
 } satisfies Product)
-// @ts-expect-error IDs/revisions are strings.
+// @ts-expect-error ID 和修订号必须为字符串。
 void sdk.nodeFlow.watch({ runId: 42, nodeInstanceId: 'node' })
-// @ts-expect-error Contracts are types only; platform owns the SDK runtime.
+// @ts-expect-error 契约包只导出类型，SDK 运行时由平台提供。
 import { createMofangSDK } from '@mofang/contracts/browser'
 
 // 保留已有 selectField 的 TemplateResult 返回契约，可直接作为容器内容。
