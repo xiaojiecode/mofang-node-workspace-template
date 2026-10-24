@@ -62,6 +62,17 @@ test('冷初始化携带完整技能和模板Git祖先，真实类型和构建�
         '.agents/skills/frontend-design/UPSTREAM.json',
         '.agents/upstream-state.json',
         'tooling/tsconfig.browser.json',
+        'lib/browser/ui/README.md',
+        'lib/browser/ui/components/card.ts',
+        'lib/browser/ui/components/image.ts',
+        'lib/browser/ui/components/select.ts',
+        'lib/browser/ui/components/tabs.ts',
+        'lib/browser/ui/components/skeleton.ts',
+        'lib/browser/ui/components/transition.ts',
+        'tooling/verify/ui.mjs',
+        'tooling/verify/transitions.mjs',
+        'tests/fixtures/ui-preview.ts',
+        'tests/fixtures/transition-preview.ts',
     ])
         assert.ok((await lstat(path.join(target, file))).isFile(), file)
     await access(path.join(target, '.agents/skills/impeccable/scripts/impeccable'), constants.X_OK)
@@ -96,6 +107,32 @@ test('冷初始化携带完整技能和模板Git祖先，真实类型和构建�
         undefined,
     )
     await symlink(path.join(root, 'node_modules'), path.join(target, 'node_modules'), 'dir')
+    const generatedPackage = JSON.parse(await readFile(path.join(target, 'package.json'), 'utf8'))
+    assert.equal(generatedPackage.scripts['test:ui'], 'node tooling/verify/ui.mjs')
+    assert.equal(
+        generatedPackage.scripts['test:transitions'],
+        'node tooling/verify/transitions.mjs',
+    )
+    assert.ok(generatedPackage.scripts.check.includes('npm run test:ui'))
+    // 在新工程中通过公开入口编译组件总览；防止只复制组件文件却遗漏导出或依赖。
+    const componentBundle = spawnSync(
+        process.execPath,
+        [
+            '--input-type=module',
+            '-e',
+            `
+        import {bundle} from './tooling/build/bundle.mjs';
+        import path from 'node:path';
+        const result = await bundle('./tests/fixtures/ui-preview.ts', 'panel');
+        if (!result.inputs.some((file) => file.endsWith('components/card.ts'))) throw new Error('card missing');
+        const forbidden = ['nodes', 'shared'].map((directory) => path.resolve(directory) + path.sep);
+        if (result.inputs.some((file) => forbidden.some((prefix) => path.resolve(file).startsWith(prefix)))) throw new Error('business dependency');
+    `,
+        ],
+        { cwd: target, encoding: 'utf8', env: process.env },
+    )
+    assert.equal(componentBundle.status, 0, componentBundle.stdout + componentBundle.stderr)
+
     const solution = JSON.parse(await readFile(path.join(target, 'tsconfig.json'), 'utf8'))
     assert.deepEqual(solution.files, [])
     assert.deepEqual(solution.references, [

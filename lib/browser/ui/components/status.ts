@@ -2,7 +2,11 @@ import { html, nothing } from 'lit'
 /**
  * 渲染信息/错误提示并使用对应的可访问性角色；文案由调用方提供，不推断业务终态。
  */
-export function statusNote(title: string, message: string, kind: 'info' | 'error' = 'info') {
+export function statusNote(
+    title: string,
+    message: string,
+    kind: 'info' | 'error' | 'success' | 'warning' = 'info',
+) {
     return html`<div
         class="mf-note"
         data-kind=${kind}

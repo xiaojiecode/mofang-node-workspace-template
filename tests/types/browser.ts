@@ -1,6 +1,7 @@
 import type { MofangSDK, PanelProps, PageProgramContext, NodeView } from '@mofang/contracts/browser'
 import { HostPanel } from '@mofang/browser'
-import { productSummary, textField } from '@mofang/browser'
+import { productSummary, textField, selectField, card } from '@mofang/browser'
+import type { TemplateResult } from 'lit'
 import type { Product } from '@mofang/contracts/business'
 import type { JavaScriptValidation } from '@mofang/contracts/author'
 const moduleValidation: JavaScriptValidation = {
@@ -33,3 +34,12 @@ void productSummary({
 void sdk.nodeFlow.watch({ runId: 42, nodeInstanceId: 'node' })
 // @ts-expect-error Contracts are types only; platform owns the SDK runtime.
 import { createMofangSDK } from '@mofang/contracts/browser'
+
+// 保留已有 selectField 的 TemplateResult 返回契约，可直接作为容器内容。
+const selectionField: TemplateResult = selectField({
+    name: 'region',
+    label: '地区',
+    value: 'US',
+    options: [{ value: 'US', label: '美国' }],
+})
+void card({ title: '设置' }, selectionField)

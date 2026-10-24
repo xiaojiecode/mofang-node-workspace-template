@@ -1,6 +1,11 @@
 import { html, nothing } from 'lit'
 import type { TemplateResult } from 'lit'
-import { live } from 'lit/directives/live.js'
+import { repeat } from 'lit/directives/repeat.js'
+import { styleMap } from 'lit/directives/style-map.js'
+import { checkbox } from './controls'
+import { selectField } from './select'
+import { emptyState } from './content'
+import { skeleton } from './skeleton'
 
 export type TableColumn<Row> = Readonly<{
     title: string
@@ -29,6 +34,8 @@ export function dataTable<Row>(
         selection?: TableSelection
         empty?: string
         rowState?: (row: Row) => string
+        loading?: boolean
+        label?: string
     } = {},
 ) {
     const selection = options.selection
@@ -37,29 +44,28 @@ export function dataTable<Row>(
         : []
     const allChecked =
         selectable.length > 0 && selectable.every((item) => selection?.selected.has(item))
-    return html`<div class="mf-table">
-        <table>
+    const someChecked = selectable.some((item) => selection?.selected.has(item))
+    return html`<div class="mf-table" aria-busy=${Boolean(options.loading)}>
+        <table aria-label=${options.label ?? nothing}>
             <thead>
                 <tr>
                     ${selection
                         ? html`<th class="mf-check">
-                              <input
-                                  type="checkbox"
-                                  aria-label="选择本页可选行"
-                                  .checked=${allChecked}
-                                  ?disabled=${selectable.length === 0}
-                                  @change=${(event: Event) =>
-                                      selection.onToggleAll(
-                                          selectable,
-                                          (event.target as HTMLInputElement).checked,
-                                      )}
-                              />
+                              ${checkbox({
+                                  label: '选择本页可选行',
+                                  labelHidden: true,
+                                  checked: allChecked,
+                                  indeterminate: someChecked && !allChecked,
+                                  disabled: selectable.length === 0,
+                                  onChange: (checked) => selection.onToggleAll(selectable, checked),
+                              })}
                           </th>`
                         : nothing}
                     ${columns.map(
                         (column) =>
                             html`<th
-                                style=${column.width ? `width:${column.width}` : ''}
+                                scope="col"
+                                style=${styleMap({ width: column.width })}
                                 data-align=${column.align ?? 'left'}
                             >
                                 ${column.title}
@@ -68,50 +74,60 @@ export function dataTable<Row>(
                 </tr>
             </thead>
             <tbody>
-                ${rows.length === 0
-                    ? html`<tr>
-                          <td class="mf-empty" colspan=${columns.length + (selection ? 1 : 0)}>
-                              ${options.empty ?? '暂无数据'}
-                          </td>
-                      </tr>`
-                    : rows.map((row) => {
-                          const item = key(row)
-                          const reason = selection?.disabledReason(item) ?? ''
-                          const checked = Boolean(selection?.selected.has(item))
-                          return html`<tr
-                              data-row-key=${item}
-                              data-state=${options.rowState?.(row) ?? ''}
-                              ?data-selected=${checked}
-                              ?data-disabled=${Boolean(reason)}
-                          >
-                              ${selection
-                                  ? html`<td class="mf-check">
-                                        <input
-                                            type="checkbox"
-                                            aria-label=${reason
-                                                ? `不可选择：${reason}`
-                                                : '选择此行'}
-                                            title=${reason}
-                                            .checked=${checked}
-                                            ?disabled=${Boolean(reason)}
-                                            @change=${(event: Event) =>
-                                                selection.onToggle(
-                                                    item,
-                                                    (event.target as HTMLInputElement).checked,
-                                                )}
-                                        />
-                                    </td>`
-                                  : nothing}
-                              ${columns.map(
-                                  (column) =>
-                                      html`<td data-align=${column.align ?? 'left'}>
-                                          ${column.cell(row)}
-                                      </td>`,
-                              )}
-                          </tr>`
-                      })}
+                ${options.loading && rows.length === 0
+                    ? Array.from(
+                          { length: 3 },
+                          () =>
+                              html`<tr aria-hidden="true">
+                                  ${selection
+                                      ? html`<td>
+                                            ${skeleton({ width: '15px', height: '15px' })}
+                                        </td>`
+                                      : nothing}
+                                  ${columns.map(() => html`<td>${skeleton({ width: '75%' })}</td>`)}
+                              </tr>`,
+                      )
+                    : rows.length === 0
+                      ? html`<tr>
+                            <td class="mf-empty" colspan=${columns.length + (selection ? 1 : 0)}>
+                                ${emptyState(options.empty ?? '暂无数据')}
+                            </td>
+                        </tr>`
+                      : repeat(rows, key, (row) => {
+                            const item = key(row)
+                            const reason = selection?.disabledReason(item) ?? ''
+                            const checked = Boolean(selection?.selected.has(item))
+                            return html`<tr
+                                data-row-key=${item}
+                                data-state=${options.rowState?.(row) ?? ''}
+                                ?data-selected=${checked}
+                                ?data-disabled=${Boolean(reason)}
+                            >
+                                ${selection
+                                    ? html`<td class="mf-check">
+                                          ${checkbox({
+                                              label: reason ? `不可选择：${reason}` : '选择此行',
+                                              title: reason,
+                                              labelHidden: true,
+                                              checked,
+                                              disabled: Boolean(reason),
+                                              onChange: (value) => selection.onToggle(item, value),
+                                          })}
+                                      </td>`
+                                    : nothing}
+                                ${columns.map(
+                                    (column) =>
+                                        html`<td data-align=${column.align ?? 'left'}>
+                                            ${column.cell(row)}
+                                        </td>`,
+                                )}
+                            </tr>`
+                        })}
             </tbody>
         </table>
+        ${options.loading
+            ? html`<span class="mf-sr-only" role="status">正在加载数据</span>`
+            : nothing}
     </div>`
 }
 
@@ -150,6 +166,7 @@ export function pager(p: PagerProps) {
     const page = Math.min(Math.max(1, p.page), pages)
     const busy = Boolean(p.busy)
     const go = (next: number) => {
+        if (!Number.isFinite(next) || !Number.isInteger(next)) return
         const target = Math.min(Math.max(1, next), pages)
         if (!busy && target !== page) p.onPage(target)
     }
@@ -187,18 +204,20 @@ export function pager(p: PagerProps) {
             ›
         </button>
         ${p.onPageSize && p.pageSizes?.length
-            ? html`<select
-                  class="mf-page-size"
-                  aria-label="每页条数"
-                  .value=${live(String(p.pageSize))}
-                  ?disabled=${busy}
-                  @change=${(event: Event) =>
-                      p.onPageSize?.(Number((event.target as HTMLSelectElement).value))}
-              >
-                  ${p.pageSizes.map(
-                      (size) => html`<option value=${String(size)}>${size} / page</option>`,
-                  )}
-              </select>`
+            ? selectField({
+                  name: 'pageSize',
+                  label: '每页条数',
+                  labelHidden: true,
+                  value: String(p.pageSize),
+                  readOnly: busy,
+                  options: p.pageSizes.map((size) => ({
+                      value: String(size),
+                      label: `${size} 条/页`,
+                  })),
+                  onChange: (value) => {
+                      if (value !== undefined) p.onPageSize?.(Number(value))
+                  },
+              })
             : nothing}
         <label class="mf-page-jump">
             前往

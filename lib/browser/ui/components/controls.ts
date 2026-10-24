@@ -1,39 +1,8 @@
 import { html, nothing } from 'lit'
 import { live } from 'lit/directives/live.js'
 
-export type SelectOption = Readonly<{ value: string; label: string }>
-
-export type SelectFieldProps = Readonly<{
-    name: string
-    label: string
-    value: string
-    options: readonly SelectOption[]
-    hint?: string
-    readOnly?: boolean
-    /** 选择空值时传 undefined，表示删除显式配置并回到默认值。 */
-    onChange?: (value: string | undefined) => void
-}>
-
-/** 受控下拉：宿主持有草稿，选择立即回调，不另存第二份配置。 */
-export function selectField(p: SelectFieldProps) {
-    return html`<label class="mf-field"
-        ><span class="mf-label">${p.label}</span>
-        <select
-            class="mf-input"
-            name=${p.name}
-            .value=${live(p.value)}
-            ?disabled=${p.readOnly || !p.onChange}
-            @change=${(event: Event) => {
-                if (p.readOnly) return
-                const value = (event.currentTarget as HTMLSelectElement).value
-                p.onChange?.(value === '' ? undefined : value)
-            }}
-        >
-            ${p.options.map((o) => html`<option value=${o.value}>${o.label}</option>`)}
-        </select>
-        ${p.hint ? html`<span class="mf-hint">${p.hint}</span>` : nothing}</label
-    >`
-}
+export { selectField } from './select'
+export type { SelectOption, SelectFieldProps } from './select'
 
 export type NumberFieldProps = Readonly<{
     name: string
@@ -99,29 +68,69 @@ export function numberField(p: NumberFieldProps) {
     >`
 }
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost'
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
 
 export type ButtonProps = Readonly<{
     label: string
-    onClick: () => void
+    onClick?: (event: MouseEvent) => void
     variant?: ButtonVariant
     disabled?: boolean
     title?: string
+    type?: 'button' | 'submit' | 'reset'
+    loading?: boolean
+    size?: 'small' | 'normal' | 'panel'
+    expanded?: boolean
+    controls?: string
 }>
 
 /** 通用按钮；disabled 同时阻断回调，权限与业务校验由调用方决定。 */
 export function button(p: ButtonProps) {
-    const disabled = Boolean(p.disabled)
+    const disabled = Boolean(p.disabled || p.loading)
     return html`<button
         class="mf-button"
         data-variant=${p.variant ?? 'secondary'}
-        type="button"
+        type=${p.type ?? 'button'}
+        data-size=${p.size ?? 'normal'}
+        aria-busy=${p.loading ? 'true' : nothing}
+        data-loading=${Boolean(p.loading)}
+        aria-expanded=${p.expanded === undefined ? nothing : String(p.expanded)}
+        aria-controls=${p.controls ?? nothing}
         title=${p.title ?? ''}
         ?disabled=${disabled}
-        @click=${() => {
-            if (!disabled) p.onClick()
+        @click=${(event: MouseEvent) => {
+            if (!disabled) p.onClick?.(event)
         }}
     >
-        ${p.label}
+        ${p.loading
+            ? html`<span class="mf-button-loading" aria-hidden="true"></span>`
+            : nothing}<span class="mf-button-label">${p.label}</span>
     </button>`
+}
+
+export type CheckboxProps = Readonly<{
+    label: string
+    checked: boolean
+    indeterminate?: boolean
+    disabled?: boolean
+    /** 表格中只显示方框，名称仍供辅助技术使用。 */
+    labelHidden?: boolean
+    title?: string
+    onChange: (checked: boolean) => void
+}>
+
+/** 受控复选框，部分选中独立于 checked；禁用时不派发修改。 */
+export function checkbox(p: CheckboxProps) {
+    return html`<label class="mf-checkbox" title=${p.title ?? ''}>
+        <input
+            type="checkbox"
+            aria-label=${p.label}
+            .checked=${live(p.checked)}
+            .indeterminate=${p.indeterminate ?? false}
+            ?disabled=${p.disabled}
+            @change=${(event: Event) => {
+                if (!p.disabled) p.onChange((event.target as HTMLInputElement).checked)
+            }}
+        />
+        ${p.labelHidden ? nothing : html`<span>${p.label}</span>`}
+    </label>`
 }

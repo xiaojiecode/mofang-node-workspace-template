@@ -69,6 +69,14 @@ fixtures/goja-test.js 使用普通 JavaScript 脚本语法，最后一个表达�
 
 缓存显式设置 `MF_CACHE_DIR`；npm 缓存用 `NPM_CONFIG_CACHE`，Go/Vite/浏览器材料由工具归该目录。正式 build 安全压缩并输出大小/耗时，属性名不混淆；build:dev 只改变可读性。fixture 页面明确是本地数据，不作为真实业务成功证据。
 
+## 官方基础组件
+
+基础组件统一维护在 [lib/browser/ui](lib/browser/ui/README.md)，从 `@mofang/browser` 导入，包含白底主题、Card、表单、表格与分页、图片查看器、Tabs、骨架和过渡。保留既有调用方式；组件只处理展示与交互，业务执行和宿主草稿仍由节点负责。
+
+`npm run test:ui` 生成组件总览并验证交互，`npm run test:transitions` 验证过渡；两项均纳入 `npm run check`。可通过 `MF_CACHE_DIR` 指定预览与截图目录，通过 `MF_CHROME_PATH` 指定 Chrome。
+
+新工程初始化时自带组件和验证入口；已有工程通过 `upstream sync` 合并官方更新，本地组件改动按普通 Git 合并处理。更新后须重新构建和发布相应面板，平台已发布版本不会自动替换。
+
 ## 平台、技能与更新
 
 先运行 `npm run platform -- guide` 取得离线开发条件、作者API和常用接口；再用 `npm run platform -- --profile test-admin doctor --bundle dist/<编码>` 做只读环境预检和不落库ABI校验。未提供bundle不宣称远端ABI；仅查Schema和开发不授权执行可能计费的Tool。完整入口见[节点开发指南](.agents/skills/mofang-js-node/references/node-development.md)。

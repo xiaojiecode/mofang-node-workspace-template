@@ -19,7 +19,7 @@
         "verify:goja": "node tooling/verify/goja.mjs",
         "verify:runtime": "node tooling/verify/runtime.mjs",
         "verify:platform": "node tooling/verify/platform.mjs",
-        "check": "npm run lint && npm run typecheck && npm run build && npm run verify && npm test && npm run test:cli && npm run test:browser && npm run verify:goja",
+        "check": "npm run lint && npm run typecheck && npm run build && npm run verify && npm test && npm run test:cli && npm run test:browser && npm run verify:goja && npm run test:ui && npm run test:transitions",
         "sync:contracts": "node tooling/sync-contracts/index.mjs",
         "check:contracts": "node tooling/sync-contracts/index.mjs --check",
         "trial": "node tooling/cli.mjs trial",
@@ -28,7 +28,9 @@
         "lint": "prettier --check lib nodes tooling playground tests shared *.json .prettierrc.json",
         "lint:fix": "prettier --write lib nodes tooling playground tests shared *.json .prettierrc.json",
         "platform": "node tooling/cli.mjs platform",
-        "upstream": "node tooling/cli.mjs upstream"
+        "upstream": "node tooling/cli.mjs upstream",
+        "test:ui": "node tooling/verify/ui.mjs",
+        "test:transitions": "node tooling/verify/transitions.mjs"
     },
     "devDependencies": {
         "acorn": "8.15.0",
