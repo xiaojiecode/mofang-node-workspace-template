@@ -97,10 +97,11 @@ bundle 读取工程模板的 `node.json`，只选取作者请求字段，不发�
 
 ## 双面板保存和发布
 
-settings/business 独立读取和保存；正文中的 surface 必须明确。先 get 当前目录身份与修订，再通过 describe 了解正文：
+settings/business 独立读取和保存；正文中的 surface 必须明确。`panels compile` 与 `panels save` 的正文不同：编译不接受 kind、renderMode、目录身份/修订或发布字段。business Lit 两种操作均须提供 programSource 和显式非空 supportedContextSchemas，遗漏上下文声明时远端可能只返回“页面或程序源码编译被拒绝”。先 get 当前目录身份与修订，再通过 describe 了解对应操作正文：
 
 ```bash
 python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels get --code <编码> --surface settings
+python3 <技能目录>/scripts/mofang_node.py describe panels compile
 python3 <技能目录>/scripts/mofang_node.py describe panels save
 python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels compile \
     --file <预览编译正文.json> --view-source <dist/编码/settings.js>
@@ -120,7 +121,38 @@ python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels save \
 }
 ```
 
-business Lit 必须同时提供自身的 viewSource 与非空 programSource，用 `--program-source <dist/编码/pageProgram.js>` 原文填入。settings 不接受 programSource。supportedContextSchemas 按页面实际声明填写，CLI 不默认添加整抽屉能力或改变页面布局。保存后重新 get，下一 surface 使用新读取的修订；禁止把前一个请求的旧修订直接复用。 business 保存示例（正文需明确 surface=business、renderMode=lit，并填入刚读取的身份与修订）：
+business Lit 必须同时提供自身的 viewSource 与非空 programSource，用 `--program-source <dist/编码/pageProgram.js>` 原文填入。settings 不接受 programSource。supportedContextSchemas 按页面实际声明填写，CLI 不默认添加整抽屉能力或改变页面布局。保存后重新 get，下一 surface 使用新读取的修订；禁止把前一个请求的旧修订直接复用。
+
+下面是两份**编译**正文，源码由命令行参数填入。business 示例的 `mf.node-context/1` 来自当前模板的普通宿主验证契约；仍须核对目标宿主，不能将示例当成任意部署或 full-panel 的证明。
+
+```json
+{"surface":"settings"}
+```
+
+```json
+{"surface":"business","supportedContextSchemas":["mf.node-context/1"]}
+```
+
+声明必须是数组，business Lit 不能为空；每项是唯一、无首尾空白、不含 NUL、最多 256 个 UTF-8 字节的非空字符串。settings 可以省略或传空数组；如显式提供声明，CLI 同样检查格式，不自动填充或规范化内容。
+
+```bash
+python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels compile \
+    --file <business编译正文.json> --view-source <dist/编码/business.js> \
+    --program-source <dist/编码/pageProgram.js>
+```
+
+编译通过后使用独立的 business **保存**正文：
+
+```json
+{
+    "kind": "save",
+    "surface": "business",
+    "renderMode": "lit",
+    "supportedContextSchemas": ["mf.node-context/1"],
+    "expectedCatalogInstanceId": "<刚读取的目录身份>",
+    "expectedCatalogRevision": "<刚读取的目录修订>"
+}
+```
 
 ```bash
 python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels save \

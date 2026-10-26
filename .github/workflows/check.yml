@@ -7,10 +7,14 @@ jobs:
     # Keep the runner OS within the pinned Playwright version's supported platforms.
     runs-on: ubuntu-24.04
     env:
-      MF_CACHE_DIR: ${{ github.workspace }}/.cache
+      # 冷初始化必须在模板目录之外生成工程，验证缓存放在检出目录的同级。
+      MF_CACHE_DIR: ${{ github.workspace }}/../mofang-node-cache
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/browsers
     steps:
       - uses: actions/checkout@v4
+        with:
+          # 冷初始化需要继承模板 Git 祖先，不能从浅克隆复制缺失的历史。
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '24'

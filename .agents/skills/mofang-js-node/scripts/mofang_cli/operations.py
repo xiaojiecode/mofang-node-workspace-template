@@ -72,6 +72,31 @@ def read_object(filename):
     return value
 
 
+def validate_context_schemas(body):
+    """按页面编译契约校验显式上下文声明，不猜测 Schema 或自动提升为整抽屉模式。"""
+    field = "supportedContextSchemas"
+    if field not in body:
+        if body["surface"] == "business":
+            raise CLIError("missing_field", "business Lit 必须显式提供非空 supportedContextSchemas；按目标宿主确认声明，CLI 不自动填充")
+        return
+    schemas = body[field]
+    if not isinstance(schemas, list) or (body["surface"] == "business" and not schemas):
+        raise CLIError("invalid_argument", "supportedContextSchemas 必须是数组，business Lit 不能为空")
+    seen = set()
+    for index, schema in enumerate(schemas):
+        valid = isinstance(schema, str) and bool(schema.strip()) and schema == schema.strip() and "\x00" not in schema
+        if valid:
+            try:
+                valid = len(schema.encode("utf-8")) <= 256
+            except UnicodeEncodeError:
+                valid = False
+        if not valid:
+            raise CLIError("invalid_argument", f"supportedContextSchemas[{index}] 必须是无首尾空白、不含 NUL、最多 256 个 UTF-8 字节的非空字符串")
+        if schema in seen:
+            raise CLIError("invalid_argument", "supportedContextSchemas 不能重复")
+        seen.add(schema)
+
+
 def describe(group=None, action=None):
     rows = []
     for (g, a), op in OPERATIONS.items():
@@ -137,6 +162,8 @@ def prepare(op, args):
     if op.path.endswith("/page") and op.method == "PUT" and body.get("kind") != "save":
         raise CLIError("invalid_argument", "panels save 只接受 kind=save")
     if (op.path == "/nodes/page/compile" or (op.method == "PUT" and op.path.endswith("/page") and body.get("renderMode") == "lit")):
+        if op.path == "/nodes/page/compile" and "renderMode" in body:
+            raise CLIError("invalid_argument", "panels compile 不接受 renderMode；该字段仅用于 panels save")
         if body.get("surface") not in ("settings", "business"):
             raise CLIError("invalid_argument", "surface 必须明确为 settings 或 business")
         if not isinstance(body.get("viewSource"), str) or not body["viewSource"].strip():
@@ -145,6 +172,7 @@ def prepare(op, args):
             raise CLIError("missing_field", "business Lit 必须同时提供 programSource 或 --program-source")
         if body["surface"] == "settings" and body.get("programSource"):
             raise CLIError("invalid_argument", "settings 不接受 programSource")
+        validate_context_schemas(body)
     if op.method == "POST" and op.path.endswith("/page/releases"):
         scope = body["scope"]
         if scope not in ("new_only", "all_instances", "selected_instances"):

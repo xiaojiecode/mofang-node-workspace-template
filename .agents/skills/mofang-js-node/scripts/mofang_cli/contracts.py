@@ -22,6 +22,7 @@ FIELD_HELP = {
     "renderMode": "本工程 Lit 面板使用 lit。",
     "viewSource": "settings.js 或 business.js 原文，必须与 surface 对应。",
     "programSource": "business 必须提供 pageProgram.js；settings 不接受。",
+    "supportedContextSchemas": "business Lit 编译与保存必须显式提供非空数组，元素为唯一、无首尾空白、最多256个UTF-8字节的非空字符串；按真实宿主契约声明，不自动补默认值或整抽屉标记。",
     "scope": "面板发布 new_only / all_instances / selected_instances，按用户明确授权选择。",
     "targets": "selected_instances 的非空 nodeInstanceId 列表；不能用 nodeCode 替代。",
     "panelRevision": "已保存页面的真实修订；不能用执行 definitionHash 替代。",
@@ -69,10 +70,25 @@ def operation_contract(group, action, operation):
         response = ["tool_name", "input_schema", "output_schema", "input_schema_registered", "output_schema_registered", "effective_enabled", "async_execution", "requires_workflow_context"]
         conditions += ["async_execution是平台工具执行契约；业务响应pending/generation仍须按输出Schema处理，不能据此省略业务轮询。"]
     if group == "panels":
-        for name in ("surface", "viewSource", "programSource", "expectedCatalogInstanceId", "expectedCatalogRevision", "scope", "targets", "panelRevision"):
+        panel_fields = {
+            "compile": ("surface", "viewSource", "programSource", "supportedContextSchemas"),
+            "save": ("kind", "surface", "renderMode", "viewSource", "programSource", "supportedContextSchemas", "expectedCatalogInstanceId", "expectedCatalogRevision"),
+            "publish": ("surface", "scope", "targets", "panelRevision"),
+        }
+        for name in panel_fields.get(action, ()):
             fields[name] = {"required": name in operation.required, "meaning": FIELD_HELP[name]}
-        conditions += ["business Lit 同时提供 viewSource/programSource；settings 禁止 programSource。",
-                       "保存一个 surface 后回读新目录修订，再保存另一个；发布后按 releaseId 查询原回执。"]
+        if action in ("compile", "save"):
+            condition = "surface=business" if action == "compile" else "surface=business 且 renderMode=lit"
+            fields["programSource"]["required_when"] = condition
+            fields["supportedContextSchemas"]["required_when"] = condition
+            conditions += ["business Lit 同时提供 viewSource/programSource 和显式非空 supportedContextSchemas；settings 禁止 programSource。",
+                           "上下文声明不自动填充；字符串不能重复、含NUL或首尾空白，每项最多256个UTF-8字节。"]
+        if action == "compile":
+            conditions += ["编译正文不接受 kind/renderMode、目录身份/修订或发布字段；先编译通过再保存。"]
+        if action == "save":
+            conditions += ["保存一个 surface 后回读新目录修订，再保存另一个；不复用旧修订。"]
+        if action == "publish":
+            conditions += ["发布只使用已保存 panelRevision、显式scope/targets；按releaseId查询原回执。"]
     if group == "workflows":
         conditions += ["图与配置修改使用真实 draftRevision；定义采用不等于页面发布。",
                        "publish/start 仅按用户明确要求执行；start 会启动节点并可能产生 Tool/模型费用。"]

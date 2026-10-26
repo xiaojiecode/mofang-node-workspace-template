@@ -354,6 +354,7 @@ class CLITest(unittest.TestCase):
         self.assertEqual((code, result["error"]["code"]), (1, "missing_field"))
         self.assertEqual(len(self.server.requests), before)
         body["programSource"] = "export function prepareInput() {}"
+        body["supportedContextSchemas"] = ["mf.node-context/1"]
         code, result = self.call(["panels", "save", "--code", "example", *self.body(body)])
         self.assertEqual(code, 0, result)
         before = len(self.server.requests)
@@ -361,6 +362,53 @@ class CLITest(unittest.TestCase):
         code, result = self.call(["panels", "save", "--code", "example", *self.body(body)])
         self.assertEqual((code, result["error"]["code"]), (1, "invalid_argument"))
         self.assertEqual(len(self.server.requests), before)
+
+    def test_business_context_schemas_are_explicit_and_validated_before_network(self):
+        self.login()
+        for action in ("compile", "save"):
+            prefix = ["panels", action] + (["--code", "example"] if action == "save" else [])
+            valid = {"surface": "business", "viewSource": "export default class P {}", "programSource": "export function prepareInput() {}"}
+            if action == "save":
+                valid.update(kind="save", renderMode="lit", expectedCatalogInstanceId="catalog", expectedCatalogRevision="2")
+            before = len(self.server.requests)
+            code, result = self.call([*prefix, *self.body(valid)])
+            self.assertEqual((code, result["error"]["code"]), (1, "missing_field"))
+            self.assertIn("supportedContextSchemas", result["error"]["message"])
+            for invalid in (None, [], "mf.node-context/1", [1], [""], [" mf.node-context/1"], ["mf.node-context/1 "], ["x", "x"], ["x\x00y"], ["x" * 257], ["中" * 86], ["\ud800"]):
+                with self.subTest(action=action, invalid=repr(invalid)):
+                    code, result = self.call([*prefix, *self.body({**valid, "supportedContextSchemas": invalid})])
+                    self.assertEqual((code, result["error"]["code"]), (1, "invalid_argument"))
+            self.assertEqual(len(self.server.requests), before)
+            schemas = ["mf.node-context/1", "custom.preview/1"]
+            code, result = self.call([*prefix, *self.body({**valid, "supportedContextSchemas": schemas})])
+            self.assertEqual(code, 0, result)
+            self.assertEqual(self.server.requests[-1][2]["supportedContextSchemas"], schemas)
+
+    def test_settings_context_is_optional_and_compile_rejects_save_only_mode(self):
+        self.login()
+        body = {"surface": "settings", "viewSource": "export default class P {}"}
+        for schema_patch in ({}, {"supportedContextSchemas": []}, {"supportedContextSchemas": ["mf.node-context/1"]}):
+            code, result = self.call(["panels", "compile", *self.body({**body, **schema_patch})])
+            self.assertEqual(code, 0, result)
+            self.assertEqual("supportedContextSchemas" in self.server.requests[-1][2], "supportedContextSchemas" in schema_patch)
+        before = len(self.server.requests)
+        for patch in ({"supportedContextSchemas": [""]}, {"renderMode": "lit"}):
+            code, result = self.call(["panels", "compile", *self.body({**body, **patch})])
+            self.assertEqual((code, result["error"]["code"]), (1, "invalid_argument"))
+        self.assertEqual(len(self.server.requests), before)
+
+    def test_describe_separates_panel_compile_save_and_publish_fields(self):
+        code, result = self.call(["guide"])
+        self.assertEqual(code, 0, result)
+        interfaces = {row["command"]: row for row in result["data"]["interfaces"]}
+        compile_fields = interfaces["panels compile"]["contract"]["body_fields"]
+        self.assertEqual(set(compile_fields), {"surface", "viewSource", "programSource", "supportedContextSchemas"})
+        self.assertIn("required_when", compile_fields["supportedContextSchemas"])
+        self.assertIn("renderMode", interfaces["panels save"]["contract"]["body_fields"])
+        self.assertEqual(set(interfaces["panels publish"]["contract"]["body_fields"]), {"surface", "scope", "panelRevision", "targets"})
+        self.assertIn("supportedContextSchemas", result["data"]["panel_authoring"]["business_context"])
+        self.assertFalse(self.state.exists())
+        self.assertEqual(self.server.requests, [])
 
     def test_failed_receipt_is_not_success(self):
         self.login("client")
