@@ -7,8 +7,8 @@ jobs:
     # Keep the runner OS within the pinned Playwright version's supported platforms.
     runs-on: ubuntu-24.04
     env:
-      # 冷初始化必须在模板目录之外生成工程，验证缓存使用独立临时目录。
-      MF_CACHE_DIR: ${{ runner.temp }}/mofang-node-cache
+      # 冷初始化必须在模板目录之外生成工程，验证缓存放在检出目录的同级。
+      MF_CACHE_DIR: ${{ github.workspace }}/../mofang-node-cache
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/browsers
     steps:
       - uses: actions/checkout@v4
