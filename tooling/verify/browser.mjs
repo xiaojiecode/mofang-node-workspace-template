@@ -22,6 +22,8 @@ try {
     for (const mode of ['', '?artifacts']) {
         await page.goto(url + mode)
         await page.waitForFunction(() => Boolean(document.querySelector('#app').dataset.mounted))
+        // 设置与业务面板共用底部抽屉，同一时间只显示一个。
+        await page.locator('#open-settings').click()
         await page.locator('#settings input[name=note]').waitFor()
         await page.evaluate(() => {
             const element = window.preview.elements.find((e) => e.surface === 'settings')
@@ -71,6 +73,7 @@ try {
         assert.equal(await page.locator('#settings input').isDisabled(), true)
         await page.locator('#readonly').click()
         assert.equal(await page.locator('#settings input').isDisabled(), false)
+        await page.locator('#open-business').click()
         // 共同Mock宿主区域仅渲染真实声明，不为copy等节点猜造finish。
         assert.equal(await page.locator('#host-actions button').count(), 0)
         await page.getByRole('button', { name: '空结果', exact: true }).click()
