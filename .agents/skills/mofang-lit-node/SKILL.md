@@ -17,6 +17,8 @@ settings位于宿主右侧设置内容区，宿主保留导航和统一保存/�
 
 后台React风格语法与Lit展示分别维护。运行只导入宿主许可的lit，默认导出LitElement，不打第二份Lit核心。动态属性用declare/static properties，目标取this.target，不把整个panelContext当target。
 
+宿主通过 Object.assign 注入 sdk、mofangsdk、context、node、nodeView、nodeOutput、target、ui、panelContext、surface、settings。不要用这些名称声明只有 getter 的内部属性，尤其 `get node()`；业务快照可命名为 `flowNode`。浏览器验收须覆盖完整属性注入，编译通过不能证明挂载成功。
+
 ## 连接与工程
 
 CLI复用相邻mofang-js-node脚本，两个技能一起安装。先运行`guide`取得完整条件和接口，再用`--profile <同环境管理员> doctor --bundle <dist/编码>`读取真实环境并静态校验。`describe`是离线目录，不证明远端ABI；开发流程见[共用节点指南](../mofang-js-node/references/node-development.md)，接口条件见[平台CLI](../mofang-js-node/references/platform-cli.md)。密码/token不入文档。
@@ -26,6 +28,8 @@ CLI复用相邻mofang-js-node脚本，两个技能一起安装。先运行`guide
 常用面板接口：`GET/PUT /v1/admin/workflow/nodes/{code}/page`（显式surface和目录身份/修订），`POST /v1/admin/workflow/nodes/page/compile`（不落库），`POST /v1/admin/workflow/nodes/{code}/page/releases`（显式scope/targets）和`GET /v1/admin/workflow/page-releases/{releaseId}`（查询原回执）。业务读取为`GET /v1/workflow/runs/{runId}/nodes/{nodeInstanceId}/view`，动作POST同资源`/actions`，结果GET`/actions/{eventId}`；面板运行时通过宿主SDK访问，不自建HTTP链路。
 
 node.ts保存目录元数据、contract.ts维护契约，settings.ts与view.ts独立构建；公共展示在lib/browser，后台不得引用它。保存发布每个surface后回读，实例发布有明确目标；页面发布不等于执行定义采用。
+
+business Lit 编译与保存均须显式提供非空 `supportedContextSchemas`；settings 不要求该字段且不接受 programSource。编译正文只放 surface、viewSource、business 的 programSource 和上下文声明，不混入保存用的 kind/renderMode 或目录修订。完整示例与编译拒绝排查见[平台 CLI](../mofang-js-node/references/platform-cli.md#双面板保存和发布)，CLI 不猜默认 Schema 或自动声明整抽屉模式。
 
 ## 设置草稿
 
