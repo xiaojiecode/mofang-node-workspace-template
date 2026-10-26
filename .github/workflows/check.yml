@@ -12,6 +12,9 @@ jobs:
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/browsers
     steps:
       - uses: actions/checkout@v4
+        with:
+          # 冷初始化需要继承模板 Git 祖先，不能从浅克隆复制缺失的历史。
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
