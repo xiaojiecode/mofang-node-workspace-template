@@ -2,7 +2,7 @@ import { html, nothing } from 'lit'
 import type { TemplateResult } from 'lit'
 import { repeat } from 'lit/directives/repeat.js'
 import { styleMap } from 'lit/directives/style-map.js'
-import { checkbox } from './controls'
+import { checkbox, button } from './controls'
 import { selectField } from './select'
 import { emptyState } from './content'
 import { skeleton } from './skeleton'
@@ -35,17 +35,23 @@ export function dataTable<Row>(
         empty?: string
         rowState?: (row: Row) => string
         loading?: boolean
+        /** 失败展示与空数据分开；重试行为由宿主提供，不自动请求。 */
+        error?: Readonly<{ title: string; description?: string; onRetry?: () => void }>
         label?: string
     } = {},
 ) {
     const selection = options.selection
     const selectable = selection
-        ? rows.map(key).filter((item) => !selection.disabledReason(item))
+        ? rows
+              .map(key)
+              .filter(
+                  (item) => !options.loading && !options.error && !selection.disabledReason(item),
+              )
         : []
     const allChecked =
         selectable.length > 0 && selectable.every((item) => selection?.selected.has(item))
     const someChecked = selectable.some((item) => selection?.selected.has(item))
-    return html`<div class="mf-table" aria-busy=${Boolean(options.loading)}>
+    return html`<div class="mf-table" aria-busy=${Boolean(options.loading && !options.error)}>
         <table aria-label=${options.label ?? nothing}>
             <thead>
                 <tr>
@@ -74,58 +80,90 @@ export function dataTable<Row>(
                 </tr>
             </thead>
             <tbody>
-                ${options.loading && rows.length === 0
-                    ? Array.from(
-                          { length: 3 },
-                          () =>
-                              html`<tr aria-hidden="true">
+                ${options.loading && rows.length > 0 && !options.error
+                    ? html`<tr>
+                          <td
+                              colspan=${columns.length + (selection ? 1 : 0)}
+                              class="mf-table-refresh"
+                          >
+                              <span role="status"
+                                  >正在更新数据，当前结果仍可阅读，暂不可选择。</span
+                              >
+                          </td>
+                      </tr>`
+                    : nothing}
+                ${options.error
+                    ? html`<tr>
+                          <td class="mf-empty" colspan=${columns.length + (selection ? 1 : 0)}>
+                              ${emptyState(
+                                  options.error.title,
+                                  options.error.description,
+                                  options.error.onRetry
+                                      ? button({
+                                            label: '重新加载',
+                                            onClick: options.error.onRetry,
+                                        })
+                                      : undefined,
+                              )}
+                          </td>
+                      </tr>`
+                    : options.loading && rows.length === 0
+                      ? Array.from(
+                            { length: 3 },
+                            () =>
+                                html`<tr aria-hidden="true">
+                                    ${selection
+                                        ? html`<td>
+                                              ${skeleton({ width: '15px', height: '15px' })}
+                                          </td>`
+                                        : nothing}
+                                    ${columns.map(
+                                        () => html`<td>${skeleton({ width: '75%' })}</td>`,
+                                    )}
+                                </tr>`,
+                        )
+                      : rows.length === 0
+                        ? html`<tr>
+                              <td class="mf-empty" colspan=${columns.length + (selection ? 1 : 0)}>
+                                  ${emptyState(options.empty ?? '暂无数据')}
+                              </td>
+                          </tr>`
+                        : repeat(rows, key, (row) => {
+                              const item = key(row)
+                              const reason = options.loading
+                                  ? '正在加载'
+                                  : (selection?.disabledReason(item) ?? '')
+                              const checked = Boolean(selection?.selected.has(item))
+                              return html`<tr
+                                  data-row-key=${item}
+                                  data-state=${options.rowState?.(row) ?? ''}
+                                  ?data-selected=${checked}
+                                  ?data-disabled=${Boolean(reason)}
+                              >
                                   ${selection
-                                      ? html`<td>
-                                            ${skeleton({ width: '15px', height: '15px' })}
+                                      ? html`<td class="mf-check">
+                                            ${checkbox({
+                                                label: reason ? `不可选择：${reason}` : '选择此行',
+                                                title: reason,
+                                                labelHidden: true,
+                                                checked,
+                                                disabled: Boolean(reason),
+                                                onChange: (value) =>
+                                                    selection.onToggle(item, value),
+                                            })}
                                         </td>`
                                       : nothing}
-                                  ${columns.map(() => html`<td>${skeleton({ width: '75%' })}</td>`)}
-                              </tr>`,
-                      )
-                    : rows.length === 0
-                      ? html`<tr>
-                            <td class="mf-empty" colspan=${columns.length + (selection ? 1 : 0)}>
-                                ${emptyState(options.empty ?? '暂无数据')}
-                            </td>
-                        </tr>`
-                      : repeat(rows, key, (row) => {
-                            const item = key(row)
-                            const reason = selection?.disabledReason(item) ?? ''
-                            const checked = Boolean(selection?.selected.has(item))
-                            return html`<tr
-                                data-row-key=${item}
-                                data-state=${options.rowState?.(row) ?? ''}
-                                ?data-selected=${checked}
-                                ?data-disabled=${Boolean(reason)}
-                            >
-                                ${selection
-                                    ? html`<td class="mf-check">
-                                          ${checkbox({
-                                              label: reason ? `不可选择：${reason}` : '选择此行',
-                                              title: reason,
-                                              labelHidden: true,
-                                              checked,
-                                              disabled: Boolean(reason),
-                                              onChange: (value) => selection.onToggle(item, value),
-                                          })}
-                                      </td>`
-                                    : nothing}
-                                ${columns.map(
-                                    (column) =>
-                                        html`<td data-align=${column.align ?? 'left'}>
-                                            ${column.cell(row)}
-                                        </td>`,
-                                )}
-                            </tr>`
-                        })}
+                                  ${columns.map(
+                                      (column) =>
+                                          html`<td data-align=${column.align ?? 'left'}>
+                                              ${column.cell(row)}
+                                          </td>`,
+                                  )}
+                              </tr>`
+                          })}
             </tbody>
         </table>
-        ${options.loading
+        ${options.loading && !options.error
             ? html`<span class="mf-sr-only" role="status">正在加载数据</span>`
             : nothing}
     </div>`
