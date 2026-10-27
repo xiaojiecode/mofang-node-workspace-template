@@ -3,6 +3,7 @@ import { interactionStyles } from './interaction'
 import { warningCardStyles } from '../components/warning-card'
 import { nodePlaceholderStyles } from '../components/placeholder'
 import { nodeStatusStyles } from '../components/node-status'
+import { executionAccordionStyles } from '../components/execution-accordion'
 import { css } from 'lit'
 import { formStyles } from '../components/form'
 import { radioStyles } from '../components/radio'
@@ -1157,4 +1158,4 @@ const baseStyles = /* @__PURE__ */ (() => css`
     }
 `)()
 
-export const panelStyles = [baseStyles, placeholderStyles, interactionStyles, warningCardStyles, nodePlaceholderStyles, nodeStatusStyles, formStyles, radioStyles, switchStyles, layoutStyles, progressStyles, dialogStyles, capabilityStyles, cascaderStyles]
+export const panelStyles = [baseStyles, placeholderStyles, interactionStyles, warningCardStyles, nodePlaceholderStyles, nodeStatusStyles, executionAccordionStyles, formStyles, radioStyles, switchStyles, layoutStyles, progressStyles, dialogStyles, capabilityStyles, cascaderStyles]
