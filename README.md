@@ -2,6 +2,8 @@
 
 统一维护 Goja 后台函数节点和 Lit/Puck 设置、业务面板。后台作者 API 是具名状态、不可变快照、显式 updater/reducer 和自定义 Hook；两份面板独立选择渲染方式。新产物只支持 `mf.node/1`，不读取或转换旧 createState/lifecycle 对象。
 
+用户请求与 AI 行为的对应关系见 [AI 意图路由](docs/ai-behavior.md)。本模板将本地开发、页面预览、平台保存、实例发布和真实运行分开处理，AI 不会把其中一个动作的成功推断为其它动作已完成。
+
 官方唯一模板与技能源：[mofang-node-workspace-template](https://github.com/xiaojiecode/mofang-node-workspace-template)。先读 [AGENTS.md](AGENTS.md) 和本项目可选 AGENTS.local.md，日常开发不要求检查或同步上游更新。需要更新模板时，手动执行 `node tooling/cli.mjs upstream sync`，详见 [Git 同步](docs/upstream.md)；未完成合并、恢复记录和依赖状态的本地安全检查仍保留。
 
 ## 创建与开发

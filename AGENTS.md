@@ -20,6 +20,8 @@ nodes/、shared/、业务fixture和自定义技能的已提交修改参与普通
 
 ## 先确定任务与契约
 
+用户意图先按 [AI 意图路由](docs/ai-behavior.md)映射到独立入口。创建工程、增加节点、修改页面、本地预览、平台保存、实例发布、执行定义采用和真实运行不是同一动作；只说“创建”“保存”“发布”或“运行”时，先确认对象和范围。历史提交、AGENTS.local.md、缓存和预览 fixture 只能作为证据，不能覆盖用户当前指令或当前 Git 状态。
+
 网关固定映射：dev.api.mofang.com=测试，api.mofang.com=正式，pre.api.mofang.com=预发，具体目标按用户指令。普通节点开发默认只读能力元数据、双Schema和修订并使用本地Mock；Tool可能计费，只有用户明确要求实际调用/试跑时才执行，不为取样或验收自动起跑。先运行CLI guide取得开发条件，doctor仅读取并仅对显式bundle做不落库validate；describe是离线目录，不能证明远端ABI。
 
 原子能力独立试调用统一用CLI `capabilities call`、客户端profile和显式workspace-id，经客户端 `/toomcp` 入口执行；禁止使用后台原子能力execute或把管理员ID作为客户端用户ID。能力目录和完整双Schema查询仍使用管理员只读接口，节点运行中的业务调用仍走子任务 `ctx.call`。
