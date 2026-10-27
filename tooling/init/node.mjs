@@ -1,13 +1,25 @@
 import { parseArgs } from 'node:util'
 import path from 'node:path'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile, realpath } from 'node:fs/promises'
 import { root } from '../paths.mjs'
 import { nodeFiles } from './templates.mjs'
+import { containedPath } from '../panels/manifest.mjs'
 const { values } = parseArgs({
-    options: { code: { type: 'string' }, preset: { type: 'string', default: 'copy' } },
+    options: {
+        code: { type: 'string' },
+        preset: { type: 'string', default: 'copy' },
+        'settings-renderer': { type: 'string', default: 'lit' },
+        'business-renderer': { type: 'string', default: 'lit' },
+    },
 })
-const files = nodeFiles(values.code, values.preset)
-const target = path.join(root, 'nodes', values.code)
+const files = nodeFiles(values.code, values.preset, {
+    settingsRenderer: values['settings-renderer'],
+    businessRenderer: values['business-renderer'],
+})
+const workspace = await realpath(root)
+const nodes = await realpath(path.join(root, 'nodes'))
+if (!containedPath(workspace, nodes)) throw new Error('nodes directory escapes workspace')
+const target = path.join(nodes, values.code)
 await mkdir(target)
 for (const [relative, content] of Object.entries(files)) {
     const file = path.join(target, relative)

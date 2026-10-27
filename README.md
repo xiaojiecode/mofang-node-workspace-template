@@ -1,6 +1,6 @@
 # 魔方函数节点工作区
 
-统一维护 Goja 后台函数节点和 Lit 设置/业务面板。后台作者 API 是具名状态、不可变快照、显式 updater/reducer 和自定义 Hook；前端保持 Lit。新产物只支持 `mf.node/1`，不读取或转换旧 createState/lifecycle 对象。
+统一维护 Goja 后台函数节点和 Lit/Puck 设置、业务面板。后台作者 API 是具名状态、不可变快照、显式 updater/reducer 和自定义 Hook；两份面板独立选择渲染方式。新产物只支持 `mf.node/1`，不读取或转换旧 createState/lifecycle 对象。
 
 官方唯一模板与技能源：[mofang-node-workspace-template](https://github.com/xiaojiecode/mofang-node-workspace-template)。先读 [AGENTS.md](AGENTS.md) 和本项目可选 AGENTS.local.md，日常开发不要求检查或同步上游更新。需要更新模板时，手动执行 `node tooling/cli.mjs upstream sync`，详见 [Git 同步](docs/upstream.md)；未完成合并、恢复记录和依赖状态的本地安全检查仍保留。
 
@@ -21,8 +21,11 @@ nodes/<code>/
   node.ts        本地目录元数据与冻结双 Schema
   run.ts         defineNode 静态 spec 与纯函数绑定
   contract.ts    本节点类型与状态/动作 Schema
+  panels.json    两份面板的 renderer 和入口；旧工程可缺省为 Lit
   settings.ts    宿主受控设置面板
   view.ts        Lit 业务面板
+  settings.page.json  Puck 设置页完整包，选用 Puck 时生成
+  business.page.json  Puck 业务页完整包，选用 Puck 时生成
   page.ts        可选节点级页面准备程序，缺省要求真实item输入
   tasks/         当前 StageProgram 阶段程序
   fixtures/      明确的本地验证数据
@@ -32,6 +35,7 @@ lib/
   browser/       @mofang/browser，Lit 展示与宿主资源接线
 shared/          用户业务公共源码
 playground/      有界双面板本地预览
+vendor/          固定版本的低代码作者/运行库及工作流 SDK/适配包
 .agents/skills/  节点设计、JS/Lit、Lit 最佳实践及第三方设计技能，包含唯一共享平台 CLI
 ```
 
@@ -47,7 +51,72 @@ playground/      有界双面板本地预览
 
 输入/任务输出保留真实 deliveryId/inputRefs；Product 使用完整可信类型，不手写缩略业务 Schema。子任务继续当前 stages 与 ctx.input/state/answer，每阶段最多一次能力调用；unknown 不自动重发，人工回答沿真实等待身份。
 
-finish 是事件计划末尾的生产声明，不直接完成节点，不放行/丢弃已有候选。无参必要动作由共同宿主入口提供；参数选择由业务 Lit 提交。动作 accepted、applied、子任务成功和节点成功分别显示。selection 示例覆盖零输入、未选择、失败收尾；它不是 FastMoss 业务节点的替代实现。
+finish 是事件计划末尾的生产声明，不直接完成节点，不放行/丢弃已有候选。无参必要动作由共同宿主入口提供；参数选择由业务面板提交。动作 accepted、applied、子任务成功和节点成功分别显示。selection 示例覆盖零输入、未选择、失败收尾；它不是 FastMoss 业务节点的替代实现。
+
+## 低代码面板由 AI 搭建
+
+用户描述需求、体验页面并提修改意见，AI 负责字段、布局、数据源、事件与页面包。设置和业务可各自选择 `lit` 或 `puck`，两个选项默认 `lit`；四种组合都保留原节点执行合同。
+
+```sh
+npm run node:new -- --code review-products --preset selection --settings-renderer puck --business-renderer puck
+# 创建独立工程也接受相同的两个 renderer 选项
+npm run init -- --dir ../review-nodes --name review-nodes --preset selection --settings-renderer puck --business-renderer lit
+```
+
+节点清单示例：
+
+```json
+{
+    "version": 1,
+    "settings": { "renderer": "puck", "entry": "settings.page.json" },
+    "business": { "renderer": "lit", "entry": "view.ts" }
+}
+```
+
+没有清单的旧节点继续使用 `settings.ts` 和 `view.ts`。存在但不合法的清单、入口越界或符号链接逃逸都会失败；创建命令不会覆盖已有节点。新工程携带 vendor 编译产物及固定依赖，在独立目录执行 `npm ci` 即可安装，不需要相邻 frontend/admin 源码。
+
+低代码包通过 `vendor/low-code-page/` 精简目录分发，不再生成或依赖 tgz。package-lock 固定本地目录依赖，vendor/lowcode-lock.json 和 manifest.json 校验产物。保留公开入口、类型、组件和逻辑；移除 `.map`、全部字体二进制及 `@font-face`，使用宿主 `--font-default` 或系统字体，字体许可仍保留。选品报告的三张宠物商品示例大图按来源清单的 hash 从 JS 中移除，报告沿用已有编号占位；其他图标和图片不受影响。裁剪规则由目录生成脚本维护，更新包时自动执行，不手改生成文件。SDK/工作流适配包暂保留原目录方式。
+
+维护者更新低代码包时执行：
+
+```sh
+npm run prepare:lowcode -- --source ../frontend/dist/low-code
+npm install
+```
+
+来源必须是带完整 manifest 的构建产物。命令先校验 hash，裁剪资源后整体同步 vendor/low-code-page 和产物锁；`npm install` 更新安装内容和 package-lock。后续低代码更新使用 `prepare:lowcode` 保证字体和示例图不会重新带入。提交精简目录、依赖配置和锁文件；node_modules 属于安装产物，被 Git 忽略，不提交。散文件方式下，共享包更新会在 Git 修改区显示对应文件变化。
+
+作者命令输出结构化 JSON，能力目录来自当前共享包：
+
+```sh
+node tooling/cli.mjs lowcode guide
+node tooling/cli.mjs lowcode catalog --category material --query 表格
+node tooling/cli.mjs lowcode catalog --category sdk
+node tooling/cli.mjs lowcode inspect --code review-products --surface settings
+node tooling/cli.mjs lowcode apply --file ./request.json
+node tooling/cli.mjs lowcode validate --code review-products --surface settings
+node tooling/cli.mjs lowcode preview --code review-products --surface business --port 5188
+```
+
+`apply` 文件包含 nodeCode、surface、inspect 返回的 expectedRevision 和 operations。常规修改使用语义操作，完整导入也必须校验并检查 revision；失败不留下半成品。成功返回新 revision、变更摘要和检查点；`restore --file <请求文件>` 需要 nodeCode、surface、expectedRevision、checkpointId，以新修订恢复当前面板，不影响节点代码。
+
+预览只挂载运行页面，用户可填表、选择、点按钮；页面没有物料栏、拖拽设计器或 JSON 编辑入口。preview 命令只给出 URL，不启动服务；先探测端口，复用已有 `npm run dev`，在默认外部浏览器核对实际 revision。Mock 操作只影响预览内存，不能证明真实第三方接口、平台保存或节点运行已成功。配置接口不等于授权调用接口；真实调用和写入另行确认范围。
+
+Puck 设置页自动绑定 `main1`，备注写入宿主受控草稿。选品模板以就绪投影的 rows 显示商品，勾选后提交 keys；共享动作适配等到 applied 后才显示成功。accepted 只表示动作已受理，取消、失败和结果未知不会被当作成功。
+
+### 构建与离线保存准备
+
+`npm run build` 按清单生成 `.js` 或完整 `.page.json`；manifest 记录 surface、格式、renderer、源码和产物 hash、包兼容版本。只有 Lit 业务页生成 `pageProgram.js`。`node.json` 继续只含原执行定义，不混入面板描述。`npm run verify` 同时核对源码修订、产物哈希、JS 限制和共享 JSON 校验。
+
+```sh
+npm run build
+npm run verify
+node tooling/cli.mjs panels:prepare --code review-products --surface settings --catalog-file ./catalog.json --out ./settings-save.json
+```
+
+catalog.json 必须是已回读的真实目录信息 `{code,catalogInstanceId,catalogRevision}`，也接受平台 CLI 的 `{ok:true,data:{...}}` 包装。修订为正整数字符串；身份不匹配、源码改动后未重新构建、产物 hash 不一致都会失败。输出文件已存在时也会失败。Lit 业务页还需要 `--supported-context-schemas` 显式传入已确认的 JSON 字符串数组。
+
+Puck 保存正文是 `renderMode=lowcode`、`rendererKey=puck`、`config=完整 PagePackage`，业务包内部 surface 使用 runtime；不发送 Lit 的 viewSource/programSource。`panels:prepare` 完全离线，不调用保存或发布接口。实际保存仍用既有平台 CLI：先保存 settings，再回读新目录修订，随后准备和保存 business。页面保存、页面发布、实例采用执行定义以及启动新运行是分别授权、分别核对的操作。
 
 ## 验证
 
@@ -83,7 +152,7 @@ fixtures/goja-test.js 使用普通 JavaScript 脚本语法，最后一个表达�
 
 平台 CLI：`npm run platform -- describe`。JS/Lit 技能分别见 [.agents/skills/mofang-js-node](.agents/skills/mofang-js-node/SKILL.md)、[.agents/skills/mofang-lit-node](.agents/skills/mofang-lit-node/SKILL.md)及 [Lit 最佳实践](.agents/skills/lit-best-practices/SKILL.md)。CLI 登录资料保存在用户指定的受限配置，密码/token 不进入源码、日志或报告。目录保存、实例采用、双面板发布和新运行分别核对目标与修订。
 
-设计阶段按需使用 [节点业务设计](.agents/skills/mofang-node-business-design/SKILL.md) 推导业务规则、输入输出、事件与人工交接，使用 [节点 UI 设计](.agents/skills/mofang-node-ui-design/SKILL.md) 组织有限空间内的表单、审核界面和状态反馈；实现仍遵守上述 JS/Lit 契约。
+设计阶段按需使用 [节点业务设计](.agents/skills/mofang-node-business-design/SKILL.md) 推导业务规则、输入输出、事件与人工交接，使用 [节点 UI 设计](.agents/skills/mofang-node-ui-design/SKILL.md) 组织有限空间内的表单、审核界面和状态反馈；实现仍遵守上述执行及面板契约。
 
 另提供第三方 [Impeccable](.agents/skills/impeccable/SKILL.md)（综合设计与评审）和 [frontend-design](.agents/skills/frontend-design/SKILL.md)（视觉方向与排版），各自 UPSTREAM.json 记录固定来源修订，保留 Apache-2.0 许可及相关归属。七个技能均随初始化分发；安装技能未安装项目 hook 或全局配置。Impeccable launcher 会按其规则定位或首次获取引擎，实际运行能力需另行核对；节点宿主约束及项目材料位置优先。
 

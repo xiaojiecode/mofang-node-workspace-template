@@ -1,5 +1,7 @@
 node_modules
 dist/
+!vendor/workflow-sdk/dist/
+!vendor/workflow-sdk/dist/**
 .cache/
 .local/
 .env

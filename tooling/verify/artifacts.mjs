@@ -1,11 +1,14 @@
 import path from 'node:path'
-import { readFile, readdir } from 'node:fs/promises'
+import { readFile, readdir, realpath } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { parse } from 'acorn'
 import Ajv from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
 import { root, dist, nodeCodes, readJSON } from '../paths.mjs'
 import { forbiddenGoja } from '../build/bundle.mjs'
+import { readNodePanels, resolvePanelPath, containedPath } from '../panels/manifest.mjs'
+import { validateAuthoringPackage } from '@mofang/low-code-page/authoring'
 const forbiddenPage = new Set([
     'require',
     'eval',
@@ -140,17 +143,90 @@ export async function schemaValidator() {
         ajv.addSchema(await readJSON(path.join(root, 'lib/contracts/schemas', file)))
     return ajv
 }
-if (process.argv[1] === new URL(import.meta.url).pathname) {
-    const ajv = await schemaValidator()
-    for (const code of await nodeCodes()) {
-        const manifest = await readJSON(path.join(dist, code, 'manifest.json'))
-        for (const [entry, artifact] of Object.entries(manifest.artifacts)) {
-            const source = await readFile(path.join(dist, code, artifact.file), 'utf8')
+/** 核对一个节点的当前面板声明、产物格式、源码修订、哈希与共享包合同。 */
+export async function verifyNodeArtifacts(code, { rootDir = root } = {}) {
+    const panels = await readNodePanels(code, { rootDir })
+    const outputRoot = await realpath(path.join(rootDir, 'dist'))
+    const output = await realpath(path.join(outputRoot, code))
+    if (!containedPath(outputRoot, output)) throw new Error('artifact directory escapes dist')
+    const manifestFile = await realpath(path.join(output, 'manifest.json'))
+    if (!containedPath(output, manifestFile)) throw new Error('artifact manifest escapes node')
+    const manifest = await readJSON(manifestFile)
+    if (manifest.code !== code || !manifest.artifacts) throw new Error('artifact identity mismatch')
+    const expectedEntries = [
+        'settings',
+        'business',
+        ...(panels.business.renderer === 'lit' ? ['pageProgram'] : []),
+        ...(manifest.interface === 'panels' ? [] : ['executor']),
+    ].sort()
+    if (JSON.stringify(Object.keys(manifest.artifacts).sort()) !== JSON.stringify(expectedEntries))
+        throw new Error('artifact entries do not match node panels')
+    for (const surface of ['settings', 'business']) {
+        const artifact = manifest.artifacts[surface]
+        const panel = panels[surface]
+        if (
+            !artifact ||
+            artifact.rendererKey !== panel.renderer ||
+            artifact.surface !== surface ||
+            artifact.entry !== panel.entry ||
+            artifact.renderMode !== (panel.renderer === 'puck' ? 'lowcode' : 'lit') ||
+            artifact.format !== (panel.renderer === 'puck' ? 'json' : 'javascript')
+        )
+            throw new Error('panel artifact descriptor mismatch: ' + surface)
+        const source = await readFile(await resolvePanelPath(code, surface, { rootDir }), 'utf8')
+        if (artifact.sourceSha256 !== createHash('sha256').update(source).digest('hex'))
+            throw new Error('panel source changed; rebuild: ' + surface)
+    }
+    if (
+        panels.business.renderer === 'puck'
+            ? Boolean(manifest.artifacts.pageProgram)
+            : !manifest.artifacts.pageProgram
+    )
+        throw new Error('pageProgram must exist only for Lit business')
+    const sources = {}
+    for (const [entry, artifact] of Object.entries(manifest.artifacts)) {
+        if (
+            typeof artifact.file !== 'string' ||
+            path.basename(artifact.file) !== artifact.file ||
+            artifact.file.includes('\\')
+        )
+            throw new Error('invalid artifact file')
+        const file = await realpath(path.join(output, artifact.file))
+        if (!containedPath(output, file)) throw new Error('artifact file escapes dist node')
+        const source = await readFile(file, 'utf8')
+        if (
+            artifact.sha256 !== createHash('sha256').update(source).digest('hex') ||
+            artifact.bytes !== Buffer.byteLength(source)
+        )
+            throw new Error('产物已改动或清单过期：' + code + '/' + entry)
+        if (artifact.format === 'json') {
             if (
-                artifact.sha256 !== createHash('sha256').update(source).digest('hex') ||
-                artifact.bytes !== Buffer.byteLength(source)
+                !['settings', 'business'].includes(entry) ||
+                artifact.rendererKey !== 'puck' ||
+                artifact.file !== entry + '.page.json'
             )
-                throw new Error('产物已改动或清单过期：' + code + '/' + entry)
+                throw new Error('invalid JSON artifact surface')
+            const value = JSON.parse(source)
+            const validation = validateAuthoringPackage(value, { nodeCode: code, surface: entry })
+            if (!validation.valid)
+                throw new Error(
+                    'invalid PagePackage: ' +
+                        JSON.stringify(validation.diagnostics ?? validation.errors),
+                )
+            for (const key of [
+                'schemaVersion',
+                'engineVersion',
+                'runtimeVersion',
+                'materialsVersion',
+                'styleVersion',
+                'logicVersion',
+            ])
+                if (artifact.compatibility?.[key] !== value[key])
+                    throw new Error('PagePackage compatibility mismatch: ' + key)
+        } else {
+            if (artifact.format !== 'javascript') throw new Error('invalid artifact format')
+            if (artifact.file !== (entry === 'executor' ? 'program.js' : entry + '.js'))
+                throw new Error('invalid JavaScript artifact filename')
             inspect(
                 source,
                 entry === 'executor'
@@ -160,6 +236,16 @@ if (process.argv[1] === new URL(import.meta.url).pathname) {
                       : 'panel',
             )
         }
+        sources[entry] = source
+    }
+    return { manifest, sources }
+}
+
+/** 执行本地产物及输入 Schema 验证，不调用真实节点或外部接口。 */
+export async function verifyArtifacts() {
+    const ajv = await schemaValidator()
+    for (const code of await nodeCodes()) {
+        const { manifest } = await verifyNodeArtifacts(code)
         if (manifest.interface !== 'panels') {
             const body = await readJSON(path.join(dist, code, 'node.json'))
             if (body.source !== (await readFile(path.join(dist, code, 'program.js'), 'utf8')))
@@ -177,3 +263,5 @@ if (process.argv[1] === new URL(import.meta.url).pathname) {
         console.log(code + ': 模块、体积、哈希与输入 Schema 校验通过')
     }
 }
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))
+    await verifyArtifacts()

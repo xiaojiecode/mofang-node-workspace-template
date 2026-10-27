@@ -1,0 +1,44 @@
+import type { Fields } from '@puckeditor/core';
+import { z } from 'zod';
+import type { Values } from '../../../lib/low-code/schema';
+export type UnifiedTableProps = {
+    rows?: Values[];
+    page?: number;
+    total?: number;
+    paginationMode?: 'client' | 'server' | 'none';
+    selectedKeys?: (string | number)[];
+    loading?: boolean;
+    error?: string;
+    disabled?: boolean;
+    showPagination?: boolean;
+    pageSizeOptions?: number[];
+    emptyText?: string;
+    pageChangeEventId?: string;
+    pageSizeChangeEventId?: string;
+    selectionChangeEventId?: string;
+    rowActionEventId?: string;
+    retryEventId?: string;
+};
+export declare const unifiedTableShape: {
+    rows: z.ZodOptional<z.ZodArray<z.ZodRecord<z.ZodString, z.ZodJSONSchema>>>;
+    page: z.ZodOptional<z.ZodNumber>;
+    total: z.ZodOptional<z.ZodNumber>;
+    paginationMode: z.ZodOptional<z.ZodEnum<{
+        none: "none";
+        client: "client";
+        server: "server";
+    }>>;
+    selectedKeys: z.ZodOptional<z.ZodArray<z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>>;
+    loading: z.ZodOptional<z.ZodBoolean>;
+    error: z.ZodOptional<z.ZodString>;
+    disabled: z.ZodOptional<z.ZodBoolean>;
+    showPagination: z.ZodOptional<z.ZodBoolean>;
+    pageSizeOptions: z.ZodOptional<z.ZodArray<z.ZodNumber>>;
+    emptyText: z.ZodOptional<z.ZodString>;
+    pageChangeEventId: z.ZodOptional<z.ZodString>;
+    pageSizeChangeEventId: z.ZodOptional<z.ZodString>;
+    selectionChangeEventId: z.ZodOptional<z.ZodString>;
+    rowActionEventId: z.ZodOptional<z.ZodString>;
+    retryEventId: z.ZodOptional<z.ZodString>;
+};
+export declare const unifiedTableFields: Fields;

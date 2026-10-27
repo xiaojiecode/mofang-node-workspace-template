@@ -67,7 +67,7 @@ export async function bundle(file, kind, options = {}) {
                         (args) => {
                             const resolved = path
                                 .resolve(path.dirname(args.importer), args.path)
-                                .replaceAll('\\\\', '/')
+                                .replaceAll('\\', '/')
                             if (
                                 !/\/node_modules\/(?:lit-html|lit-element|@lit\/reactive-element)\//.test(
                                     resolved,

@@ -1,0 +1,463 @@
+{
+  "adapterVersion": "1",
+  "sources": [
+    {
+      "path": "src/lib/low-code/runtime-services.ts",
+      "sha256": "0721ea0f13a30ac4695143887d91786b91b8a3396c3b57738a50347cf6458072"
+    },
+    {
+      "path": "src/lib/low-code/runtime-core/values.ts",
+      "sha256": "aa548375125548434354060d70f9960151668275dbbb321802f4f0982c6fbba3"
+    },
+    {
+      "path": "src/lib/low-code/runtime-core/capabilities.ts",
+      "sha256": "d0a11f8363a09e03bceb3c441c629f6200833e98010d2cf9783e93173a832923"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/lowcode/catalog.ts",
+      "sha256": "f176bf16dc31c6e7392a14d1c7987e283573cafe78100489ed8a0e04830be2be"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/sdk-error.ts",
+      "sha256": "b4a8c8a798d419804713bfdc71d8525ac76b4f938e99fb93a2df73fd03e7daca"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/messages.ts",
+      "sha256": "60327625db9dc29e4065931f8bfeac28674595df47e534bba1e0ed64c3e42ced"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/node-flow-query.ts",
+      "sha256": "a10992654c7aba1762f202c112a8065d836854a9711a5f3669b77c8d5601b946"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/node-flow-live.ts",
+      "sha256": "9433c5ca7e99ae7174246ad8fb2f2345d1ba8d12761b9670d10bc502d13c7c96"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/stable-value.ts",
+      "sha256": "cbecaecabe037f665bc2c1264b2b6bce4837ac5a4e937df6be0c4ad587e42b3b"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/node-flow-store.ts",
+      "sha256": "fe27d207d1fd45e100687d1fa8fe5d00c21412790cf8b6aa18900546de4f5ef7"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/node-flow-types.ts",
+      "sha256": "b8f88d26f1e4319974a6aa6d3119050610497a9522f4fc9e201e7ef950b5d7ed"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/node-flow-client.ts",
+      "sha256": "b4741bae3491b45a8051742a9936e1ab17fadd89c4af1edabf740616dd38d1c6"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/serial-queue.ts",
+      "sha256": "a36ac695b868db3195c3dcdfdde0a68370e077a4427f8b023ac0f541e17b76e3"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/toast.ts",
+      "sha256": "75b85ed1da569a7e710fc4df4947803a43403ee3d36a1e5b3e6f658d5cffd820"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/transport.ts",
+      "sha256": "29c3329f0c3fa8f7118c22223192dac78fbd35c8470d9c92123e39a030ae588f"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/core/create-sdk.ts",
+      "sha256": "a3d8cd8e10ba5eaf7badd9889987d4b912ecdafe2f9c63dec8d64a7f0eed05cd"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/lowcode/mock-node-flow.ts",
+      "sha256": "5633c67621fdf8ee84c2d9e0a43d7af725dd96a5974baf2a214eb82880e1f59e"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/lowcode/provider.ts",
+      "sha256": "cf9c3eeea61d96f66a1af534c41a99d379a96e9faf099b348b6c3eb0df8c2324"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/lowcode/mock-provider.ts",
+      "sha256": "628293ed33ceb3def376890b36074485b64b260d761384eaeed9f93c5e8965f6"
+    },
+    {
+      "path": "src/features/workflow/mofangsdk/lowcode/index.ts",
+      "sha256": "0c8f4337def6efbccc5fbafb51d3a69069a050da08e82058d902501bbe9ff8e2"
+    },
+    {
+      "path": "src/features/workflow/lowcode-adapter/lifecycle.ts",
+      "sha256": "e28f9e1056d4751f45d89f2b8e72985ae312005598835635bec8023d40501ab9"
+    },
+    {
+      "path": "src/features/workflow/lowcode-adapter/cancellation.ts",
+      "sha256": "5b1dc235b5e96092d296c8fa3acbae8fc5c92aaab0941c1128c61d0e84d1a560"
+    },
+    {
+      "path": "src/features/workflow/lowcode-adapter/node-action.ts",
+      "sha256": "2eba32d30c9d8a8d70721b915a05ce95b3ad6c4da19f3e6de461cbbcb2149de5"
+    },
+    {
+      "path": "src/features/workflow/lowcode-adapter/settings.ts",
+      "sha256": "298ff7a44ad47a5570d45603f81e27b9e01b36a62afe899026972ef31846b925"
+    },
+    {
+      "path": "src/features/workflow/lowcode-adapter/node-flow-context.ts",
+      "sha256": "ca2d78c613ce7a215c81752e258dd92cb03f011d09a89039cf70b3c685aebfc5"
+    },
+    {
+      "path": "src/features/workflow/lowcode-adapter/host.ts",
+      "sha256": "bae19626351b0f6c0a568d9cb3b9bf918a13acffb9e758cfaf1935d51206aa3f"
+    },
+    {
+      "path": "src/features/workflow/lowcode-adapter/index.ts",
+      "sha256": "95f3d9cdeb9be7d6e002d22656f1af3e5a12581768184a844f772ccbffb662f4"
+    },
+    {
+      "path": "src/features/workflow/lowcode-adapter/react.tsx",
+      "sha256": "ebea349327734a9b62ad08ad1bec61faafe3fd8c6dcb01470236a88e554a1727"
+    },
+    {
+      "path": "scripts/build-workflow-lowcode.mjs",
+      "sha256": "34f5f94fe337ebab0c69e379dd9394bcd7997cb7dd4962e08a6f7b4ec65ba13e"
+    },
+    {
+      "path": "tsconfig.workflow-lowcode.json",
+      "sha256": "3d67e8422e0390e7363e92641a1dac86f9ed67497adc3dff0a55660621a995e9"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "chunk-CJ25FB45.js",
+      "sha256": "9bb91a8dc39799957eb3dd8e71f753cb34b4549f40e437b841b6794c33a9a47a"
+    },
+    {
+      "path": "chunk-CJ25FB45.js.map",
+      "sha256": "931f3348348018801b0297ab57959267448d91e3c29b8b7aee47c922e9b1d1ca"
+    },
+    {
+      "path": "index.js",
+      "sha256": "76afba8c519a746b9dd0cb6b0cfca18c81d94652ace595c98aea602b5000392f"
+    },
+    {
+      "path": "index.js.map",
+      "sha256": "2363c131abeced3d564346fc9d2a8f10fb20ad8f73b694fdc101bbb5adaf3b2b"
+    },
+    {
+      "path": "package.json",
+      "sha256": "581a3e0a6c8e059739ccc40ac7c241a66c8c32ad30b97a03565a07bf1c87f513"
+    },
+    {
+      "path": "react.js",
+      "sha256": "808cc830fc9ad99c50a598bac155323cc33a47af360c5c42966ab7ddda4076cc"
+    },
+    {
+      "path": "react.js.map",
+      "sha256": "3da808beaa8b2034b7e5dfebaa8d2d70c1cfff78f8d1db71ad2ff2d4be07f498"
+    },
+    {
+      "path": "types/features/workflow/lowcode-adapter/cancellation.d.ts",
+      "sha256": "8bec2da92c35a35669e78e0dd90d97d68f6df531969209319e6a2e0d24164498"
+    },
+    {
+      "path": "types/features/workflow/lowcode-adapter/host.d.ts",
+      "sha256": "92588d167224adf1e57500555a640271c2c5753a3e6abb82a42c0fc4b3564ab0"
+    },
+    {
+      "path": "types/features/workflow/lowcode-adapter/index.d.ts",
+      "sha256": "6952799be5719795eada11621dbf6bf3e3a158e81a518e0b960fa43bffd56b94"
+    },
+    {
+      "path": "types/features/workflow/lowcode-adapter/lifecycle.d.ts",
+      "sha256": "bcb81409c80330432b22f33c75f5d508698a3b9fd6634f294c911b3cb3e824a0"
+    },
+    {
+      "path": "types/features/workflow/lowcode-adapter/node-action.d.ts",
+      "sha256": "63d6003a3974e5b644e1b8bb5a2ca71494994f9260aa49282c39198996ea3390"
+    },
+    {
+      "path": "types/features/workflow/lowcode-adapter/node-flow-context.d.ts",
+      "sha256": "afc537006a7571b72658d265ee591bfd4d79d11c4bcaeb5f0dd21b7571340da4"
+    },
+    {
+      "path": "types/features/workflow/lowcode-adapter/react.d.ts",
+      "sha256": "6b4ca2b8da5da8954e1b3c1759477f9d05464455678c1d9352c234bf2fd25d6c"
+    },
+    {
+      "path": "types/features/workflow/lowcode-adapter/settings.d.ts",
+      "sha256": "9188e9ed65a817c0ed5176e9df9bd1ea2bda30af63e91be43fcda6a52fa0e2dc"
+    },
+    {
+      "path": "types/features/workflow/lowcode-adapter/types.d.ts",
+      "sha256": "3e980690122b30a86bef825875b5f2fe51e3f99146bd57e2f5e73c2e5f5506fb"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/catalog-types.d.ts",
+      "sha256": "360ccc07008ca70a0ff6906437fb8e0d702b6370b13cd054048a7316bf9de9d9"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/context-types.d.ts",
+      "sha256": "731fc943619b318441ab28b841ee42a12190823319fb327bf1cd08020517f291"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/create-sdk.d.ts",
+      "sha256": "8741913fad6f58e2ed534dafff8690e37b0f3b1094b10e923f5659fde8660c91"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/creation-body-types.d.ts",
+      "sha256": "fe36bd3b51e21fb526d4a8661ab32a9e402e95e45ccdff298a2e4c368b461459"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/creation-result-types.d.ts",
+      "sha256": "22aaa3c9b3d32a7db0dd9e782ba43a666b2b6814b60b8ceab12a305648d459cf"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/data-read-types.d.ts",
+      "sha256": "677f4b37ca41c84bc62331b2faf61d3d11033de409a68eff3e0d16d73c82234e"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/execution-control-types.d.ts",
+      "sha256": "059a72113a9e15af4e1eec6458c2a11a198c136311cd02034a012f2ba6cda12e"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/index.d.ts",
+      "sha256": "63b0d4046564c6703c43d84f4b51e86f4c74c87a1cfa38ce9f2a8434387ccbcc"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/input-body-types.d.ts",
+      "sha256": "db69000fbc668f42629375410d2f56b6a53e73b43d212cd7f87f17ee9eb50254"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/input-receipt-types.d.ts",
+      "sha256": "58d950311868a16bc084846fb52fe24f74390f42f758249b71531b113473800e"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/input-types.d.ts",
+      "sha256": "7c2da3ca0e02a6ef8a5e035a5b819341aa2337e46ac48c7e7874b6bfe8fab226"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/json-types.d.ts",
+      "sha256": "c7f338d5387da92d439d474fb8e65a25332f1373fba1037878abeea7bd7e21c9"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/message-types.d.ts",
+      "sha256": "299c0b911109cc9c5c77bb09c7fed4a7022690a64db094fde56a8f8013845e94"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/messages.d.ts",
+      "sha256": "8b217d0b1cbb900113c1e268cb4dd50c0d07753c14f444b9af12e974ffdf1e64"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/mutation-types.d.ts",
+      "sha256": "b6d86800d4d648bc22ede3dd0e9af519760f8bb324952bcd4b36d81c2132426e"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/node-display-types.d.ts",
+      "sha256": "2e09a7ba21f8a41bb7270dc33a93dd9fb299e4276171e513cafacda0fd85d326"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/node-flow-client.d.ts",
+      "sha256": "b0103e23b83e3ac4f70c355935063e4673347b9e26c15d048873802ab262c4c3"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/node-flow-live.d.ts",
+      "sha256": "412f8217ecf13b0bf785ac16f29438cdaa5e0b888ffb19401a5d2e6703d8ad11"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/node-flow-query.d.ts",
+      "sha256": "6e29ea192bed468eb25f1d17de9545241c45efb3f660de42c488edb0efd8524c"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/node-flow-store.d.ts",
+      "sha256": "84e25883019ac3676a5b08a60c0f834395d88314bcc31a46bb6bfbe698e0a133"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/node-flow-types.d.ts",
+      "sha256": "ee650c7de1563ca4daabe295bf7ff6a882256740d5b93ebca7da92fab60957d2"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/node-tool-types.d.ts",
+      "sha256": "8ec2d83defc6c3184616e467de1517dbe25717b6dddb54ba5b08d90d8db1466b"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/output-types.d.ts",
+      "sha256": "3ce719155723d59c47348f1cb8e718c99a59ee65dd2f3980b8e7f878ee6fc334"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/page-program-types.d.ts",
+      "sha256": "1e18eed59d268ad5a234ed659114835bef61d416a8f1f0ff6cfbb140d417dc1c"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/page-program.d.ts",
+      "sha256": "532b46ae58f7d1824feb1c2be55dfb1d1128818de61d7f069dc92bd61e81c2f1"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/panel-types.d.ts",
+      "sha256": "24568d2900ea629b4bfe93829544440f552ab187a74eadde76da7bca91b4dd02"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/report-body-types.d.ts",
+      "sha256": "f15caecfae3f0eb675370e5c4a1b4f60405aad58bc9b77f81c0bd68c6b32a979"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/resource-types.d.ts",
+      "sha256": "0796cd76b3a099c0c6d2725d4b07576657c4d4407227c9f8b21a6a870fc5ecc5"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/run-body-types.d.ts",
+      "sha256": "acdbed174ab48a0df24f062fc3e41c80279f7e46d0a7410e86c1869d04e26f56"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/runtime-types.d.ts",
+      "sha256": "5abca3ea1b5b7cb25e4aa125d811fae23d4881dd2df17df6bdda1b705cda8100"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/schema.d.ts",
+      "sha256": "333079a7a29117faa46248d919c244a6b682e57319c94c9860695f906e488d58"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/sdk-error.d.ts",
+      "sha256": "e4db8ff30c86280fe4da095897d8641c4558ed4356c053bc0525db786f464375"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/serial-queue.d.ts",
+      "sha256": "f7514b7c2045b29da40f096a3390514afda4ec641b3aba63c3cb0283fe04cb7a"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/stable-value.d.ts",
+      "sha256": "f06545d5f13927cc83fe31ebf1a3f5741e1cfdd9286c2362633fa23acdbe7ee8"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/task-types.d.ts",
+      "sha256": "ab90a92b2457715d4c0080fd67c64685c7c9bdd6224578f7aa5f2d692da05b66"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/toast.d.ts",
+      "sha256": "3291c4c53f839e85d4e7c3fd8941fba85f30fab90ceb520cbacd9323a887a77c"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/transport.d.ts",
+      "sha256": "c8087ef0708e26f399720cbc579e23a6b113a9a98c81b1be3179190dd9eee86d"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/types.d.ts",
+      "sha256": "ca62d54effb9820f3c631c6362cf082fe57a8a8091962a385c575331e3b6d8a2"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/wait-body-types.d.ts",
+      "sha256": "af9a7f5d56415d5e916e96d6c718e6cb158f5a5d114ea56354356977cb079279"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/wait-receipt-types.d.ts",
+      "sha256": "01c90e005689f2492f2408dfdee9e4fc7acd126fcffd3d5d0ab35b152a62e1ff"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/core/wait-types.d.ts",
+      "sha256": "eb505bf06521a1131304ab9bdaabdc9897f63738d15a42b79ae3c3e0c56a2253"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/lowcode/catalog.d.ts",
+      "sha256": "9e2321b91770aa086b5609290f6a5f38ea2df05a4e870e09f4713e63454151f2"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/lowcode/index.d.ts",
+      "sha256": "55068ad94b68892e860bf992f6dce8c22d193b22c8c63fdf89972801264160be"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/lowcode/mock-node-flow.d.ts",
+      "sha256": "2d4a2f80f6cc134ec639c8077eb22930bf8fc91c862dd0f6e9df950b52f33672"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/lowcode/mock-provider.d.ts",
+      "sha256": "086befe6a748235a6777f65f5bc7f45a88027922423717603777841cd1c80f66"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/lowcode/provider.d.ts",
+      "sha256": "8eaf540dba25d9710fcb1a28a6acee79a7a68ff8463e5c8c83eb2b45fd07cfc9"
+    },
+    {
+      "path": "types/features/workflow/mofangsdk/lowcode/types.d.ts",
+      "sha256": "01b39e2d1ce5a894516b74a041d630558d0bc67da66fe593eca0aa9e442ea96e"
+    },
+    {
+      "path": "types/lib/low-code/id.d.ts",
+      "sha256": "ab5632fb15f44388c2c8c1868d12b2bfa1be5753bceb786bdc0c5beb52380899"
+    },
+    {
+      "path": "types/lib/low-code/logic-runtime.d.ts",
+      "sha256": "151c3d6d54125b26f599f7a2da4590ee274bda8ccc6c0e6cf9256dbfda775b6b"
+    },
+    {
+      "path": "types/lib/low-code/native-runtime-view.d.ts",
+      "sha256": "c6f75621415263855f2225612a6c231b2502b7f1e18924cc0ae2771d3e1c1d66"
+    },
+    {
+      "path": "types/lib/low-code/runtime-context-values.d.ts",
+      "sha256": "2775cd8abcc8b32508326c1832a2d47227143048ca1af878d2d2639601d705e0"
+    },
+    {
+      "path": "types/lib/low-code/runtime-core/capabilities.d.ts",
+      "sha256": "5a1d09ba218919a08f341c1d99d1cb6ef93469dca1b5dd10a5c4d83d2cd488bf"
+    },
+    {
+      "path": "types/lib/low-code/runtime-core/contracts.d.ts",
+      "sha256": "4725d9d38f847909c3f427de3bc60d53010f746df6035592f142d1ab1d4200fd"
+    },
+    {
+      "path": "types/lib/low-code/runtime-core/datasources.d.ts",
+      "sha256": "7e9422a32d09207c0a14d609d042cffe4dec8f63a69fe6f355166d82569e7b0e"
+    },
+    {
+      "path": "types/lib/low-code/runtime-core/events.d.ts",
+      "sha256": "37677ca97150598004307bd74b420a00b3fd060ad053c21ca0db54817bdd2317"
+    },
+    {
+      "path": "types/lib/low-code/runtime-core/field-validation.d.ts",
+      "sha256": "2112a351cafb5f2fad340127ce2517389e20f7794e36cc0f7f9012167d83a605"
+    },
+    {
+      "path": "types/lib/low-code/runtime-core/http-request.d.ts",
+      "sha256": "40fd076dc0aa46417e405f3feb08b944881ec4a974afb89734b058500403d3b2"
+    },
+    {
+      "path": "types/lib/low-code/runtime-core/http-target.d.ts",
+      "sha256": "47f8d333e6c1d8244a25738b59d4f75309ef42dec82746540b26dbd0269aba1b"
+    },
+    {
+      "path": "types/lib/low-code/runtime-core/runtime.d.ts",
+      "sha256": "f0748402b0e38a4300ad4e20bb84ef1f32293638f19b0f84c7e0a6a1cd236336"
+    },
+    {
+      "path": "types/lib/low-code/runtime-core/validate.d.ts",
+      "sha256": "d15774b974471f8155d55d2ac6c073e6d765973c21ec21116802dc9f89874ca7"
+    },
+    {
+      "path": "types/lib/low-code/runtime-core/values.d.ts",
+      "sha256": "9d2468a8036beb2953bfb7b323d1b6dd869665878b142bfca578a03db050677b"
+    },
+    {
+      "path": "types/lib/low-code/runtime-services.d.ts",
+      "sha256": "5181470110feebbdee385b3a3d70f7ec74ac7dab43104197f07ae1fb8aa406e6"
+    },
+    {
+      "path": "types/lib/low-code/schema.d.ts",
+      "sha256": "8a2da252c9924a058daa1c9f93835aeeb9acfaf4e8e8adbb1510154414c5c61d"
+    },
+    {
+      "path": "types/lib/low-code/script-bootstrap.d.ts",
+      "sha256": "4eff075aa8437df23c3c0a0769bfe62b9365cb6646663b8cd4be08e76a7d0986"
+    },
+    {
+      "path": "types/lib/low-code/script-runner.d.ts",
+      "sha256": "dc30027ac10242dd4b5eacc434dab319dbadd13a704e9bc3460c3a67ac679f10"
+    },
+    {
+      "path": "types/lib/low-code/script-service-session.d.ts",
+      "sha256": "b9c2c26822477088d7b34e4d817ab69d6d8d4cf09fc257a2e7a1df92a7b60908"
+    },
+    {
+      "path": "types/lib/low-code/script-service-worker.d.ts",
+      "sha256": "231e9d801462607d75506a274997fe09f8c6033922e2a88f6a5cdfb773d22969"
+    },
+    {
+      "path": "types/lib/low-code/table-store.d.ts",
+      "sha256": "51f0f82f7d69deaf98d2f0e29c517ffb9c08f9e4822175836a6b844fe0056a54"
+    }
+  ]
+}

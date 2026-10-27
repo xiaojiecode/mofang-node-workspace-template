@@ -5,6 +5,7 @@ import { transform } from 'esbuild'
 import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { root, cache, dist } from '../tooling/paths.mjs'
+import { lowcodePreviewPlugin } from '../tooling/lowcode/preview-server.mjs'
 // noinspection JSUnusedGlobalSymbols
 // 节点产物在各环境共用生产版浏览器 Lit ABI，开发模式只影响业务代码调试。
 const litRequire = createRequire(createRequire(import.meta.url).resolve('lit'))
@@ -29,16 +30,25 @@ const litAliases = ['lit', 'lit-html', 'lit-element', '@lit/reactive-element'].f
 export default defineConfig({
     root: path.join(root, 'playground'),
     cacheDir: path.join(cache, 'vite'),
-    optimizeDeps: { include: ['lit', 'lit/directives/live.js'] },
+    optimizeDeps: { include: ['lit', 'lit/directives/live.js'], exclude: ['@mofang/node'] },
     resolve: {
         alias: [
             ...litAliases,
             { find: '@mofang/browser', replacement: path.join(root, 'lib/browser/index.ts') },
         ],
-        dedupe: ['lit', 'lit-html', 'lit-element', '@lit/reactive-element'],
+        dedupe: [
+            'react',
+            'react-dom',
+            '@puckeditor/core',
+            'lit',
+            'lit-html',
+            'lit-element',
+            '@lit/reactive-element',
+        ],
     },
     server: { host: '127.0.0.1', port: 5188, strictPort: true, fs: { allow: [root] } },
     plugins: [
+        lowcodePreviewPlugin(),
         {
             name: 'artifact-preview',
             configureServer(server) {

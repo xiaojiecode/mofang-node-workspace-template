@@ -19,9 +19,11 @@ FIELD_HELP = {
     "expectedCatalogRevision": "同次回读的正整数修订字符串；冲突时比较差异，不能只替换修订重提。",
     "surface": "settings 或 business，两份页面独立修订、保存和发布。",
     "kind": "面板保存使用 save；不是节点 kind。",
-    "renderMode": "本工程 Lit 面板使用 lit。",
+    "renderMode": "Lit 面板使用 lit；Puck 页面原生使用 lowcode。",
+    "rendererKey": "renderMode=lowcode 时使用 puck，与构建产物一致。",
+    "config": "renderMode=lowcode 时提交经共享校验的完整 PagePackage JSON 对象，不提交 JS 字符串。",
     "viewSource": "settings.js 或 business.js 原文，必须与 surface 对应。",
-    "programSource": "business 必须提供 pageProgram.js；settings 不接受。",
+    "programSource": "仅 business Lit 必须提供 pageProgram.js；settings 和 lowcode 不接受。",
     "supportedContextSchemas": "business Lit 编译与保存必须显式提供非空数组，元素为唯一、无首尾空白、最多256个UTF-8字节的非空字符串；按真实宿主契约声明，不自动补默认值或整抽屉标记。",
     "scope": "面板发布 new_only / all_instances / selected_instances，按用户明确授权选择。",
     "targets": "selected_instances 的非空 nodeInstanceId 列表；不能用 nodeCode 替代。",
@@ -72,7 +74,7 @@ def operation_contract(group, action, operation):
     if group == "panels":
         panel_fields = {
             "compile": ("surface", "viewSource", "programSource", "supportedContextSchemas"),
-            "save": ("kind", "surface", "renderMode", "viewSource", "programSource", "supportedContextSchemas", "expectedCatalogInstanceId", "expectedCatalogRevision"),
+            "save": ("kind", "surface", "renderMode", "rendererKey", "config", "viewSource", "programSource", "supportedContextSchemas", "expectedCatalogInstanceId", "expectedCatalogRevision"),
             "publish": ("surface", "scope", "targets", "panelRevision"),
         }
         for name in panel_fields.get(action, ()):
@@ -86,6 +88,9 @@ def operation_contract(group, action, operation):
         if action == "compile":
             conditions += ["编译正文不接受 kind/renderMode、目录身份/修订或发布字段；先编译通过再保存。"]
         if action == "save":
+            fields["rendererKey"]["required_when"] = "renderMode=lowcode"
+            fields["config"]["required_when"] = "renderMode=lowcode"
+            conditions += ["Puck 使用 lowcode/rendererKey=puck/config，先用本地 build/verify/panels:prepare 校验并组装；不调用 Lit compile、不附带 viewSource/programSource。"]
             conditions += ["保存一个 surface 后回读新目录修订，再保存另一个；不复用旧修订。"]
         if action == "publish":
             conditions += ["发布只使用已保存 panelRevision、显式scope/targets；按releaseId查询原回执。"]

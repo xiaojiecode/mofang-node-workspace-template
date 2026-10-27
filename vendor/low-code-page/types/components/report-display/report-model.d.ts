@@ -1,0 +1,37 @@
+export type SortKey = 'score' | 'units' | 'gmv';
+type SourceKind = 'tk' | 'google';
+type ProductDirection = {
+    name: string;
+    price: string;
+    units: number;
+    growth: number;
+    promoters: number;
+    source: string;
+};
+export type Category = {
+    id: string;
+    name: string;
+    englishName: string;
+    units: number;
+    gmv: number;
+    growth: number;
+    promoters: number;
+    newUnits: number;
+    searchMomentum: number;
+    platformScore: number;
+    searchScore: number;
+    opportunityScore: number;
+    productConcentration: number;
+    shopConcentration: number;
+    promotionOverlap: number;
+    newProductOverlap: number;
+    products: ProductDirection[];
+};
+export declare const categorySets: Category[];
+export declare const compactNumber: (value: number) => string;
+export declare const compactMoney: (value: number) => string;
+export declare const sourceIcon: (kind: SourceKind) => string;
+export declare const sourceLabel: (kind: SourceKind) => "TikTok Shop" | "Google Trends";
+export declare const productImage: (name: string) => string;
+export declare const classNames: (value: string | Record<string, boolean>) => string;
+export {};

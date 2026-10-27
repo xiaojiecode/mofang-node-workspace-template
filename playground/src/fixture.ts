@@ -201,6 +201,10 @@ export function createFixture(
     const refusal = (message: string, kind: 'rejected' | 'conflict' = 'rejected') =>
         Object.assign(new Error(message), { kind, retryable: false })
     const nodeFlowAPI = {
+        get: async () => {
+            if (error) throw error
+            return nodeView
+        },
         listActions: async () => ({
             items: [...records.values()],
             snapshotUpperSequence: String(records.size),
@@ -265,7 +269,12 @@ export function createFixture(
                     keys.every((key) => typeof key === 'string') &&
                     new Set(keys).size === keys.length
                 const selected = valid
-                    ? rows.filter((row) => keys.includes(String(row.key)) && !row.submitted)
+                    ? rows.filter(
+                          (row) =>
+                              keys.includes(String(row.key ?? row.taskId)) &&
+                              !row.submitted &&
+                              row.selectable !== false,
+                      )
                     : []
                 if (!valid || selected.length !== keys.length) rejected = true
                 else {
@@ -273,7 +282,12 @@ export function createFixture(
                         id: 'preview-candidate-' + sequence + '-' + index,
                         revision: '1',
                         state: 'pending' as const,
-                        value: { items: [row.product!] },
+                        value: {
+                            items: [row.product!],
+                            ...(typeof view.taskId === 'string'
+                                ? { collectionTaskId: view.taskId }
+                                : {}),
+                        },
                         inputRefs: [],
                         createdAt: '2026-10-23T00:00:00Z',
                         updatedAt: '2026-10-23T00:00:00Z',
@@ -287,8 +301,11 @@ export function createFixture(
                         ...view,
                         phase: 'submitted',
                         submitted: Number(view.submitted ?? 0) + items.length,
+                        ...(Array.isArray(view.selectedIds) ? { selectedIds: keys } : {}),
                         rows: rows.map((row) =>
-                            keys.includes(String(row.key)) ? { ...row, submitted: true } : row,
+                            keys.includes(String(row.key ?? row.taskId))
+                                ? { ...row, submitted: true }
+                                : row,
                         ),
                     }
                 }

@@ -5,6 +5,8 @@ import { gzipSync } from 'node:zlib'
 import { version as esbuildVersion } from 'esbuild'
 import { root, dist, nodeCodes } from '../paths.mjs'
 import { bundle, loadDefinition, litMode, buildMode } from './bundle.mjs'
+import { readNodePanels, resolvePanelPath } from '../panels/manifest.mjs'
+import { validateAuthoringPackage } from '@mofang/low-code-page/authoring'
 
 /** 统一以 KiB 展示字节数；manifest 中保留整数 bytes，便于机器比较。 */
 const size = (bytes) => `${(bytes / 1024).toFixed(2)} KiB`
@@ -26,6 +28,7 @@ for (const code of await nodeCodes()) {
     const directory = path.join(root, 'nodes', code)
     const definition = await loadDefinition(directory)
     if (definition.code !== code) throw new Error('节点目录与编码不一致：' + code)
+    const panels = await readNodePanels(code)
     const out = path.join(dist, code)
     await rm(out, { recursive: true, force: true })
     await mkdir(out, { recursive: true })
@@ -37,21 +40,52 @@ for (const code of await nodeCodes()) {
         if (error.code !== 'ENOENT') throw error
     }
     const entries = [
-        ['settings', 'panel', 'settings.ts'],
-        ['business', 'panel', 'view.ts'],
-        ['pageProgram', 'page-program', pageSource],
-        ...(definition.interface === 'panels' ? [] : [['executor', 'executor', 'run.ts']]),
+        ['settings', panels.settings.renderer, await resolvePanelPath(code, 'settings')],
+        ['business', panels.business.renderer, await resolvePanelPath(code, 'business')],
+        ...(panels.business.renderer === 'lit'
+            ? [['pageProgram', 'page-program', path.join(directory, pageSource)]]
+            : []),
+        ...(definition.interface === 'panels'
+            ? []
+            : [['executor', 'executor', path.join(directory, 'run.ts')]]),
     ]
     const artifacts = {}
     console.log(`\n${code} · ${buildMode}${report.minified ? ' · minify' : ''}`)
     console.log('产物                  编译后大小       gzip 参考       编译耗时')
     for (const [entry, kind, relative] of entries) {
-        const {
-            code: source,
-            sourceBytes,
-            durationMs,
-        } = await bundle(path.join(directory, relative), kind)
-        const file = entry === 'executor' ? 'program.js' : entry + '.js'
+        const input = await readFile(relative, 'utf8')
+        let compiled
+        let compatibility
+        if (kind === 'puck') {
+            const value = JSON.parse(input)
+            const validation = validateAuthoringPackage(value, { nodeCode: code, surface: entry })
+            if (!validation.valid)
+                throw new Error(
+                    `${code}/${entry}: ${JSON.stringify(validation.diagnostics ?? validation.errors)}`,
+                )
+            compiled = {
+                code: JSON.stringify(value, null, 4) + '\n',
+                sourceBytes: Buffer.byteLength(input),
+                durationMs: 0,
+            }
+            compatibility = Object.fromEntries(
+                [
+                    'schemaVersion',
+                    'engineVersion',
+                    'runtimeVersion',
+                    'materialsVersion',
+                    'styleVersion',
+                    'logicVersion',
+                ].map((key) => [key, value[key]]),
+            )
+        } else compiled = await bundle(relative, kind === 'lit' ? 'panel' : kind)
+        const { code: source, sourceBytes, durationMs } = compiled
+        const file =
+            kind === 'puck'
+                ? entry + '.page.json'
+                : entry === 'executor'
+                  ? 'program.js'
+                  : entry + '.js'
         await writeFile(path.join(out, file), source)
         const bytes = Buffer.byteLength(source)
         const gzipBytes = gzipSync(source, { level: 9 }).byteLength
@@ -62,6 +96,17 @@ for (const code of await nodeCodes()) {
             sourceBytes,
             durationMs: milliseconds(durationMs),
             sha256: createHash('sha256').update(source).digest('hex'),
+            format: kind === 'puck' ? 'json' : 'javascript',
+            ...(['lit', 'puck'].includes(kind)
+                ? {
+                      surface: entry,
+                      rendererKey: kind,
+                      renderMode: kind === 'puck' ? 'lowcode' : 'lit',
+                      entry: panels[entry].entry,
+                      sourceSha256: createHash('sha256').update(input).digest('hex'),
+                      ...(compatibility ? { compatibility } : {}),
+                  }
+                : {}),
         }
         report.artifacts++
         report.bytes += bytes

@@ -20,10 +20,59 @@ if (command === 'upstream') {
         if (!['current', 'updated'].includes(result.status)) process.exitCode = 1
     } else if (action === 'dependencies-ready') await dependenciesReady()
     else throw new Error('upstream requires sync|recover|dependencies-ready')
+} else if (command === 'lowcode') {
+    await ensureUpstream()
+    try {
+        const { runLowcode } = await import('./lowcode/cli.mjs')
+        console.log(JSON.stringify({ ok: true, data: await runLowcode(process.argv.slice(3)) }))
+    } catch (error) {
+        console.log(
+            JSON.stringify({
+                ok: false,
+                error: {
+                    code: error.code ?? 'authoring_error',
+                    message: error.message,
+                    details: error.details ?? error.diagnostics ?? null,
+                },
+            }),
+        )
+        process.exitCode = 1
+    }
+} else if (command === 'panels:prepare') {
+    await ensureUpstream()
+    const { parseArgs } = await import('node:util')
+    const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: Object.fromEntries(
+            ['code', 'surface', 'catalog-file', 'out', 'supported-context-schemas'].map((key) => [
+                key,
+                { type: 'string' },
+            ]),
+        ),
+    })
+    const { prepareSave } = await import('./panels/prepare-save.mjs')
+    const body = await prepareSave({
+        code: values.code,
+        surface: values.surface,
+        catalogFile: values['catalog-file'],
+        out: values.out,
+        ...(values['supported-context-schemas']
+            ? { supportedContextSchemas: JSON.parse(values['supported-context-schemas']) }
+            : {}),
+    })
+    console.log(JSON.stringify({ ok: true, data: body, persisted: false }))
 } else if (command === 'platform') {
     await ensureUpstream()
+    const python = ['python3', 'python', 'py'].find((binary) => {
+        const probe = spawnSync(binary, ['-c', 'import sys; assert sys.version_info.major == 3'], {
+            stdio: 'ignore',
+            timeout: 5000,
+        })
+        return probe.status === 0
+    })
+    if (!python) throw new Error('需要可用的 Python 3，请安装后重试')
     const result = spawnSync(
-        'python3',
+        python,
         [
             path.join(root, '.agents/skills/mofang-js-node/scripts/mofang_node.py'),
             ...process.argv.slice(3),
