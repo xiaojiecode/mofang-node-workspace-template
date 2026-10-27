@@ -183,7 +183,7 @@ class MotionDirective extends AsyncDirective {
     }
 }
 
-const motion = directive(MotionDirective)
+const motion = /* @__PURE__ */ directive(MotionDirective)
 
 /** 共享同一模板位置，切换参数时保留子内容；额外包装层仅适合块级内容。 */
 function transition(options: MotionOptions, content: TemplateResult) {
