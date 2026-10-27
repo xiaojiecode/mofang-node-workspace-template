@@ -146,11 +146,13 @@ export type NodeFlowTaskPage = NodeFlowTarget & Readonly<{
 }>;
 export type ReplyNodeFlowTaskBody = NodeFlowTarget & Readonly<{
     taskId: ID;
+    operationId: ID;
     waitingToolCallId: ID;
     answer: JSONValue;
 }>;
 export type ContinueNodeFlowTaskBody = NodeFlowTarget & Readonly<{
     taskId: ID;
+    operationId: ID;
     expectedWaitingTurn: number;
 }>;
 export type ResolveUnknownNodeFlowTaskBody = NodeFlowTarget & Readonly<{
@@ -162,6 +164,39 @@ export type ResolveUnknownNodeFlowTaskBody = NodeFlowTarget & Readonly<{
 export type NodeFlowTaskReceipt = Readonly<{
     status: 'accepted';
     taskId: ID;
+    operationId: ID;
+}>;
+export type TaskOperationQuery = NodeFlowTarget & Readonly<{
+    taskId: ID;
+    operationId: ID;
+}>;
+export type TaskOperationListQuery = NodeFlowTarget & Readonly<{
+    taskId: ID;
+    afterSequence?: string;
+    snapshotUpperSequence?: string;
+    limit?: number;
+}>;
+export type TaskOperationResult = Readonly<{
+    operationId: ID;
+    taskId: ID;
+    sequence: string;
+    revision: string;
+    kind: 'reply' | 'continue';
+    status: 'accepted' | 'dispatching' | 'outcome_unknown' | 'applied' | 'rejected' | 'cancelled';
+    errorCode?: string;
+    errorMessage?: string;
+    createdAt: string;
+    finishedAt?: string;
+    result?: Readonly<{
+        status: 'accepted' | 'rejected' | 'not_accepted' | 'unknown';
+        errorCode?: string;
+        errorMessage?: string;
+    }>;
+}>;
+export type TaskOperationPage = Readonly<{
+    items: readonly TaskOperationResult[];
+    snapshotUpperSequence: string;
+    nextAfterSequence: string;
 }>;
 export type NodeFlowState<T = NodeView> = MofangResourceState<T> & Readonly<{
     refreshing: boolean;
@@ -191,6 +226,8 @@ export interface NodeFlowAPI {
     /** 只恢复节点父级暂停，不跳过人工回答或子执行的独立暂停。 */
     resume(body: NodeFlowControlBody): Promise<NodeView>;
     cancel(body: NodeFlowControlBody): Promise<NodeView>;
+    getTaskOperation(query: TaskOperationQuery): Promise<TaskOperationResult>;
+    listTaskOperations(query: TaskOperationListQuery): Promise<TaskOperationPage>;
     replyTask(body: ReplyNodeFlowTaskBody): Promise<NodeFlowTaskReceipt>;
     continueTask(body: ContinueNodeFlowTaskBody): Promise<NodeFlowTaskReceipt>;
     /** 人工核对原操作，不重发业务请求；原子任务保持失败事实。 */

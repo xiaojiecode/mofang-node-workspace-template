@@ -111,7 +111,7 @@ export interface MofangSDK {
     nodes: {
         getRun(nodeRunId: string): Promise<NodeExecutionInfo>;
         cancel(nodeRunId: string): Promise<NodeExecutionInfo>;
-        continue(nodeRunId: string): Promise<NodeExecutionInfo>;
+        continue(body: import('./output-types').ContinueNodeBody): Promise<import('./output-types').NodeOperationAccepted>;
         list(): Promise<WorkflowNode[]>;
         get(code: string): Promise<WorkflowNode>;
         resolveIdentity(query: NodeIdentityQuery): Promise<NodeIdentity>;
@@ -167,6 +167,8 @@ export interface MofangSDK {
         advance(body: import('./output-types').AdvanceNodeOutputBody): Promise<import('./output-types').AdvanceNodeOutputResult>;
     };
     actions: {
+        invoke(body: import('./output-types').InvokeNodeActionBody): Promise<import('./output-types').NodeOperationAccepted>;
+        history(query: import('./output-types').NodeOperationHistoryQuery): Promise<import('./output-types').NodeOperationHistoryPage>;
         reply(body: import('./output-types').ReplyNodeBody): Promise<import('./output-types').ReplyNodeResult>;
         submit(body: SubmitWaitActionBody): Promise<SubmitWaitActionResult>;
         /** 按动作 ID 或节点执行回读动作。 */

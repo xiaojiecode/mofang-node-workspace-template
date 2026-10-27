@@ -85,12 +85,53 @@ export type AdvanceNodeOutputResult = Readonly<{
     };
 }>;
 export type ReplyNodeBody = Readonly<{
+    actionId: ID;
     nodeRunId: ID;
     waitingToolCallId: ID;
     answer: import('./json-types').JSONValue;
 }>;
-export type ReplyNodeResult = Readonly<{
-    status: 'applied';
+export type NodeOperationAccepted = Readonly<{
+    status: 'accepted';
+    actionId: ID;
+    nodeRunId: ID;
+}>;
+export type ReplyNodeResult = NodeOperationAccepted;
+export type ContinueNodeBody = Readonly<{
+    actionId: ID;
+    nodeRunId: ID;
+    expectedGateRevision: string;
+    expectedWaitingTurn?: number;
+}>;
+export type InvokeNodeActionBody = Readonly<{
+    actionId: ID;
     nodeRunId: ID;
     waitingToolCallId: ID;
+    action: string;
+    payloadJson: JSONObject;
+}>;
+export type NodeOperationPhase = 'accepted' | 'dispatching' | 'outcome_unknown' | 'applied' | 'rejected' | 'cancelled';
+export type NodeOperationHistoryQuery = Readonly<{
+    nodeRunId: ID;
+    afterSequence?: string;
+    snapshotUpperSequence?: string;
+    limit?: number;
+}>;
+export type NodeOperationHistoryItem = Readonly<{
+    id: ID;
+    nodeRunId: ID;
+    action: string;
+    status: string;
+    coordinationPhase: NodeOperationPhase;
+    sequence: string;
+    revision: string;
+    result?: import('./json-types').JSONValue;
+    errorCode?: string;
+    errorMessage?: string;
+    createdAt: string;
+    finishedAt?: string;
+}>;
+export type NodeOperationHistoryPage = Readonly<{
+    items: readonly NodeOperationHistoryItem[];
+    snapshotUpperSequence: string;
+    nextAfterSequence: string;
 }>;
