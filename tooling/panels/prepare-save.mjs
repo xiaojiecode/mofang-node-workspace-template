@@ -1,7 +1,9 @@
 import path from 'node:path'
-import { writeFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
 import { root, readJSON } from '../paths.mjs'
 import { verifyNodeArtifacts } from '../verify/artifacts.mjs'
+import { resolvePanelPath } from './manifest.mjs'
 
 /** 从本地构建和已回读的目录快照组装保存正文；不会保存、发布或查询平台。 */
 export async function prepareSave({
@@ -38,7 +40,14 @@ export async function prepareSave({
         body.rendererKey = 'puck'
         body.config = JSON.parse(sources[surface])
     } else {
-        body.viewSource = sources[surface]
+        const sourceFile = await resolvePanelPath(code, surface, { rootDir })
+        const authoredSource = await readFile(sourceFile, 'utf8')
+        body.viewSource = authoredSource
+        body.viewCompiled = sources[surface]
+        body.viewHash = createHash('sha256').update(sources[surface]).digest('hex')
+        body.compilerVersion =
+            manifest.build?.compilerVersion ??
+            `local-esbuild@${manifest.build?.esbuildVersion ?? 'unknown'}/mf-page-v2`
         if (surface === 'business') {
             if (
                 !Array.isArray(supportedContextSchemas) ||
@@ -54,7 +63,17 @@ export async function prepareSave({
                 )
             )
                 throw new Error('Lit business requires explicit supportedContextSchemas')
-            body.programSource = sources.pageProgram
+            let pageSourceFile = path.join(rootDir, 'nodes', code, 'page.ts')
+            try {
+                await readFile(pageSourceFile, 'utf8')
+            } catch (error) {
+                if (error.code !== 'ENOENT') throw error
+                pageSourceFile = path.join(rootDir, 'lib/browser/page.ts')
+            }
+            const authoredProgram = await readFile(pageSourceFile, 'utf8')
+            body.programSource = authoredProgram
+            body.programCompiled = sources.pageProgram
+            body.programHash = createHash('sha256').update(sources.pageProgram).digest('hex')
             body.supportedContextSchemas = supportedContextSchemas
         }
     }

@@ -108,7 +108,7 @@ Puck 设置页自动绑定 `main1`，备注写入宿主受控草稿。选品模�
 
 ### 构建与离线保存准备
 
-`npm run build` 按清单生成 `.js` 或完整 `.page.json`；manifest 记录 surface、格式、renderer、源码和产物 hash、包兼容版本。只有 Lit 业务页生成 `pageProgram.js`。`node.json` 继续只含原执行定义，不混入面板描述。`npm run verify` 同时核对源码修订、产物哈希、JS 限制和共享 JSON 校验。
+`npm run build` 按清单生成宿主直接加载的 CommonJS/ES2017 `.js` 或完整 `.page.json`；构建期会对可静态识别的无插值 `lit.css` 做 CSS 空白压缩，源码保持可读。manifest 记录 surface、格式、renderer、模块格式、源码和产物 hash、包兼容版本。只有 Lit 业务页生成 `pageProgram.js`。`node.json` 继续只含原执行定义，不混入面板描述。`npm run verify` 同时核对源码修订、产物哈希、JS 限制和共享 JSON 校验。
 
 ```sh
 npm run build
@@ -138,7 +138,7 @@ fixtures/goja-test.js 使用普通 JavaScript 脚本语法，最后一个表达�
 
 已有工程的 nodes/ 属于用户业务文件，upstream sync 不会替换其中的 fixture。升级运行器时，需将旧 fixture 最外层的 `return (async ...` 改为 `(async ...`，保留函数内部返回和全部断言。
 
-缓存显式设置 `MF_CACHE_DIR`；npm 缓存用 `NPM_CONFIG_CACHE`，Go/Vite/浏览器材料由工具归该目录。正式 build 安全压缩并输出大小/耗时，属性名不混淆；build:dev 只改变可读性。fixture 页面明确是本地数据，不作为真实业务成功证据。
+缓存显式设置 `MF_CACHE_DIR`；npm 缓存用 `NPM_CONFIG_CACHE`，Go/Vite/浏览器材料由工具归该目录。正式 build 安全压缩并输出大小/耗时，属性名不混淆；build:dev 只改变可读性。发布包携带本地最终编译字节，服务端保存时只做校验和冻结，不应依赖服务端再次转译。fixture 页面明确是本地数据，不作为真实业务成功证据。
 
 ## 官方基础组件
 
