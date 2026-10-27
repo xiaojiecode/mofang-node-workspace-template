@@ -41,12 +41,12 @@ const forbiddenPage = new Set([
  * 解析最终单文件产物，检查模块形式、体积和运行环境禁止访问的全局。
  * 构建成功不代表宿主可执行，产物仍需浏览器或 Goja 的实际加载验证。
  */
-export function inspect(source, kind) {
+export function inspect(source, kind, moduleFormat = 'esm') {
     if (!source || Buffer.byteLength(source) > 5 * 1024 * 1024 || source.includes('\0'))
         throw new Error('源码为空、超过 5 MiB 或含 NUL')
     const ast = parse(source, {
         ecmaVersion: 'latest',
-        sourceType: kind === 'executor' ? 'script' : 'module',
+        sourceType: kind === 'executor' || moduleFormat !== 'esm' ? 'script' : 'module',
     })
     function visit(node, parent) {
         if (!node || typeof node !== 'object') return
@@ -90,16 +90,51 @@ export function inspect(source, kind) {
     }
     visit(ast, null)
     const exports = ast.body.filter((n) => n.type.startsWith('Export'))
+    let cjsModuleExports = false
+    let cjsDefault = false
+    if (moduleFormat !== 'esm') {
+        visit(ast, null)
+        const scanCjs = (node) => {
+            if (!node || typeof node !== 'object') return
+            if (
+                node.type === 'MemberExpression' &&
+                !node.computed &&
+                node.object?.type === 'Identifier' &&
+                node.object.name === 'module' &&
+                node.property?.type === 'Identifier' &&
+                node.property.name === 'exports'
+            )
+                cjsModuleExports = true
+            if (
+                node.type === 'Property' &&
+                !node.computed &&
+                ((node.key?.type === 'Identifier' && node.key.name === 'default') ||
+                    (node.key?.type === 'Literal' && node.key.value === 'default'))
+            )
+                cjsDefault = true
+            for (const value of Object.values(node)) {
+                if (Array.isArray(value)) value.forEach(scanCjs)
+                else if (value && typeof value === 'object') scanCjs(value)
+            }
+        }
+        scanCjs(ast)
+    }
     if (
         kind === 'panel' &&
-        !exports.some(
-            (n) =>
-                n.type === 'ExportDefaultDeclaration' ||
-                n.specifiers?.some((s) => s.exported.name === 'default'),
-        )
+        !(moduleFormat !== 'esm'
+            ? cjsModuleExports && cjsDefault
+            : exports.some(
+                  (n) =>
+                      n.type === 'ExportDefaultDeclaration' ||
+                      n.specifiers?.some((s) => s.exported.name === 'default'),
+              ))
     )
         throw new Error('面板缺少默认导出')
     if (kind === 'page-program') {
+        if (moduleFormat !== 'esm') {
+            if (!/prepareInput/.test(source)) throw new Error('数据程序只允许导出 prepareInput')
+            return ast
+        }
         const names = exports.flatMap((n) =>
             n.declaration?.id
                 ? [n.declaration.id.name]
@@ -234,6 +269,7 @@ export async function verifyNodeArtifacts(code, { rootDir = root } = {}) {
                     : entry === 'pageProgram'
                       ? 'page-program'
                       : 'panel',
+                artifact.moduleFormat ?? 'esm',
             )
         }
         sources[entry] = source

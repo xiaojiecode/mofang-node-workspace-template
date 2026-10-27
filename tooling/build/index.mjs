@@ -78,7 +78,14 @@ for (const code of await nodeCodes()) {
                     'logicVersion',
                 ].map((key) => [key, value[key]]),
             )
-        } else compiled = await bundle(relative, kind === 'lit' ? 'panel' : kind)
+        } else {
+            compiled = await bundle(relative, kind === 'lit' ? 'panel' : kind, {
+                // 发布资产直接使用宿主加载格式；服务端只校验和冻结，不再二次转译。
+                ...(kind === 'lit' || kind === 'page-program'
+                    ? { format: 'cjs', target: 'es2017' }
+                    : {}),
+            })
+        }
         const { code: source, sourceBytes, durationMs } = compiled
         const file =
             kind === 'puck'
@@ -97,6 +104,7 @@ for (const code of await nodeCodes()) {
             durationMs: milliseconds(durationMs),
             sha256: createHash('sha256').update(source).digest('hex'),
             format: kind === 'puck' ? 'json' : 'javascript',
+            ...(kind === 'puck' ? {} : { moduleFormat: kind === 'executor' ? 'iife' : 'cjs' }),
             ...(['lit', 'puck'].includes(kind)
                 ? {
                       surface: entry,
@@ -134,7 +142,15 @@ for (const code of await nodeCodes()) {
                 code,
                 interface: programInterface,
                 litMode,
-                build: { mode: buildMode, minified: report.minified, esbuildVersion, durationMs },
+                build: {
+                    mode: buildMode,
+                    minified: report.minified,
+                    format: 'mixed',
+                    target: 'per-artifact',
+                    cssOptimization: 'static-whitespace',
+                    esbuildVersion,
+                    durationMs,
+                },
                 artifacts,
             },
             null,

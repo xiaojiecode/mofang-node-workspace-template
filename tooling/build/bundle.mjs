@@ -1,5 +1,7 @@
 import path from 'node:path'
-import { build } from 'esbuild'
+import { readFile } from 'node:fs/promises'
+import { build, transformSync } from 'esbuild'
+import { parse } from 'acorn'
 import { root } from '../paths.mjs'
 // 两种构建仅在可读性和压缩上不同，指令始终匹配统一宿主 ABI。
 export const litMode = 'production'
@@ -26,6 +28,69 @@ export const forbiddenGoja = new Set([
     'structuredClone',
     'Intl',
 ])
+
+/**
+ * 只压缩能静态证明为 lit.css 的无插值模板。插值可能出现在选择器、属性值或
+ * @规则内部，无法在不执行作者代码的情况下安全重写，因此保留原模板。
+ */
+function compressStaticCss(source) {
+    let transformedSource = transformSync(source, {
+        loader: 'ts',
+        format: 'esm',
+        target: 'esnext',
+    }).code
+    const ast = parse(transformedSource, {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        locations: false,
+    })
+    const cssNames = new Set()
+    for (const statement of ast.body) {
+        if (statement.type !== 'ImportDeclaration' || statement.source.value !== 'lit') continue
+        for (const element of statement.specifiers) {
+            if (element.type === 'ImportSpecifier' && element.imported.name === 'css')
+                cssNames.add(element.local.name)
+        }
+    }
+    if (!cssNames.size) return transformedSource
+    const edits = []
+    function visit(node) {
+        if (
+            node?.type === 'TaggedTemplateExpression' &&
+            node.tag?.type === 'Identifier' &&
+            cssNames.has(node.tag.name) &&
+            node.quasi?.expressions?.length === 0
+        ) {
+            const transformed = transformSync(node.quasi.quasis[0].value.cooked, {
+                loader: 'css',
+                minifyWhitespace: true,
+                minifySyntax: false,
+                minifyIdentifiers: false,
+                legalComments: 'inline',
+            }).code.trim()
+            const escaped = transformed
+                .replaceAll('\\', '\\\\')
+                .replaceAll('`', '\\`')
+                .replaceAll('${', '\\${')
+            edits.push({
+                start: node.quasi.start + 1,
+                end: node.quasi.end - 1,
+                value: escaped,
+            })
+        }
+        for (const [key, value] of Object.entries(node ?? {})) {
+            if (key === 'loc' || key === 'start' || key === 'end') continue
+            if (Array.isArray(value)) {
+                for (const child of value) if (child?.type) visit(child)
+            } else if (value?.type) visit(value)
+        }
+    }
+    visit(ast)
+    for (const edit of edits.sort((a, b) => b.start - a.start))
+        transformedSource =
+            transformedSource.slice(0, edit.start) + edit.value + transformedSource.slice(edit.end)
+    return transformedSource
+}
 /**
  * 将一个作者入口编译为宿主可加载的单文件。正式模式启用标识符、语法和空白压缩，
  * 保留函数/类 name 及全部属性名，避免破坏生命周期钩子、Lit 注入属性和公开协议。
@@ -35,6 +100,8 @@ export async function bundle(file, kind, options = {}) {
     const started = performance.now()
     const minify = options.minify ?? buildMode === 'production'
     const panel = kind === 'panel'
+    const format = options.format ?? (kind === 'executor' ? 'iife' : 'esm')
+    const target = options.target ?? (kind === 'executor' ? 'es2016' : 'es2022')
     // 平台清单接收普通函数，提交前将异步方法降级为普通函数。
     const result = await build({
         absWorkingDir: root,
@@ -42,9 +109,9 @@ export async function bundle(file, kind, options = {}) {
         bundle: true,
         write: false,
         loader: { '.svg': 'dataurl' },
-        format: kind === 'executor' ? 'iife' : 'esm',
+        format,
         ...(kind === 'executor' ? { globalName: '__mfProgram' } : {}),
-        target: kind === 'executor' ? 'es2016' : 'es2022',
+        target,
         platform: 'neutral',
         conditions: panel ? [litMode] : [],
         minify,
@@ -58,6 +125,13 @@ export async function bundle(file, kind, options = {}) {
             {
                 name: 'runtime-boundary',
                 setup(api) {
+                    api.onLoad({ filter: /\.(?:ts|mts)$/ }, async (args) => ({
+                        contents:
+                            options.optimizeCss === false
+                                ? await readFile(args.path, 'utf8')
+                                : compressStaticCss(await readFile(args.path, 'utf8')),
+                        loader: options.optimizeCss === false ? 'ts' : 'js',
+                    }))
                     api.onResolve({ filter: /^(lit|lit-html|@lit\/reactive-element)$/ }, (args) =>
                         panel
                             ? { path: 'lit', external: true }
@@ -116,6 +190,8 @@ export async function bundle(file, kind, options = {}) {
     return {
         code,
         inputs: Object.keys(result.metafile.inputs),
+        format,
+        target,
         sourceBytes: Object.values(result.metafile.inputs).reduce(
             (sum, input) => sum + input.bytes,
             0,

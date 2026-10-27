@@ -213,6 +213,11 @@ test('真实构建四种组合，离线保存严格检查当前源码、产物�
         supportedContextSchemas: ['fixture-explicit-context'],
     })
     assert.equal(lit.renderMode, 'lit')
+    assert.ok(lit.viewSource)
+    assert.ok(lit.viewCompiled)
+    assert.match(lit.viewHash, /^[0-9a-f]{64}$/)
     assert.ok(lit.programSource)
+    assert.ok(lit.programCompiled)
+    assert.match(lit.programHash, /^[0-9a-f]{64}$/)
     assert.equal('config' in lit, false)
 })
