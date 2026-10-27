@@ -38,6 +38,14 @@ export function flow(p: FlowProps, content: TemplateResult) {
     </div>`
 }
 
+/** 底部操作区固定在调用方容器末尾，业务操作和提交均由调用方传入。 */
+export function footer(p: Readonly<{ leading?: TemplateResult; actions?: TemplateResult }>) {
+    return html`<footer class="mf-footer">
+        <div>${p.leading ?? nothing}</div>
+        <div class="mf-footer-actions">${p.actions ?? nothing}</div>
+    </footer>`
+}
+
 export const layoutStyles = /* @__PURE__ */ (() => css`
     .mf-button[data-variant='accent'] {
         background: #338fff;
