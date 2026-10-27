@@ -1,3 +1,4 @@
+import { placeholderStyles } from '../components/placeholder-presets'
 import { interactionStyles } from './interaction'
 import { nodePlaceholderStyles } from '../components/placeholder'
 import { css } from 'lit'
@@ -1154,4 +1155,4 @@ const baseStyles = /* @__PURE__ */ (() => css`
     }
 `)()
 
-export const panelStyles = [baseStyles, interactionStyles, nodePlaceholderStyles, formStyles, radioStyles, switchStyles, layoutStyles, progressStyles, dialogStyles, capabilityStyles, cascaderStyles]
+export const panelStyles = [baseStyles, placeholderStyles, interactionStyles, nodePlaceholderStyles, formStyles, radioStyles, switchStyles, layoutStyles, progressStyles, dialogStyles, capabilityStyles, cascaderStyles]
