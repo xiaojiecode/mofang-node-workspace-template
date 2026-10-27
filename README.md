@@ -57,6 +57,8 @@ finish 是事件计划末尾的生产声明，不直接完成节点，不放行/
 
 用户描述需求、体验页面并提修改意见，AI 负责字段、布局、数据源、事件与页面包。设置和业务可各自选择 `lit` 或 `puck`，两个选项默认 `lit`；四种组合都保留原节点执行合同。
 
+首次使用先看 [Puck 使用与接入说明](docs/lowcode.md)：环境准备、独立工程位置、交互预览、各部分职责，以及保存和发布的区别。AI 搭建时按 [物料使用指南](.agents/skills/mofang-lowcode-node/references/materials.md) 选择组件、组合字段和详情交互。
+
 ```sh
 npm run node:new -- --code review-products --preset selection --settings-renderer puck --business-renderer puck
 # 创建独立工程也接受相同的两个 renderer 选项
@@ -116,7 +118,7 @@ node tooling/cli.mjs panels:prepare --code review-products --surface settings --
 
 catalog.json 必须是已回读的真实目录信息 `{code,catalogInstanceId,catalogRevision}`，也接受平台 CLI 的 `{ok:true,data:{...}}` 包装。修订为正整数字符串；身份不匹配、源码改动后未重新构建、产物 hash 不一致都会失败。输出文件已存在时也会失败。Lit 业务页还需要 `--supported-context-schemas` 显式传入已确认的 JSON 字符串数组。
 
-Puck 保存正文是 `renderMode=lowcode`、`rendererKey=puck`、`config=完整 PagePackage`，业务包内部 surface 使用 runtime；不发送 Lit 的 viewSource/programSource。`panels:prepare` 完全离线，不调用保存或发布接口。实际保存仍用既有平台 CLI：先保存 settings，再回读新目录修订，随后准备和保存 business。页面保存、页面发布、实例采用执行定义以及启动新运行是分别授权、分别核对的操作。
+Puck 后台保存使用 `renderMode=lowcode` 和 `lowcode: { rendererKey: "puck", config: 完整PagePackage }`，业务包内部 surface 使用 runtime；不发送 Lit 的 viewSource/programSource。`panels:prepare` 完全离线，不调用保存或发布接口。当前准备工具和 CLI 仍使用顶层 rendererKey/config，与后台结构有差异，上传前按 [Puck 请求结构与已知问题](.agents/skills/mofang-js-node/references/platform-cli.md#puck-页面的后台请求结构) 处理。先保存 settings，再回读新目录修订，随后准备和保存 business。页面保存、页面发布、实例采用执行定义以及启动新运行是分别授权、分别核对的操作。
 
 ## 验证
 

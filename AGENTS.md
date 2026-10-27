@@ -62,7 +62,7 @@ settings走宿主受控草稿，不另开保存链路。settings/business 独立
 
 配置表单通过 extensions.workflow.settingsFormId 绑定宿主草稿。business 在包内标记 surface=runtime；动作需要结果时使用共享 workflow.nodeAction.run 等待 applied，原始 sdk.nodeFlow.action 的 accepted 仍仅表示受理，未知结果先核对且不自动重发。
 
-发布准备先 build/verify，再用 `panels:prepare` 和本地目录回读快照生成请求正文。该命令只读本地文件和可选写出正文，不发送平台请求；Puck 使用 renderMode=lowcode、rendererKey=puck、config=完整页面包，Lit 保留源码合同。保存 settings 后回读最新目录修订再准备 business；保存、发布、执行定义采用与新运行分别核对。命令示例和产物说明见 [README 低代码面板](README.md#低代码面板由-ai-搭建)。
+发布准备先 build/verify，再用 `panels:prepare` 和本地目录回读快照生成请求正文。该命令只读本地文件和可选写出正文，不发送平台请求；Puck 后台正文使用 renderMode=lowcode、lowcode={rendererKey:puck, config:完整页面包}，Lit 保留源码合同。Puck 上传前读取[当前工具与后台的结构差异](.agents/skills/mofang-js-node/references/platform-cli.md#puck-页面的后台请求结构)。保存 settings 后回读最新目录修订再准备 business；保存、发布、执行定义采用与新运行分别核对。命令示例和产物说明见 [README 低代码面板](README.md#低代码面板由-ai-搭建)。
 
 ## 验证与交付
 

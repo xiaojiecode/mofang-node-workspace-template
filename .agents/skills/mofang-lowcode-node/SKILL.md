@@ -27,4 +27,6 @@ description: 在魔方节点工作区中由 AI 创建或修改 Puck 低代码配
 - 事件 JS 可通过声明 `service:workflowSdk` 使用完整公开 SDK；版本、参数和返回值查询目录。订阅按脚本生命周期清理，不把 SDK 对象存进 JSON。
 - 原始 `sdk.nodeFlow.action` 的 accepted 只表示受理。需要等待结果的业务按钮用 `workflow.nodeAction.run`，携带真实目标、payload、candidates 和当前 sessionRevision。未知结果先核对，不能自动重发。
 
-接第三方数据源时读 [数据源说明](references/datasources.md)。交互预览与发布准备读 [预览和发布边界](references/preview.md)。
+选用物料、搭建联动表单、选择列表或行详情时读 [AI 物料使用指南](references/materials.md)。接第三方数据源时读 [数据源说明](references/datasources.md)。预览验收、后台保存和上传报错时读 [预览和发布边界](references/preview.md)。
+
+向使用人解释环境要求、独立工程位置、设置与展示接线、版本维护时读 [Puck 接入说明](../../../docs/lowcode.md)。
