@@ -3,6 +3,7 @@ import { css } from 'lit'
 import { formStyles } from '../components/form'
 import { radioStyles } from '../components/radio'
 import { switchStyles } from '../components/switch'
+import { layoutStyles } from '../components/layout'
 import { cascaderStyles } from '../components/cascader'
 /** 默认白色内容面；基础控件和业务面板共用语义颜色、尺寸与交互状态。 */
 const baseStyles = /* @__PURE__ */ (() => css`
@@ -1149,4 +1150,4 @@ const baseStyles = /* @__PURE__ */ (() => css`
     }
 `)()
 
-export const panelStyles = [baseStyles, interactionStyles, formStyles, radioStyles, switchStyles, cascaderStyles]
+export const panelStyles = [baseStyles, interactionStyles, formStyles, radioStyles, switchStyles, layoutStyles, cascaderStyles]
