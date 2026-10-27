@@ -80,11 +80,14 @@ export { publishShopDialog } from './components/publish-shop-dialog'
 export type { PublishShopDialogProps, PublishShop } from './components/publish-shop-dialog'
 export { placeholder } from './components/placeholder-presets'
 export type { PlaceholderProps } from './components/placeholder-presets'
+export {
+    selectionReport,
+    reportMetricCard,
+    reportScore,
+    reportTrend,
+    reportOpportunityMatrix,
+    reportCategoryTable,
+    reportSourceBadge,
+    reportActionCard,
+} from './report'
 export type * from './report/types'
-export { reportSourceBadge } from './report/parts'
-export { reportMetricCard } from './report/parts'
-export { reportScore } from './report/parts'
-export { reportOpportunityMatrix } from './report/parts'
-export { reportActionCard } from './report/parts'
-export { reportTrend } from './report/chart'
-export { reportCategoryTable } from './report/category-table'
