@@ -1,20 +1,24 @@
+import { trackPopoverAnchor, popoverViewport } from './popover-anchor'
 import { html, nothing } from 'lit'
+import { fieldLabel } from './form'
+import type { FieldProps } from './form'
 import { AsyncDirective } from 'lit/async-directive.js'
 import { directive } from 'lit/directive.js'
 import { ref } from 'lit/directives/ref.js'
 
 export type SelectOption = Readonly<{ value: string; label: string; disabled?: boolean }>
-export type SelectFieldProps = Readonly<{
-    name: string
-    label: string
-    value: string
-    options: readonly SelectOption[]
-    hint?: string
-    readOnly?: boolean
-    ariaLabel?: string
-    labelHidden?: boolean
-    onChange?: (value: string | undefined) => void
-}>
+export type SelectFieldProps = FieldProps &
+    Readonly<{
+        name: string
+        label: string
+        value: string
+        options: readonly SelectOption[]
+        hint?: string
+        readOnly?: boolean
+        ariaLabel?: string
+        labelHidden?: boolean
+        onChange?: (value: string | undefined) => void
+    }>
 
 let sequence = 0
 
@@ -29,7 +33,7 @@ class SelectDirective extends AsyncDirective {
     private query = ''
     private typedAt = 0
     private owner: Window | undefined
-    private resize: ResizeObserver | undefined
+    private stopTracking: (() => void) | undefined
     private readonly bindTrigger = (element?: Element) => {
         this.trigger = element as HTMLButtonElement | undefined
     }
@@ -136,16 +140,27 @@ class SelectDirective extends AsyncDirective {
         }
     }
     private readonly position = () => {
-        if (!this.trigger || !this.menu || !this.owner) return
+        if (!this.opened || !this.trigger || !this.menu || !this.owner) return
         const rect = this.trigger.getBoundingClientRect()
-        const below = this.owner.innerHeight - rect.bottom - 8,
-            above = rect.top - 8
+        const viewport = popoverViewport(this.owner)
+        if (
+            rect.bottom <= viewport.top ||
+            rect.top >= viewport.bottom ||
+            rect.right <= viewport.left ||
+            rect.left >= viewport.right
+        ) {
+            this.close()
+            return
+        }
+        const below = viewport.bottom - rect.bottom - 8
+        const above = rect.top - viewport.top - 8
         const upward = below < 180 && above > below
-        const height = Math.max(40, Math.min(256, upward ? above : below))
+        const height = Math.max(0, Math.min(256, upward ? above : below))
+        const width = Math.max(0, Math.min(Math.max(rect.width, 128), viewport.width - 16))
         Object.assign(this.menu.style, {
-            width: `${Math.min(Math.max(rect.width, 128), this.owner.innerWidth - 16)}px`,
+            width: `${width}px`,
             maxHeight: `${height}px`,
-            left: `${Math.max(8, Math.min(rect.left, this.owner.innerWidth - Math.max(rect.width, 128) - 8))}px`,
+            left: `${Math.max(viewport.left + 8, Math.min(rect.left, viewport.right - width - 8))}px`,
             top: upward ? 'auto' : `${rect.bottom + 4}px`,
             bottom: upward ? `${this.owner.innerHeight - rect.top + 4}px` : 'auto',
         })
@@ -157,22 +172,17 @@ class SelectDirective extends AsyncDirective {
             this.release()
             return
         }
-        if (!this.owner) {
-            this.owner = this.trigger?.ownerDocument.defaultView ?? undefined
-            this.owner?.addEventListener('resize', this.position)
-            this.owner?.addEventListener('scroll', this.position, true)
-            this.resize = new ResizeObserver(this.position)
-            if (this.trigger) this.resize.observe(this.trigger)
+        if (!this.stopTracking && this.trigger) {
+            this.owner = this.trigger.ownerDocument.defaultView ?? undefined
+            this.stopTracking = trackPopoverAnchor(this.trigger, this.position)
         }
         this.position()
-        if (!this.menu.matches(':popover-open')) this.menu.showPopover()
+        if (this.opened && !this.menu.matches(':popover-open')) this.menu.showPopover()
     }
     private release() {
-        this.owner?.removeEventListener('resize', this.position)
-        this.owner?.removeEventListener('scroll', this.position, true)
+        this.stopTracking?.()
+        this.stopTracking = undefined
         this.owner = undefined
-        this.resize?.disconnect()
-        this.resize = undefined
     }
     protected override disconnected() {
         this.opened = false
@@ -185,9 +195,12 @@ class SelectDirective extends AsyncDirective {
     private template() {
         const p = this.props,
             selected = p.options.find((option) => option.value === p.value)
-        return html`<div class="mf-field">
+        const describedBy = [p.hint ? `${this.id}-hint` : '', p.error ? `${this.id}-error` : '']
+            .filter(Boolean)
+            .join(' ')
+        return html`<div class="mf-field" data-compact=${p.compact ?? false}>
             <span class=${p.labelHidden ? 'mf-sr-only' : 'mf-label'} id=${`${this.id}-label`}
-                >${p.label}</span
+                >${fieldLabel(p)}</span
             >
             <div class="mf-select">
                 <input type="hidden" name=${p.name} .value=${p.value} ?disabled=${this.disabled} />
@@ -198,10 +211,12 @@ class SelectDirective extends AsyncDirective {
                     ${ref(this.bindTrigger)}
                     aria-label=${p.ariaLabel ?? nothing}
                     aria-labelledby=${p.ariaLabel ? nothing : `${this.id}-label`}
-                    aria-describedby=${p.hint ? `${this.id}-hint` : nothing}
+                    aria-describedby=${describedBy || nothing}
+                    aria-invalid=${p.error ? 'true' : nothing}
                     aria-controls=${this.id}
                     aria-expanded=${this.opened}
                     aria-haspopup="listbox"
+                    aria-required=${p.required ? 'true' : nothing}
                     aria-activedescendant=${this.opened && this.active >= 0
                         ? `${this.id}-${this.active}`
                         : nothing}
@@ -223,6 +238,8 @@ class SelectDirective extends AsyncDirective {
                     role="listbox"
                     aria-label=${p.label}
                     popover="auto"
+                    aria-hidden=${this.opened ? nothing : 'true'}
+                    ?inert=${!this.opened}
                     ${ref(this.bindMenu)}
                     @toggle=${(event: Event) => {
                         if ((event as ToggleEvent).newState === 'closed' && this.opened)
@@ -260,10 +277,15 @@ class SelectDirective extends AsyncDirective {
             ${p.hint
                 ? html`<span class="mf-hint" id=${`${this.id}-hint`}>${p.hint}</span>`
                 : nothing}
+            ${p.error
+                ? html`<span class="mf-field-error" role="alert" id=${`${this.id}-error`}
+                      >${p.error}</span
+                  >`
+                : nothing}
         </div>`
     }
 }
-const renderSelect = directive(SelectDirective)
+const renderSelect = /* @__PURE__ */ directive(SelectDirective)
 
 /** 统一客户端选择器视觉的受控字段；自绘顶层列表保留空值删除语义。 */
 export function selectField(p: SelectFieldProps) {
