@@ -127,3 +127,16 @@ export function reportOpportunityMatrix(p: ReportOpportunityMatrixProps) {
         >
     </section>`
 }
+/** 行动建议仅展示与交接，不启动寻源、筛选或真实调用。 */
+export function reportActionCard(p: ReportActionCardProps) {
+    return html`<div class="mf-report-action">
+        ${card(
+            { variant: 'compact' },
+            html`${p.step ? html`<span class="mf-report-action-step">${p.step}</span>` : nothing}
+                <h4>${p.title}</h4>
+                <p>${p.description}</p>
+                <div class="mf-report-sources">${p.sources?.map(reportSourceBadge) ?? nothing}</div>
+                ${p.action ? button({ label: p.action.label, onClick: p.action.onClick }) : nothing}`,
+        )}
+    </div>`
+}
