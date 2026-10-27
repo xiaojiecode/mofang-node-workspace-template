@@ -81,3 +81,4 @@ export type { PublishShopDialogProps, PublishShop } from './components/publish-s
 export { placeholder } from './components/placeholder-presets'
 export type { PlaceholderProps } from './components/placeholder-presets'
 export type * from './report/types'
+export { reportSourceBadge } from './report/parts'
