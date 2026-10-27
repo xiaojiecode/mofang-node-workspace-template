@@ -12,6 +12,7 @@
         "../nodes/*/contract.ts",
         "../nodes/*/fixtures/**/*.ts",
         "../playground/src/**/*.ts",
+        "../playground/components/**/*.ts",
         "../tests/types/browser.ts"
     ]
 }

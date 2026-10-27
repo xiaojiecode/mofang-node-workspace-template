@@ -30,7 +30,15 @@
         "platform": "node tooling/cli.mjs platform",
         "upstream": "node tooling/cli.mjs upstream",
         "test:ui": "node tooling/verify/ui.mjs",
-        "test:transitions": "node tooling/verify/transitions.mjs"
+        "test:transitions": "node tooling/verify/transitions.mjs",
+        "dev:components": "vite --config playground/components/vite.config.mjs",
+        "test:components": "node tooling/verify/components.mjs",
+        "icons:optimize": "node tooling/icons/optimize.mjs",
+        "icons:check": "node tooling/icons/optimize.mjs --check",
+        "icons:verify": "node tooling/icons/verify.mjs",
+        "test:gallery": "node tooling/verify/gallery.mjs",
+        "test:reports": "node tooling/verify/reports.mjs",
+        "test:popover-position": "node tooling/verify/popover-position.mjs"
     },
     "devDependencies": {
         "acorn": "8.15.0",
@@ -41,6 +49,7 @@
         "lit": "3.3.3",
         "playwright": "1.57.0",
         "prettier": "3.8.0",
+        "svgo": "4.1.0",
         "typescript": "7.0.2",
         "vite": "8.3.5"
     }

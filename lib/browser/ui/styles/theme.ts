@@ -1,6 +1,7 @@
+import { interactionStyles } from './interaction'
 import { css } from 'lit'
 /** 默认白色内容面；基础控件和业务面板共用语义颜色、尺寸与交互状态。 */
-export const panelStyles = css`
+const baseStyles = /* @__PURE__ */ (() => css`
     .mf-card {
         min-width: 0;
         padding: 24px;
@@ -775,6 +776,12 @@ export const panelStyles = css`
     .mf-table td {
         padding: 8px;
     }
+    .mf-table td.mf-table-refresh {
+        padding: 10px 12px;
+        background: color-mix(in srgb, var(--mf-accent) 5%, var(--mf-bg));
+        color: var(--mf-muted);
+        font-size: 12px;
+    }
     .mf-table tbody tr:hover {
         background: color-mix(in srgb, var(--mf-soft) 50%, var(--mf-bg));
     }
@@ -1136,4 +1143,6 @@ export const panelStyles = css`
         height: 32px;
         font-size: 13px;
     }
-`
+`)()
+
+export const panelStyles = [baseStyles, interactionStyles]

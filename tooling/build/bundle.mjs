@@ -35,12 +35,13 @@ export async function bundle(file, kind, options = {}) {
     const started = performance.now()
     const minify = options.minify ?? buildMode === 'production'
     const panel = kind === 'panel'
-    // The platform manifest accepts ordinary functions; lower async methods before submission.
+    // 平台清单接收普通函数，提交前将异步方法降级为普通函数。
     const result = await build({
         absWorkingDir: root,
         entryPoints: [file],
         bundle: true,
         write: false,
+        loader: { '.svg': 'dataurl' },
         format: kind === 'executor' ? 'iife' : 'esm',
         ...(kind === 'executor' ? { globalName: '__mfProgram' } : {}),
         target: kind === 'executor' ? 'es2016' : 'es2022',
