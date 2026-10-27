@@ -31,3 +31,22 @@ export function reportSourceBadge(p: ReportSource) {
         >${p.icon ?? nothing}<span>${p.label}</span></span
     >`
 }
+/** 指标卡复用通用卡片，零值保留，缺失值显示破折号。 */
+export function reportMetricCard(p: ReportMetricCardProps) {
+    const value = typeof p.value === 'number' ? reportNumber(p.value) : p.value || '—'
+    return html`<div class="mf-report-metric">
+        ${card(
+            { variant: 'compact' },
+            html`<div class="mf-report-metric-head">
+                    <b>${p.label}</b>${p.source ? reportSourceBadge(p.source) : nothing}
+                </div>
+                ${p.description
+                    ? html`<p>${p.description}</p>`
+                    : nothing}<strong>${value}${p.unit && value !== '—'
+                    ? html`<small>${p.unit}</small>`
+                    : nothing}</strong>${p.note
+                    ? html`<p class="mf-report-metric-note">${p.note}</p>`
+                    : nothing}`,
+        )}
+    </div>`
+}
