@@ -1164,4 +1164,26 @@ const baseStyles = /* @__PURE__ */ (() => css`
     }
 `)()
 
-export const panelStyles = [baseStyles, reportStyles, placeholderStyles, publishShopDialogStyles, activityIconStyles, interactionStyles, platformStyles, warningCardStyles, timelineStyles, cockpitStyles, nodePlaceholderStyles, nodeStatusStyles, executionAccordionStyles, formStyles, radioStyles, switchStyles, layoutStyles, progressStyles, dialogStyles, capabilityStyles, cascaderStyles]
+export const panelStyles = [
+    baseStyles,
+    formStyles,
+    radioStyles,
+    switchStyles,
+    layoutStyles,
+    progressStyles,
+    dialogStyles,
+    capabilityStyles,
+    cascaderStyles,
+    nodePlaceholderStyles,
+    nodeStatusStyles,
+    executionAccordionStyles,
+    platformStyles,
+    warningCardStyles,
+    timelineStyles,
+    cockpitStyles,
+    interactionStyles,
+    publishShopDialogStyles,
+    placeholderStyles,
+    reportStyles,
+    activityIconStyles,
+]

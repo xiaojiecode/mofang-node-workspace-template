@@ -1,0 +1,687 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:mofang:report:selection-report-data",
+  "title": "SelectionReportData · 选品报告数据",
+  "description": "对应公共组件 SelectionReportData 的纯 JSON 部分。不是后端或节点生产契约；不含 TemplateResult 图标、行动回调及受控状态回调。",
+  "type": "object",
+  "required": [
+    "title",
+    "context",
+    "categories"
+  ],
+  "additionalProperties": true,
+  "definitions": {
+    "source": {
+      "title": "数据来源",
+      "type": "object",
+      "required": [
+        "label"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "label": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "description": {
+          "type": "string"
+        },
+        "icon": false
+      },
+      "description": "JSON 不保存 Lit 图标对象，已知图标由预览代码重建。"
+    },
+    "metric": {
+      "title": "指标卡输入",
+      "type": "object",
+      "required": [
+        "label"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "label": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "unit": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/definitions/source"
+        }
+      }
+    },
+    "score": {
+      "title": "评分输入",
+      "type": "object",
+      "required": [
+        "label"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "label": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "value": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "description": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/definitions/source"
+        }
+      },
+      "description": "缺失或越界的评分由展示组件明确处理，不补成零分。"
+    },
+    "trendPoint": {
+      "title": "趋势数据点",
+      "type": "object",
+      "required": [
+        "label"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "trend": {
+      "title": "趋势图输入",
+      "type": "object",
+      "required": [
+        "title",
+        "accessibleLabel",
+        "series"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "title": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "accessibleLabel": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "series": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/trendPoint"
+          }
+        },
+        "color": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/definitions/source"
+        }
+      },
+      "description": "value 可缺失，缺值断线；零、负值、单点和空序列合法。"
+    },
+    "axis": {
+      "title": "矩阵轴",
+      "type": "object",
+      "required": [
+        "label",
+        "threshold"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "label": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "value": {
+          "type": "number"
+        },
+        "threshold": {
+          "type": "number"
+        }
+      }
+    },
+    "matrix": {
+      "title": "机会矩阵输入",
+      "type": "object",
+      "required": [
+        "title",
+        "x",
+        "y"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "title": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "x": {
+          "$ref": "#/definitions/axis"
+        },
+        "y": {
+          "$ref": "#/definitions/axis"
+        },
+        "description": {
+          "type": "string"
+        },
+        "conclusion": {
+          "type": "string"
+        }
+      }
+    },
+    "action": {
+      "title": "行动建议输入",
+      "type": "object",
+      "required": [
+        "title",
+        "description"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "title": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "description": {
+          "type": "string"
+        },
+        "step": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/source"
+          }
+        },
+        "action": false
+      },
+      "description": "JSON 只保存展示数据，不接受可执行回调。"
+    },
+    "product": {
+      "title": "代表商品",
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "本地图片地址；地址语义由调试校验检查。"
+        },
+        "price": {
+          "type": "number"
+        },
+        "currencyCode": {
+          "type": "string"
+        },
+        "units": {
+          "type": "number"
+        },
+        "growth": {
+          "type": "number"
+        },
+        "promoters": {
+          "type": "number"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    },
+    "category": {
+      "title": "类目报告",
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "englishName": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "units": {
+          "type": "number"
+        },
+        "gmv": {
+          "type": "number"
+        },
+        "currencyCode": {
+          "type": "string"
+        },
+        "growth": {
+          "type": "number"
+        },
+        "promoters": {
+          "type": "number"
+        },
+        "newUnits": {
+          "type": "number"
+        },
+        "searchMomentum": {
+          "type": "number"
+        },
+        "platformScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "searchScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "opportunityScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "productConcentration": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "shopConcentration": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "promotionOverlap": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "newProductOverlap": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "demand": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/trend"
+          }
+        },
+        "products": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/product"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/action"
+          }
+        },
+        "conclusion": {
+          "type": "string"
+        }
+      },
+      "description": "可选指标缺失合法；id 唯一性由自定义校验负责。"
+    }
+  },
+  "properties": {
+    "title": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "description": {
+      "type": "string"
+    },
+    "vocabulary": {
+      "title": "展示口径",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "metrics": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "units": {
+              "type": "string"
+            },
+            "gmv": {
+              "type": "string"
+            },
+            "growth": {
+              "type": "string"
+            },
+            "promoters": {
+              "type": "string"
+            },
+            "newUnits": {
+              "type": "string"
+            },
+            "searchMomentum": {
+              "type": "string"
+            },
+            "opportunityScore": {
+              "type": "string"
+            },
+            "sortUnits": {
+              "type": "string"
+            },
+            "sortGmv": {
+              "type": "string"
+            }
+          }
+        },
+        "performance": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "sales": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                }
+              }
+            },
+            "promotion": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                }
+              }
+            },
+            "newProducts": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "supply": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "productConcentration": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                }
+              }
+            },
+            "shopConcentration": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                }
+              }
+            },
+            "promotionOverlap": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                }
+              }
+            },
+            "newProductOverlap": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "products": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "units": {
+              "type": "string"
+            },
+            "growth": {
+              "type": "string"
+            },
+            "promoters": {
+              "type": "string"
+            }
+          }
+        },
+        "demandDescription": {
+          "type": "string"
+        }
+      }
+    },
+    "sampleLabel": {
+      "type": "string"
+    },
+    "context": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "label": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "categoryPath": {
+      "type": "string"
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/category"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/source"
+      }
+    },
+    "platformSource": {
+      "$ref": "#/definitions/source"
+    },
+    "searchSource": {
+      "$ref": "#/definitions/source"
+    },
+    "matrixThresholds": {
+      "type": "object",
+      "required": [
+        "platform",
+        "search"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "platform": {
+          "type": "number"
+        },
+        "search": {
+          "type": "number"
+        }
+      }
+    },
+    "scoreDescription": {
+      "type": "string"
+    },
+    "comparisonCaption": {
+      "type": "string"
+    },
+    "methods": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "title",
+          "description"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "title": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "formula": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,114 @@
+[
+    {
+        "id": "empty-workflow",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/src/assets/workflow/empty-workflow.svg",
+        "target": "empty-workflow.svg",
+        "sha256": "1f20064d970e4e2b52ab8dbc170bb9c3071082569ea0f1f3abc0c9b7484c9e41",
+        "bytes": 3850,
+        "transformation": "原始资源复制；未声称PNG为SVG；仅预览引用"
+    },
+    {
+        "id": "coming-soon",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/src/assets/workflow/coming-soon-illustration.png",
+        "target": "coming-soon-illustration.png",
+        "sha256": "c61a8a0010c2206f70604cb62f352979a7be679042514ebabb8692c10f32ff88",
+        "bytes": 1105995,
+        "transformation": "原始资源复制；未声称PNG为SVG；仅预览引用"
+    },
+    {
+        "id": "empty-product",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/src/assets/workflow-detail/empty-product.svg",
+        "target": "empty-product.svg",
+        "sha256": "80fc050b1598f1a217597253db4dc49f5aaa56ddf931fb16865e08c8aadd6df2",
+        "bytes": 4111,
+        "transformation": "原始资源复制；未声称PNG为SVG；仅预览引用"
+    },
+    {
+        "id": "video-agent",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/src/assets/workflow-editor/video-agent.svg",
+        "target": "video-agent.svg",
+        "sha256": "0435a1d370d9a4c19bcc1ea4514f2e60017ea73c43e709d7feb00e7f0e2c190e",
+        "bytes": 1357,
+        "transformation": "原始资源复制；未声称PNG为SVG；仅预览引用"
+    },
+    {
+        "id": "video-failure",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/src/assets/workflow-editor/video-failure.svg",
+        "target": "video-failure.svg",
+        "sha256": "bad6c3c6dbfc0763b1844b7a58382fa6bab2138f15bbbb5b2cb381bc053d6206",
+        "bytes": 1072,
+        "transformation": "原始资源复制；未声称PNG为SVG；仅预览引用"
+    },
+    {
+        "id": "video-retry",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/src/assets/workflow-editor/video-retry.svg",
+        "target": "video-retry.svg",
+        "sha256": "9d87b31db1b1bfe2a5af8318cdb4c820c589351b7ab7e83e677c4bf385a6729c",
+        "bytes": 974,
+        "transformation": "原始资源复制；未声称PNG为SVG；仅预览引用"
+    },
+    {
+        "id": "store-auth-empty",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/src/assets/workflow-optimization/store-auth-empty.svg",
+        "target": "store-auth-empty.svg",
+        "sha256": "e8b3980c4b6e247959e29167a7ef08eefa68551a118ec73324ac227d8e03c7ff",
+        "bytes": 797,
+        "transformation": "原始资源复制；未声称PNG为SVG；仅预览引用"
+    },
+    {
+        "id": "product-placeholder",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/src/assets/product-library/product-placeholder.png",
+        "target": "product-placeholder.png",
+        "sha256": "a6ebc66e882d16cb97f6f3616e089c6067b3f987906d8cf96bebdc4618385540",
+        "bytes": 1484,
+        "transformation": "原始资源复制；未声称PNG为SVG；仅预览引用"
+    },
+    {
+        "id": "image-plus",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/node_modules/@lucide/vue/dist/esm/icons/image-plus.mjs",
+        "target": "lucide-image-plus.svg",
+        "sha256": "60b333745617895cad06cdcfff2b02c9386e2168a8190bde659ed0ab31dabc23",
+        "bytes": 359,
+        "transformation": "提取原型已安装@lucide/vue v1.31.0的__iconNode，移除React/Vue key并写为静态SVG；路径未改写"
+    },
+    {
+        "id": "file-search",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/node_modules/@lucide/vue/dist/esm/icons/file-search.mjs",
+        "target": "lucide-file-search.svg",
+        "sha256": "78cc3d4b98c999bc95f12d6dcb0a0c9b75969f245bf1a419fc6bc1cb74f1c199",
+        "bytes": 387,
+        "transformation": "提取原型已安装@lucide/vue v1.31.0的__iconNode，移除React/Vue key并写为静态SVG；路径未改写"
+    },
+    {
+        "id": "file-text",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/node_modules/@lucide/vue/dist/esm/icons/file-text.mjs",
+        "target": "lucide-file-text.svg",
+        "sha256": "b65a6d953eb8d5b0edf2b1d412716c032817f4dd0cc0ef286e849e8bb1b7c2a5",
+        "bytes": 382,
+        "transformation": "提取原型已安装@lucide/vue v1.31.0的__iconNode，移除React/Vue key并写为静态SVG；路径未改写"
+    },
+    {
+        "id": "video",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/node_modules/@lucide/vue/dist/esm/icons/video.mjs",
+        "target": "lucide-video.svg",
+        "sha256": "ac17d1621549350c2943a8ad3d989610b52a463446a5ee4265a93747092d18bb",
+        "bytes": 297,
+        "transformation": "提取原型已安装@lucide/vue v1.31.0的__iconNode，移除React/Vue key并写为静态SVG；路径未改写"
+    },
+    {
+        "id": "store",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/node_modules/@lucide/vue/dist/esm/icons/store.mjs",
+        "target": "lucide-store.svg",
+        "sha256": "12b08c089131a6dd50594e347039fb93da69e4feb1c7f0a341bad3596137e602",
+        "bytes": 531,
+        "transformation": "提取原型已安装@lucide/vue v1.31.0的__iconNode，移除React/Vue key并写为静态SVG；路径未改写"
+    },
+    {
+        "id": "image",
+        "source": "/Users/xwj/mofangv3/src/mf-client-proto/node_modules/@lucide/vue/dist/esm/icons/image.mjs",
+        "target": "lucide-image.svg",
+        "sha256": "c4bd7f780f7786e96ca4aad6d8d4bfdda19433d2d68a99560ef9a655303f21da",
+        "bytes": 302,
+        "transformation": "提取原型已安装@lucide/vue v1.31.0的__iconNode，移除React/Vue key并写为静态SVG；路径未改写"
+    }
+]
