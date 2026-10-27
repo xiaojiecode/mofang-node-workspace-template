@@ -70,7 +70,7 @@ class DialogDirective extends AsyncDirective {
         this.open()
     }
 }
-const modal = directive(DialogDirective)
+const modal = /* @__PURE__ */ directive(DialogDirective)
 
 class ImageDirective extends AsyncDirective {
     private props!: ImageProps
@@ -188,7 +188,7 @@ class ImageDirective extends AsyncDirective {
         this.refresh()
     }
 }
-const renderImage = directive(ImageDirective)
+const renderImage = /* @__PURE__ */ directive(ImageDirective)
 
 class ViewerDirective extends AsyncDirective {
     private props!: ImageViewerProps
@@ -334,7 +334,7 @@ class ViewerDirective extends AsyncDirective {
         </dialog>`
     }
 }
-const renderViewer = directive(ViewerDirective)
+const renderViewer = /* @__PURE__ */ directive(ViewerDirective)
 
 /** 图片加载、失败占位及可选查看入口；默认等比完整显示，源变化会重置加载状态。 */
 export function image(p: ImageProps) {
