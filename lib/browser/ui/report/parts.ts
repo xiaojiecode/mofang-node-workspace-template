@@ -81,3 +81,49 @@ export function reportScore(p: ReportScoreProps) {
             : nothing}
     </div>`
 }
+/** 矩阵阈值由报告提供，任何轴缺少有效数值时不高亮象限。 */
+export function reportOpportunityMatrix(p: ReportOpportunityMatrixProps) {
+    const valid =
+        p.x.value !== undefined &&
+        p.y.value !== undefined &&
+        Number.isFinite(p.x.value) &&
+        Number.isFinite(p.y.value) &&
+        Number.isFinite(p.x.threshold) &&
+        Number.isFinite(p.y.threshold)
+    const xHigh = valid && p.x.value! >= p.x.threshold
+    const yHigh = valid && p.y.value! >= p.y.threshold
+    return html`<section class="mf-report-matrix-panel" aria-label=${p.title}>
+        <h4>${p.title}</h4>
+        ${p.description ? html`<p>${p.description}</p>` : nothing}
+        <div class="mf-report-matrix">
+            ${[
+                { x: false, y: true },
+                { x: true, y: true },
+                { x: false, y: false },
+                { x: true, y: false },
+            ].map(
+                (cell) =>
+                    html`<div data-active=${Boolean(valid && cell.x === xHigh && cell.y === yHigh)}>
+                        <span
+                            >${p.x.label}${cell.x ? '强' : '弱'} ·
+                            ${p.y.label}${cell.y ? '强' : '弱'}</span
+                        ><span aria-hidden="true">●</span>${valid &&
+                        cell.x === xHigh &&
+                        cell.y === yHigh
+                            ? html`<span class="mf-sr-only">当前象限</span>`
+                            : nothing}
+                    </div>`,
+            )}
+        </div>
+        <p>
+            ${valid
+                ? (p.conclusion ??
+                  `${p.x.label} ${reportNumber(p.x.value)}；${p.y.label} ${reportNumber(p.y.value)}`)
+                : '指标不足，暂无法判断象限。'}
+        </p>
+        <small
+            >强信号阈值：${p.x.label} ≥ ${reportNumber(p.x.threshold)}；${p.y.label} ≥
+            ${reportNumber(p.y.threshold)}</small
+        >
+    </section>`
+}
