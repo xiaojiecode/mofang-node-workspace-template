@@ -1,0 +1,37 @@
+{
+  "name": "@mofang/low-code-page",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./runtime": {
+      "types": "./types/lib/low-code/entries/runtime.d.ts",
+      "import": "./runtime.js"
+    },
+    "./core": {
+      "types": "./types/lib/low-code/entries/core.d.ts",
+      "import": "./core.js"
+    },
+    "./schema": {
+      "types": "./types/lib/low-code/schema.d.ts",
+      "import": "./schema.js"
+    },
+    "./product-editor": {
+      "types": "./types/lib/low-code/entries/product-editor.d.ts",
+      "import": "./product-editor.js"
+    },
+    "./authoring": {
+      "types": "./types/lib/low-code/entries/authoring.d.ts",
+      "import": "./authoring.js"
+    },
+    "./style.css": "./low-code.css"
+  },
+  "dependencies": {
+    "class-variance-authority": "0.7.1",
+    "zod": "4.3.5"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1 || ^19.0.0",
+    "react-dom": "^18.3.1 || ^19.0.0",
+    "@puckeditor/core": "0.23.0"
+  }
+}

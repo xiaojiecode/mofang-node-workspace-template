@@ -161,6 +161,18 @@ def prepare(op, args):
             raise CLIError("invalid_revision", f"{field} 必须是正整数修订字符串")
     if op.path.endswith("/page") and op.method == "PUT" and body.get("kind") != "save":
         raise CLIError("invalid_argument", "panels save 只接受 kind=save")
+    if op.path.endswith("/page") and op.method == "PUT" and body.get("renderMode") == "lowcode":
+        if body.get("surface") not in ("settings", "business") or body.get("rendererKey") != "puck":
+            raise CLIError("invalid_argument", "Puck 保存需要明确 surface 和 rendererKey=puck")
+        if not isinstance(body.get("config"), dict) or not body["config"]:
+            raise CLIError("missing_field", "Puck 保存需要完整 config 对象；先运行 panels:prepare")
+        if any(field in body for field in ("viewSource", "programSource", "supportedContextSchemas")):
+            raise CLIError("invalid_argument", "lowcode 不接受 Lit 源码或上下文声明")
+        extensions = body["config"].get("extensions")
+        binding = extensions.get("workflow") if isinstance(extensions, dict) else None
+        expected_surface = "settings" if body["surface"] == "settings" else "runtime"
+        if not isinstance(binding, dict) or binding.get("nodeCode") != args.code or binding.get("surface") != expected_surface:
+            raise CLIError("identity_mismatch", "config 工作流身份与节点或面板不一致")
     if (op.path == "/nodes/page/compile" or (op.method == "PUT" and op.path.endswith("/page") and body.get("renderMode") == "lit")):
         if op.path == "/nodes/page/compile" and "renderMode" in body:
             raise CLIError("invalid_argument", "panels compile 不接受 renderMode；该字段仅用于 panels save")

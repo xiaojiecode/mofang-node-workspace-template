@@ -19,10 +19,10 @@ description: 编写、校验和发布魔方 Goja JS 节点，使用 React 风格
 
 先运行 `python3 <本技能>/scripts/mofang_node.py guide`，一次取得环境、作者API、文件职责、接口字段和结束规则；按[节点开发入口](references/node-development.md)补齐条件，保留已有业务。
 
-| 网关根地址 | 环境 |
-| --- | --- |
+| 网关根地址                   | 环境 |
+| ---------------------------- | ---- |
 | `https://dev.api.mofang.com` | 测试 |
-| `https://api.mofang.com` | 正式 |
+| `https://api.mofang.com`     | 正式 |
 | `https://pre.api.mofang.com` | 预发 |
 
 按用户已指定环境使用独立admin/client profile。默认只读能力元数据、双Schema和修订并运行本地Mock。**Tool可能计费；开发节点不等于授权执行Tool，只有用户明确要求实际调用/试跑时才执行。**不为猜响应或验收而自动执行Tool、模型、原子能力execute或启动工作流；已有明确授权在同一范围内沿用。
@@ -31,16 +31,16 @@ description: 编写、校验和发布魔方 Goja JS 节点，使用 React 风格
 
 `describe`是离线目录，包含完整http_paths、身份、字段解释、条件和effect，不证明远端版本。运行`--profile <同环境管理员> doctor --bundle <dist/编码>`读取目录/Schema并调用不落库validate；检查每条check和ready_for_catalog_save，不能把discovered当作ABI已确认。密码/token不写文档或报告。
 
-| 常用操作 | 正式HTTP入口 | 必要条件 |
-| --- | --- | --- |
-| 能力目录/详情，只读 | `GET /v1/admin/atomic-capabilities`、`GET /v1/admin/atomic-capabilities/{id}` | admin；精确tool_name及完整双Schema |
-| 原子能力独立试调用 | `POST /toomcp`，JSON-RPC `tools/call` | client access token；显式workspace-id；用户授权实际调用 |
-| 可信类型，只读 | `GET /v1/admin/workflow/type-schemas` | admin；client对应`/v1/workflow/type-schemas` |
-| 当前源码/修订，只读 | `GET /v1/admin/workflow/nodes/{code}/javascript` | admin；核对editable和目录身份/修订 |
-| ABI/契约校验，不落库 | `POST /v1/admin/workflow/nodes/javascript/validate` | admin；完整bundle；valid且programInterface=mf.node/1 |
-| 创建/更新目录 | `POST /v1/admin/workflow/nodes/javascript`、`PUT /v1/admin/workflow/nodes/{code}/javascript` | 用户要求保存；更新携带expectedCatalogInstanceId/Revision |
-| 两份页面 | `GET/PUT /v1/admin/workflow/nodes/{code}/page` | admin；显式surface；business同时提供programSource |
-| 页面发布/回执 | `POST /v1/admin/workflow/nodes/{code}/page/releases`、`GET /v1/admin/workflow/page-releases/{releaseId}` | 用户授权scope/targets，不自动all_instances |
+| 常用操作             | 正式HTTP入口                                                                                             | 必要条件                                                 |
+| -------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 能力目录/详情，只读  | `GET /v1/admin/atomic-capabilities`、`GET /v1/admin/atomic-capabilities/{id}`                            | admin；精确tool_name及完整双Schema                       |
+| 原子能力独立试调用   | `POST /toomcp`，JSON-RPC `tools/call`                                                                    | client access token；显式workspace-id；用户授权实际调用  |
+| 可信类型，只读       | `GET /v1/admin/workflow/type-schemas`                                                                    | admin；client对应`/v1/workflow/type-schemas`             |
+| 当前源码/修订，只读  | `GET /v1/admin/workflow/nodes/{code}/javascript`                                                         | admin；核对editable和目录身份/修订                       |
+| ABI/契约校验，不落库 | `POST /v1/admin/workflow/nodes/javascript/validate`                                                      | admin；完整bundle；valid且programInterface=mf.node/1     |
+| 创建/更新目录        | `POST /v1/admin/workflow/nodes/javascript`、`PUT /v1/admin/workflow/nodes/{code}/javascript`             | 用户要求保存；更新携带expectedCatalogInstanceId/Revision |
+| 两份页面             | `GET/PUT /v1/admin/workflow/nodes/{code}/page`                                                           | admin；显式surface；business同时提供programSource        |
+| 页面发布/回执        | `POST /v1/admin/workflow/nodes/{code}/page/releases`、`GET /v1/admin/workflow/page-releases/{releaseId}` | 用户授权scope/targets，不自动all_instances               |
 
 完整请求条件、鉴权和CLI示例见[平台CLI](references/platform-cli.md)。
 
@@ -66,7 +66,7 @@ description: 编写、校验和发布魔方 Goja JS 节点，使用 React 风格
 
 按[必须事件验收](references/verification.md)逐项核对等待条件、用户入口、动作Schema/修订、处理结果和剩余义务。动作实际处理前重新核对guard，服务端权限/来源/状态校验保留。
 
-host无参数必要入口由宿主提供，panel参数动作需要实际Lit交互；零结果、不选择和业务失败有明确路径。unknown先核对，不能用finish掩盖。finish是新ABI事件末尾生产声明，不是节点成功、取消或候选流转；不能拿新规则解释旧冻结源码。
+host无参数必要入口由宿主提供，panel参数动作需要实际面板交互；按 panels.json 选择 Lit 或 mofang-lowcode-node 技能实现。零结果、不选择和业务失败有明确路径。unknown先核对，不能用finish掩盖。finish是新ABI事件末尾生产声明，不是节点成功、取消或候选流转；不能拿新规则解释旧冻结源码。
 
 action返回受理后按eventId等待outcome；需要恢复时查询动作列表，不能比较view是否变化、按payload猜身份或自动再提交一次。applied只代表协调事务成功，仍需跟踪任务、候选和节点终态。
 

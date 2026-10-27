@@ -1,0 +1,66 @@
+import { z } from 'zod';
+import type { Binding } from '../../../lib/low-code/schema';
+export declare const unifiedInputTypes: readonly ["text", "password", "email", "url", "tel", "search", "number", "date", "time", "datetime-local", "month", "week"];
+export type UnifiedInputProps = {
+    valueMode?: 'field' | 'value';
+    inputKind?: 'text' | 'number' | 'textarea';
+    inputType?: (typeof unifiedInputTypes)[number];
+    fieldId?: string;
+    value?: string | number | null;
+    binding?: Binding;
+    placeholder?: string;
+    readOnly?: boolean;
+    disabled?: boolean;
+    required?: boolean;
+    maxLength?: number;
+    minLength?: number;
+    name?: string;
+    'aria-label'?: string;
+    rows?: number;
+    step?: number;
+    changeEventId?: string;
+    blurEventId?: string;
+    focusEventId?: string;
+};
+export declare const unifiedInputShape: {
+    valueMode: z.ZodOptional<z.ZodEnum<{
+        value: "value";
+        field: "field";
+    }>>;
+    inputKind: z.ZodOptional<z.ZodEnum<{
+        number: "number";
+        text: "text";
+        textarea: "textarea";
+    }>>;
+    inputType: z.ZodOptional<z.ZodEnum<{
+        number: "number";
+        url: "url";
+        text: "text";
+        date: "date";
+        search: "search";
+        password: "password";
+        email: "email";
+        tel: "tel";
+        time: "time";
+        "datetime-local": "datetime-local";
+        month: "month";
+        week: "week";
+    }>>;
+    fieldId: z.ZodOptional<z.ZodString>;
+    value: z.ZodOptional<z.ZodUnion<readonly [z.ZodString, z.ZodNumber, z.ZodNull]>>;
+    binding: z.ZodOptional<z.ZodType<Binding, unknown, z.core.$ZodTypeInternals<Binding, unknown>>>;
+    placeholder: z.ZodOptional<z.ZodString>;
+    readOnly: z.ZodOptional<z.ZodBoolean>;
+    disabled: z.ZodOptional<z.ZodBoolean>;
+    required: z.ZodOptional<z.ZodBoolean>;
+    maxLength: z.ZodOptional<z.ZodNumber>;
+    minLength: z.ZodOptional<z.ZodNumber>;
+    name: z.ZodOptional<z.ZodString>;
+    'aria-label': z.ZodOptional<z.ZodString>;
+    rows: z.ZodOptional<z.ZodNumber>;
+    step: z.ZodOptional<z.ZodNumber>;
+    changeEventId: z.ZodOptional<z.ZodString>;
+    blurEventId: z.ZodOptional<z.ZodString>;
+    focusEventId: z.ZodOptional<z.ZodString>;
+};
+export declare function inputValue(raw: string, numeric: boolean): string | number;

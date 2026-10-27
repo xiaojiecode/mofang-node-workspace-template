@@ -1,0 +1,33 @@
+import type { Config } from '@puckeditor/core';
+import type { Materials } from './types';
+export declare const materialLabels: {
+    Repeater: string;
+    Tabs: string;
+    Section: string;
+    Stack: string;
+    Form: string;
+    SplitLayout: string;
+    ScrollPanel: string;
+    WorkflowProcess: string;
+    ExecutionResult: string;
+    ThinkingProcess: string;
+    Link: string;
+    Text: string;
+    Image: string;
+    Badge: string;
+    TextField: string;
+    NumberField: string;
+    TextareaField: string;
+    SelectField: string;
+    SwitchField: string;
+    ConfigField: string;
+    RecordListField: string;
+    ActionButton: string;
+    DataTable: string;
+    SelectionSummary: string;
+    Pagination: string;
+};
+export declare const materialDefaults: {
+    [K in keyof Materials]: Materials[K];
+};
+export declare const materialCategories: Config<Materials>['categories'];

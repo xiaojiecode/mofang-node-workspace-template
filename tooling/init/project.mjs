@@ -9,13 +9,18 @@ const { values } = parseArgs({
         dir: { type: 'string' },
         name: { type: 'string' },
         preset: { type: 'string', default: 'all' },
+        'settings-renderer': { type: 'string', default: 'lit' },
+        'business-renderer': { type: 'string', default: 'lit' },
     },
 })
 if (
     !values.dir ||
     !values.name ||
     !/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/.test(values.name) ||
-    (values.preset !== 'all' && !presets.includes(values.preset))
+    (values.preset !== 'all' && !presets.includes(values.preset)) ||
+    ![values['settings-renderer'], values['business-renderer']].every((renderer) =>
+        ['lit', 'puck'].includes(renderer),
+    )
 )
     throw new Error(
         'init requires --dir <empty-dir> --name <package-name> [--preset all|copy|selection|human-wait|multi-instance]',
@@ -31,7 +36,8 @@ try {
 await mkdir(target, { recursive: true })
 const sourceCommit = await initializeGitHistory(target)
 // Only this newly created checkout is reset to the requested starter content.
-for (const name of ['nodes', 'shared', '.agents/managed.json'])
+// vendor 必须使用当前完整快照，不能残留 Git 基线中的旧大包。
+for (const name of ['nodes', 'shared', 'vendor', '.agents/managed.json'])
     await rm(path.join(target, name), { recursive: true, force: true })
 const includes = [
     'lib',
@@ -77,6 +83,14 @@ for (const name of includes)
                     ].includes(part),
                 ),
     })
+// 固定共享包必须带上编译产物；通用模板过滤器会排除 dist，不能用于 vendor。
+await cp(path.join(root, 'vendor'), path.join(target, 'vendor'), {
+    recursive: true,
+    force: true,
+    // 本地包中的 npm 安装目录不属于分发内容；保留 SDK 的 dist 与精简低代码目录。
+    filter: (source) =>
+        !path.relative(path.join(root, 'vendor'), source).split(path.sep).includes('node_modules'),
+})
 for (const file of ['package.json', 'package-lock.json']) {
     const value = JSON.parse(await readFile(path.join(target, file), 'utf8'))
     value.name = values.name
@@ -87,7 +101,12 @@ for (const file of ['package.json', 'package-lock.json']) {
 await mkdir(path.join(target, 'shared'), { recursive: true })
 await writeFile(path.join(target, 'shared/.gitkeep'), '')
 for (const preset of values.preset === 'all' ? presets : [values.preset]) {
-    for (const [relative, content] of Object.entries(nodeFiles(preset, preset))) {
+    for (const [relative, content] of Object.entries(
+        nodeFiles(preset, preset, {
+            settingsRenderer: values['settings-renderer'],
+            businessRenderer: values['business-renderer'],
+        }),
+    )) {
         const file = path.join(target, 'nodes', preset, relative)
         await mkdir(path.dirname(file), { recursive: true })
         await writeFile(file, content, { flag: 'wx' })

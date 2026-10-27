@@ -40,6 +40,10 @@ export type NodeContext = Readonly<{
         prompt: string;
         output?: JSONObject;
     }>;
+    continuation?: Readonly<{
+        expectedGateRevision: string;
+        expectedWaitingTurn?: number;
+    }>;
     state: Readonly<{
         status: string;
         phase: string;

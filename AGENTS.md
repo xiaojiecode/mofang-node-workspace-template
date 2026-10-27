@@ -26,7 +26,7 @@ nodes/、shared/、业务fixture和自定义技能的已提交修改参与普通
 
 先区分讨论、审查、实施或实际试跑。契约、状态、并发、恢复、展示入口和外部操作的重要取舍先说明事实、选项和影响，等待确认；已确认范围内局部命名与常规验证自行完成。
 
-编写后台先读 .agents/skills/mofang-js-node/SKILL.md，编写双面板读 .agents/skills/mofang-lit-node/SKILL.md，并按需读取 .agents/skills/lit-best-practices/SKILL.md 的相关规则；宿主约束与本文件优先。在线能力和Schema通过正常CLI发现，不靠函数名、旧日志或示例猜测真实上游结构。
+编写后台先读 .agents/skills/mofang-js-node/SKILL.md。面板先读 nodes/<code>/panels.json；Lit 面板读取 .agents/skills/mofang-lit-node/SKILL.md，并按需读取 .agents/skills/lit-best-practices/SKILL.md；Puck 面板按下文“低代码作者流程”执行。宿主约束与本文件优先。在线能力和Schema通过正常CLI发现，不靠函数名、旧日志或示例猜测真实上游结构。
 
 设计或审查节点业务规则、状态与人工决策时，读 [.agents/skills/mofang-node-business-design/SKILL.md](.agents/skills/mofang-node-business-design/SKILL.md)；设计或改善设置/业务面板的信息组织、交互与视觉时，读 [.agents/skills/mofang-node-ui-design/SKILL.md](.agents/skills/mofang-node-ui-design/SKILL.md)。按任务加载，不为普通局部修改强制展开完整设计流程；已确认方案直接沿用，技能不授权改变平台契约或既有业务行为。
 
@@ -42,11 +42,27 @@ setter不改变当前闭包快照；累加用纯updater，状态和命令耦合�
 
 ## 面板与人工事件
 
-settings走宿主受控草稿，不另开保存链路。business保持Lit；新ABI只读取composition的就绪投影，不用旧nodeView兜底。动作受理、应用效果和节点成功分别显示。
+settings走宿主受控草稿，不另开保存链路。settings/business 独立选择 Lit 或 Puck；没有 panels.json 的旧节点沿用 settings.ts/view.ts，存在但不合法则报错。新ABI只读取composition的就绪投影，不用旧nodeView兜底。动作受理、应用效果和节点成功分别显示。
 
 无参数必要动作由共同宿主区域提供，full-panel也不能省略；带参数动作需真实页面入口，覆盖零结果、不选择、失败与核对。关闭抽屉不等于finish，finish不代替流转/丢弃候选。
 
 节点只能到达执行中、暂停、待处理、已完成、已取消、执行失败六种状态。执行中仅表示系统正在推进任务或流转；等待用户只能经ctx.awaitUser或带禁用原因的必要动作呈现为待处理，不能因缺少用户动作长期停在执行中。每个等待点须有可执行的继续、结束或失败路径，并在真实平台核对实际状态。
+
+## 低代码作者流程
+
+使用前读取 [.agents/skills/mofang-lowcode-node/SKILL.md](.agents/skills/mofang-lowcode-node/SKILL.md)，再按下述流程查询当前安装包。
+
+使用 Puck 时，先读节点执行合同与已有页面，仅询问资料缺少的业务目标、字段、交互和数据来源。用户提出需求和体验预览，AI 完成页面配置；不要求用户拖拽或编辑 JSON。执行代码继续遵守 mf.node/1，不因面板切换而重定义。
+
+1. 运行 `node tooling/cli.mjs lowcode guide`，用 `lowcode catalog` 查询当前共享库的实际组件、参数、绑定、事件和 SDK 描述。未知能力返回缺口，不能猜测新组件或接口。
+2. 用 `lowcode inspect --code <code> --surface settings|business` 读取结构与 revision；按需指定 section/componentId。页面唯一真源为清单指定的 `.page.json` 完整包。
+3. 用 `lowcode apply --file <request.json>` 批量提交语义操作及 expectedRevision。失败根据结构化错误修复；冲突时重读并合并，保留未涉及对象及 ID。恢复用 restore 和检查点，不通过 Git 回退其它改动。
+4. 用 validate 核对节点身份、surface、引用及共享 schema；用 preview 取得本地 URL。启动服务前探测端口，使用系统默认外部浏览器验证。用户能填写和点击运行页面，页面不提供设计编辑器或源配置保存入口。
+5. 交付时核对预览实际加载 revision 与最终文件一致，记录正常、空态、失败、只读和关键交互。预览默认 Mock，验证结果只证明本地行为；真实接口、计费能力、平台保存和发布分别按授权执行。
+
+配置表单通过 extensions.workflow.settingsFormId 绑定宿主草稿。business 在包内标记 surface=runtime；动作需要结果时使用共享 workflow.nodeAction.run 等待 applied，原始 sdk.nodeFlow.action 的 accepted 仍仅表示受理，未知结果先核对且不自动重发。
+
+发布准备先 build/verify，再用 `panels:prepare` 和本地目录回读快照生成请求正文。该命令只读本地文件和可选写出正文，不发送平台请求；Puck 后台正文使用 renderMode=lowcode、lowcode={rendererKey:puck, config:完整页面包}，Lit 保留源码合同。Puck 上传前读取[当前工具与后台的结构差异](.agents/skills/mofang-js-node/references/platform-cli.md#puck-页面的后台请求结构)。保存 settings 后回读最新目录修订再准备 business；保存、发布、执行定义采用与新运行分别核对。命令示例和产物说明见 [README 低代码面板](README.md#低代码面板由-ai-搭建)。
 
 ## 验证与交付
 

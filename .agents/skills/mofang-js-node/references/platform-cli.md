@@ -97,6 +97,8 @@ bundle 读取工程模板的 `node.json`，只选取作者请求字段，不发�
 
 ## 双面板保存和发布
 
+Puck 上传先读下面的“Puck 页面的后台请求结构”；本节的源码编译和 `--view-source` 示例用于 Lit。
+
 settings/business 独立读取和保存；正文中的 surface 必须明确。`panels compile` 与 `panels save` 的正文不同：编译不接受 kind、renderMode、目录身份/修订或发布字段。business Lit 两种操作均须提供 programSource 和显式非空 supportedContextSchemas，遗漏上下文声明时远端可能只返回“页面或程序源码编译被拒绝”。先 get 当前目录身份与修订，再通过 describe 了解对应操作正文：
 
 ```bash
@@ -168,6 +170,34 @@ python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels releas
 ```
 
 发布正文必须包含 surface、scope；selected_instances 必须给出明确非空 targets，panelRevision 可固定已保存版本。new_only、all_instances 与 selected_instances 是不同授权范围，不能代替用户选择。get/revisions/instances 需显式 `--surface`。目录保存、实例页面发布和执行定义采用分别回读，历史冻结执行不因目录更新而改写。
+
+### Puck 页面的后台请求结构
+
+后台保存接口为 `PUT /v1/admin/workflow/nodes/{code}/page`。Puck 请求将 rendererKey 和完整页面包放入 lowcode 对象。以下是结构示意，pagePackage、catalogInstanceId 和 catalogRevision 均需替换为实际对象或本次回读值：
+
+```js
+const body = {
+    kind: "save",
+    surface: "settings", // 展示页使用 business
+    renderMode: "lowcode",
+    lowcode: {
+        rendererKey: "puck",
+        config: pagePackage, // 完整 PagePackage 对象，不能只传 data 或 JSON 字符串
+    },
+    expectedCatalogInstanceId: catalogInstanceId,
+    expectedCatalogRevision: catalogRevision,
+};
+```
+
+页面包中的节点编码须与 URL 一致。settings 包的工作流 surface 为 settings；business 包内为 runtime。两份页面分别保存，每次使用新回读并核对的目录修订。
+
+**已知工具差异（2026-10-27 核对）：** `tooling/panels/prepare-save.mjs` 仍输出顶层 rendererKey/config，CLI 的 `mofang_cli/operations.py` 也按顶层字段做本地校验。直接发送该正文会被当前 dev 后台拒绝；只把输入 JSON 改成嵌套对象再交给现有 `panels save`，也会在本地校验失败。模板通用工具尚需修复，这份说明不代表工具已经兼容。
+
+遇到这个差异时，先确认目标部署合同及本地工具版本。在用户已授权上传的节点工程中，可为已校验的请求增加局部适配：将两个顶层字段移入 lowcode，使用同一平台 CLI 的已认证 HTTPClient 请求上述正常接口。适配必须核对管理员环境、目标编码、构建产物一致性及目录身份/修订，保留服务端校验和失败回执；不要绕过鉴权、写数据库或改包为 Lit。通用工具修复后优先恢复标准命令。
+
+本次 `lst-template-puck-collection` 的 dev 上传曾返回 HTTP 400 `unknown Start field config`，回读目录修订仍为 1。该节点工程通过局部请求适配完成 settings、business 保存，最终回读目录修订为 3，两份 config 均与本地产物相同；未发布到已有实例，也未执行真实采集。这是该次上传记录，不代表其它部署环境或未来工具版本已验证。
+
+保存目录页面会供后续新实例使用；更新已有实例仍按显式发布范围操作。写入失败或断连先回读，处理修订冲突时比较内容，不只替换修订号后重发。完整预览与交付检查见[Puck 预览和发布边界](../../mofang-lowcode-node/references/preview.md)。
 
 ## 客户端工作流和节点配置
 

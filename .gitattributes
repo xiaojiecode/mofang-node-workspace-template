@@ -1,0 +1,2 @@
+# 固定共享产物按原始字节保存，避免 Windows 换行转换破坏 manifest 哈希。
+vendor/** -text

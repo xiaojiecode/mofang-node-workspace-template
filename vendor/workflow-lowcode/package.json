@@ -1,0 +1,19 @@
+{
+  "name": "@mofang/workflow-lowcode",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./types/features/workflow/lowcode-adapter/index.d.ts",
+      "import": "./index.js"
+    },
+    "./react": {
+      "types": "./types/features/workflow/lowcode-adapter/react.d.ts",
+      "import": "./react.js"
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.3.1 || ^19.0.0",
+    "@mofang/low-code-page": "0.1.0"
+  }
+}

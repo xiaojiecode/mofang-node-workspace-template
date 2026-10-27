@@ -2,8 +2,9 @@ import type { LitElement } from 'lit'
 import { ActionController } from '../../lib/browser/actions'
 import type { PanelProps, JSONObject, NodeView } from '@mofang/contracts/browser'
 import { createFixture } from './fixture'
+import { panelPreviewUrl, type PreviewPanels, type PreviewSurface } from './panel-routing'
 import './style.css'
-const sources = import.meta.glob<{ default: typeof LitElement }>('../../nodes/*/{settings,view}.ts')
+const sources = import.meta.glob<{ default: typeof LitElement }>('../../nodes/**/*.ts')
 const fixtures = import.meta.glob<{ default: JSONObject }>('../../nodes/*/fixtures/input.json', {
     eager: true,
 })
@@ -225,10 +226,11 @@ const previewQuery = new URLSearchParams(location.search)
 const requestedNode = previewQuery.get('node')
 if (previewQuery.get('surface') === 'business') document.body.dataset.surface = 'business'
 let active = requestedNode && codes.includes(requestedNode) ? requestedNode : codes[0]!,
-    scene = 'ready',
-    readOnly = false,
+    scene = previewQuery.get('scene') ?? 'ready',
+    readOnly = previewQuery.get('readonly') === 'true',
     sequence = 0
 let current: ReturnType<typeof createFixture> | undefined
+let panels: PreviewPanels | undefined
 const previous: ReturnType<typeof createFixture>[] = []
 let hostUnsubscribe: (() => void) | undefined
 const hostActions = new ActionController(
@@ -336,7 +338,8 @@ const DRAWER_MIN = 240
 const stage = document.querySelector<HTMLElement>('.stage')!
 const drawer = document.querySelector<HTMLElement>('.drawer')!
 const resizer = drawer.querySelector<HTMLElement>('.drawer-grip')!
-let pane: 'business' | 'settings' | null = 'business',
+let pane: PreviewSurface | null =
+        previewQuery.get('surface') === 'settings' ? 'settings' : 'business',
     dragged: number | null = null,
     fullscreen = false,
     settingsSnapshot: Record<string, unknown> | null = null
@@ -376,11 +379,24 @@ function renderDrawer() {
 }
 /** 切换底部抽屉显示的面板；两个 Lit 实例保持挂载，只改变可见性。 */
 function openDrawer(next: typeof pane) {
+    if (next && panels?.[next].renderer === 'puck') {
+        navigatePanel(next, 'puck')
+        return
+    }
     if (next === 'settings' && pane !== 'settings') settingsSnapshot = { ...draft }
     if (next !== 'settings') settingsSnapshot = null
     if (next === null) fullscreen = false
     pane = next
     renderDrawer()
+}
+
+/** 在已校验的面板清单之间切换；不把 Puck 配置当 Lit 模块加载。 */
+function navigatePanel(surface: PreviewSurface, renderer: 'lit' | 'puck', replace = false) {
+    const url = new URL(panelPreviewUrl(location.href, active, surface, renderer))
+    url.searchParams.set('scene', scene)
+    url.searchParams.set('readonly', String(readOnly))
+    if (replace) location.replace(url.href)
+    else location.assign(url.href)
 }
 resizer.onpointerdown = (event) => {
     event.preventDefault()
@@ -463,6 +479,16 @@ function restoreSettings() {
 async function mount() {
     const turn = ++sequence
     delete app.dataset.mounted
+    const manifestResponse = await fetch('/__lowcode/' + encodeURIComponent(active) + '/manifest')
+    const manifest = (await manifestResponse.json()) as PreviewPanels & { error?: string }
+    if (!manifestResponse.ok) throw new Error(manifest.error ?? '面板清单读取失败')
+    if (turn !== sequence) return
+    panels = manifest
+    const selected = pane ?? 'business'
+    if (panels[selected].renderer === 'puck') {
+        navigatePanel(selected, 'puck', true)
+        return
+    }
     const input = fixtures['../../nodes/' + active + '/fixtures/input.json']!.default
     if (current) previous.push(current)
     current = createFixture(input, scene === 'empty', scene === 'error', previewFor(active))
@@ -470,17 +496,14 @@ async function mount() {
     renderDetails()
     const fixture = current
     const classes = await Promise.all(
-        ['settings', 'business'].map(async (surface) => {
-            if (!artifacts)
-                return (
-                    await sources[
-                        '../../nodes/' +
-                            active +
-                            '/' +
-                            (surface === 'settings' ? 'settings' : 'view') +
-                            '.ts'
-                    ]!()
-                ).default
+        (['settings', 'business'] as const).map(async (surface) => {
+            const descriptor = manifest[surface]
+            if (descriptor.renderer === 'puck') return null
+            if (!artifacts) {
+                const source = sources['../../nodes/' + active + '/' + descriptor.entry]
+                if (!source) throw new Error('清单中的 Lit 入口未被预览加载：' + descriptor.entry)
+                return (await source()).default
+            }
             const response = await fetch('/__artifact/' + active + '/' + surface)
             if (!response.ok) throw new Error('请先 npm run build')
             const { compiled } = (await response.json()) as { compiled: string }
@@ -504,6 +527,10 @@ async function mount() {
     elements.length = 0
     classes.forEach((Panel, index) => {
         const surface = index === 0 ? 'settings' : 'business'
+        if (!Panel) {
+            document.querySelector('#' + surface)!.replaceChildren()
+            return
+        }
         // Each mount gets its own subclass: separate frozen bundles never share a fixed tag.
         const tag = 'mf-preview-' + surface + '-' + turn
         customElements.define(tag, class extends Panel {})
@@ -529,6 +556,7 @@ async function mount() {
         document.querySelector('#' + surface)!.replaceChildren(element)
         elements.push(element)
     })
+    if (pane === 'settings' && settingsSnapshot === null) settingsSnapshot = { ...draft }
     renderDraft()
     await Promise.all(elements.map((element) => element.updateComplete))
     if (turn === sequence) app.dataset.mounted = String(turn)

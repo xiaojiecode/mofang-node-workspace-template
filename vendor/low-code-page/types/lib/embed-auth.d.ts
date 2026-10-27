@@ -1,0 +1,52 @@
+import type { UserInfo } from './auth';
+export declare const MOFANG_BRIDGE_STORAGE_KEY = "mofangBridge";
+export declare const EMBED_APP_MODE_STORAGE_KEY = "mofangAppMode";
+export declare const EMBED_APP_MODE_VALUE = "embed";
+export declare const EMBED_ENV_ID_STORAGE_KEY = "mofang.embed.env_id";
+export declare const EMBED_OWNER_THREAD_STORAGE_KEY = "mofang.embed.owner_thread_id";
+export declare const EMBED_INVALID_AUTH_MESSAGE = "\u767B\u5F55\u4FE1\u606F\u65E0\u6548\uFF0C\u8BF7\u91CD\u65B0\u6253\u5F00\u73AF\u5883";
+export declare const EMBED_UNAUTHORIZED_MESSAGE = "\u767B\u5F55\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u6253\u5F00\u73AF\u5883";
+export type MofangBridgeConfig = {
+    port: number;
+    token: string;
+};
+export type EmbedAuthPayload = {
+    accessToken: string;
+    refreshToken?: string;
+    tokenExpire?: string;
+    userInfo: UserInfo;
+    mofangBridge?: MofangBridgeConfig;
+};
+export type EmbedAuthBootstrapResult = {
+    mode: 'normal' | 'embed';
+    sessionId: string;
+    payload: EmbedAuthPayload | null;
+    authApplied: boolean;
+};
+type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+type BootstrapDeps = {
+    href: string;
+    localStorage: StorageLike;
+    sessionStorage: StorageLike;
+    replaceUrl: (nextUrl: string) => void;
+};
+export declare function encodeBase64Url(value: string): string;
+export declare function decodeBase64Url(value: string): string;
+export declare function isEmbedSessionPathname(pathname?: string | null): boolean;
+export declare function extractEmbedSessionIdFromPath(pathname?: string | null): string;
+export declare function resolveEmbedRuntimeUrl(rawUrl: string, depth?: number): string;
+export declare function normalizeMofangBridge(input: unknown): MofangBridgeConfig | undefined;
+export declare function decodeEmbedAuthPayload(encoded: string): EmbedAuthPayload | null;
+export declare function persistEmbedAuthPayload(payload: EmbedAuthPayload, storage: StorageLike): void;
+export declare function buildEmbedUrlWithoutAuth(rawUrl: string, depth?: number): string;
+export declare function bootstrapEmbedAuthFromUrl(rawUrl: string, deps: Pick<BootstrapDeps, 'localStorage' | 'sessionStorage'>): EmbedAuthBootstrapResult;
+export declare function bootstrapEmbedAuthFromWindow(deps?: Partial<BootstrapDeps>): EmbedAuthBootstrapResult;
+export declare function persistEmbedRouteHints(runtimeUrl: string, storage: Pick<StorageLike, 'setItem'>): void;
+export declare function readPersistedEmbedEnvId(storage?: Pick<StorageLike, 'getItem'>): string;
+export declare function readPersistedEmbedOwnerThreadId(storage?: Pick<StorageLike, 'getItem'>): string;
+export declare function isEmbedAppMode(sessionStorage?: Pick<StorageLike, 'getItem'>): boolean;
+export declare function readMofangBridgeConfig(storage?: Pick<StorageLike, 'getItem'>): MofangBridgeConfig | null;
+export declare function getEmbedUnauthorizedMessage(): string;
+export declare function setEmbedUnauthorizedMessage(message: string): void;
+export declare function subscribeEmbedUnauthorized(listener: () => void): () => void;
+export {};

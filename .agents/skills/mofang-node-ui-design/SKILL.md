@@ -1,6 +1,6 @@
 ---
 name: mofang-node-ui-design
-description: 设计、审查或改善魔方节点的 Lit 设置和业务面板，组织信息层级、表单、表格、审核操作、视觉排版及状态反馈。用于有限空间内的节点交互与视觉质量；宿主接线用 mofang-lit-node，业务规则推导用 mofang-node-business-design，不用于独立网站或替换宿主外壳。
+description: 设计、审查或改善魔方节点的 Lit 或低代码设置和业务面板，组织信息层级、表单、表格、审核操作、视觉排版及状态反馈。宿主接线按 panels.json 选择 mofang-lit-node 或 mofang-lowcode-node，业务规则推导用 mofang-node-business-design，不用于独立网站或替换宿主外壳。
 ---
 
 # 节点面板设计
@@ -15,7 +15,7 @@ description: 设计、审查或改善魔方节点的 Lit 设置和业务面板�
 
 settings 是宿主右侧内容区，business 是有限高度上拉抽屉；先核对实际可用尺寸、standard/full-panel 模式和宿主动作区，再安排内容。full-panel 仍保留共同宿主必要动作。不要设计独立站导航、全屏营销首屏或重复保存/取消按钮。
 
-业务规则不清时先用 [业务设计技能](../mofang-node-business-design/SKILL.md) 确定；技术接线遵守 [Lit 面板技能](../mofang-lit-node/SKILL.md)。设计草案不能作为新接口已存在的证据。
+业务规则不清时先用 [业务设计技能](../mofang-node-business-design/SKILL.md) 确定；技术接线按 panels.json 选择 [Lit 面板技能](../mofang-lit-node/SKILL.md) 或 [低代码面板技能](../mofang-lowcode-node/SKILL.md)。低代码物料和配置以运行时目录为准，由 AI 操作、用户只预览。设计草案不能作为新接口已存在的证据。
 
 ## 组织信息与操作
 
