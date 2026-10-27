@@ -124,6 +124,7 @@ function Ve(e) {
       i.dialog.formId ?? e.dialogs[String(i.dialog.targetId)]?.formId ?? "main"
     )
   } : null), {
+    host: i.host,
     forms: i.forms ?? {},
     errors: i.errors,
     sources: i.sources,

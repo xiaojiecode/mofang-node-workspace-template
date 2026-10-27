@@ -2513,20 +2513,22 @@ async function runNodeAction(api, target, body, signal, timeoutMs = 3e4) {
 function createNodeFlowContextStore(sdk, target) {
   return sdk.nodeFlow.watch(target);
 }
-function subscribeNodeFlowContext(sdk, target, context, listener) {
-  const store = createNodeFlowContextStore(sdk, target);
+function updateNodeFlowContext(store, context) {
+  const state = store.getSnapshot();
+  context.nodeFlow = jsonValues({
+    ...state,
+    error: state.error ? {
+      ...state.error,
+      message: state.error.message,
+      name: state.error.name
+    } : null
+  });
+  context.nodeView = state.data?.composition.projection.status === "ready" ? state.data.composition.projection.nodeView : null;
+  context.nodeOutput = state.data?.nodeOutput ?? null;
+}
+function subscribeNodeFlowContext(store, context, listener) {
   const update = () => {
-    const state = store.getSnapshot();
-    context.nodeFlow = jsonValues({
-      ...state,
-      error: state.error ? {
-        ...state.error,
-        message: state.error.message,
-        name: state.error.name
-      } : null
-    });
-    context.nodeView = state.data?.composition.projection.status === "ready" ? state.data.composition.projection.nodeView : null;
-    context.nodeOutput = state.data?.nodeOutput ?? null;
+    updateNodeFlowContext(store, context);
     listener();
   };
   const release = store.subscribe(update);
@@ -2652,23 +2654,19 @@ function createPuckPanelHost(props) {
     settingsFormId: formId,
     readOnly
   };
+  const store = service && target.runId && target.nodeInstanceId ? createNodeFlowContextStore(service.value, {
+    runId: target.runId,
+    nodeInstanceId: target.nodeInstanceId,
+    view: target.view === "history" ? "history" : "current"
+  }) : void 0;
+  if (store) updateNodeFlowContext(store, context);
   return {
     instanceKey,
     context,
     subscribeContext: (listener) => {
       const dispose = lifecycle.retain();
-      if (!service || !target.runId || !target.nodeInstanceId)
-        return dispose;
-      const release = subscribeNodeFlowContext(
-        service.value,
-        {
-          runId: target.runId,
-          nodeInstanceId: target.nodeInstanceId,
-          view: target.view === "history" ? "history" : "current"
-        },
-        context,
-        listener
-      );
+      if (!store) return dispose;
+      const release = subscribeNodeFlowContext(store, context, listener);
       return () => {
         release();
         dispose();

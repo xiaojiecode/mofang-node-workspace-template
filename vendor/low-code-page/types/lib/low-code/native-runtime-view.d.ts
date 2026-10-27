@@ -1,6 +1,7 @@
 import type { LogicDefinition, RuntimeSnapshot } from './runtime-core/contracts';
 import type { DialogState, HostAdapter, PagePackage, SourceState, TableState, Values } from './schema';
 export type RuntimeViewState = {
+    host: Values;
     forms: Record<string, Values>;
     errors: Record<string, string>;
     sources: Record<string, SourceState>;

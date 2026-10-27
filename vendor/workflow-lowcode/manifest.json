@@ -99,11 +99,11 @@
     },
     {
       "path": "src/features/workflow/lowcode-adapter/node-flow-context.ts",
-      "sha256": "ca2d78c613ce7a215c81752e258dd92cb03f011d09a89039cf70b3c685aebfc5"
+      "sha256": "847988a840feb53d570cabece42a005955c2edc88aac887e0f209e4130e539e6"
     },
     {
       "path": "src/features/workflow/lowcode-adapter/host.ts",
-      "sha256": "bae19626351b0f6c0a568d9cb3b9bf918a13acffb9e758cfaf1935d51206aa3f"
+      "sha256": "31432c12e68ea0936bed98b45d7d3675222cdb9d32d490dc4ea2758ed844e0ce"
     },
     {
       "path": "src/features/workflow/lowcode-adapter/index.ts",
@@ -133,11 +133,11 @@
     },
     {
       "path": "index.js",
-      "sha256": "76afba8c519a746b9dd0cb6b0cfca18c81d94652ace595c98aea602b5000392f"
+      "sha256": "7a01cff848e19ef2b839ff0d8ee16d6470525eee48fc627dd510f8dae71ceff0"
     },
     {
       "path": "index.js.map",
-      "sha256": "2363c131abeced3d564346fc9d2a8f10fb20ad8f73b694fdc101bbb5adaf3b2b"
+      "sha256": "7832a7bbc4c8cac56e3f5c4de09c66dc273fe3eafac582731c5fca32e39f2779"
     },
     {
       "path": "package.json",
@@ -173,7 +173,7 @@
     },
     {
       "path": "types/features/workflow/lowcode-adapter/node-flow-context.d.ts",
-      "sha256": "afc537006a7571b72658d265ee591bfd4d79d11c4bcaeb5f0dd21b7571340da4"
+      "sha256": "7cf5414b493289da7a45bfc7727942e9113beab3690a249d629cbfb7166ba9ac"
     },
     {
       "path": "types/features/workflow/lowcode-adapter/react.d.ts",

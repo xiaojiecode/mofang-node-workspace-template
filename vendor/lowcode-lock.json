@@ -1,7 +1,7 @@
 {
     "@mofang/low-code-page": {
         "version": "0.1.0",
-        "manifestSha256": "f9d4758336e1a3c524c21780722234df5f2b91761f4296c13e5217488254f797",
+        "manifestSha256": "cde044102e11a1618b52aa305395e31188ce0060a633b88b9dc8275cec4a2b18",
         "outputCount": 441
     },
     "@mofang/workflow-sdk": {
@@ -11,7 +11,7 @@
     },
     "@mofang/workflow-lowcode": {
         "version": "0.1.0",
-        "manifestSha256": "40b5ad9b319fbea0e8d9cc604e4875ec1e56bba641fbdfb8c06caaa2c188ef38",
+        "manifestSha256": "2bf4107b085b3a41a2e55b165e565c87b5c76aa9d8d2d230dceedb9206f3dc89",
         "outputCount": 85
     }
 }

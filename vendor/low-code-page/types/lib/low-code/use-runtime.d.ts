@@ -4,6 +4,7 @@ export declare function useRuntime(): {
     host: import("./schema").HostAdapter;
     mode: "design" | "interactive";
     state: {
+        host: import("./schema").Values;
         forms: Record<string, import("./schema").Values>;
         page: import("./schema").Values;
         errors: Record<string, string>;

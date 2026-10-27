@@ -2029,7 +2029,7 @@
     },
     {
       "path": "src/lib/low-code/native-runtime-view.ts",
-      "sha256": "3d1e35ad379e195739675b4a96f421dfc8a4ba40ac10d2339d6ffba8cd2ebdeb"
+      "sha256": "9b21b6af90794f0d395ab7e46f7281f8a2ceb21979b381e1072505c3204c4581"
     },
     {
       "path": "src/lib/low-code/package-schema.ts",
@@ -2161,7 +2161,7 @@
     },
     {
       "path": "src/lib/low-code/use-runtime.ts",
-      "sha256": "685b9d5404612488160b9b47f44355aaa88525fd10ee5d7f4a99e0d792d083fa"
+      "sha256": "a72d148ff338fd7c5be383bea5cc8fc0c428bafb100afbd9bcfe04a9d409f9a0"
     },
     {
       "path": "src/lib/low-code/validation.ts",
@@ -2235,7 +2235,7 @@
     },
     {
       "path": "core.js",
-      "sha256": "fa587f4f0a4b03b1ff2ff14c4d6ee3827e964269fe1f83eae65779e0f4b6f396"
+      "sha256": "2676c7d8ea7e633f55b6d14cc053f2646d37f8518c5987f0b9a77147cc7c1569"
     },
     {
       "path": "dialog-D45YVHg_.js",
@@ -2254,8 +2254,8 @@
       "sha256": "41eb7eee68f02fd3ceb75d96ce4c838fecf23c8bbf952af7e4263bb3044fd64f"
     },
     {
-      "path": "logic-runtime-Cc7pxBlR.js",
-      "sha256": "16776e3506c775e55058e6cf69a167787f8ae867e206f58f24eb946e90d787ac"
+      "path": "logic-runtime-DaQS0jDo.js",
+      "sha256": "495239f139d509e5e6524b22cc7c0ab62e059483d5ac08a486318a86209dfd2f"
     },
     {
       "path": "low-code.css",
@@ -2275,7 +2275,7 @@
     },
     {
       "path": "runtime.js",
-      "sha256": "38257be9301758eb0abe5d9a9534e640d753ee9b4542a6046127ea77c4bbdcba"
+      "sha256": "5e9d0401cc1d57bced17088c9f72415aceac24a9b96828bd728b7c23f26b7196"
     },
     {
       "path": "schema.js",
@@ -3819,7 +3819,7 @@
     },
     {
       "path": "types/lib/low-code/native-runtime-view.d.ts",
-      "sha256": "c6f75621415263855f2225612a6c231b2502b7f1e18924cc0ae2771d3e1c1d66"
+      "sha256": "20046515ceeb9c1a99926d6cf2a71b4c469c91c073f2117c0f27f0f114373d5e"
     },
     {
       "path": "types/lib/low-code/package-schema.d.ts",
@@ -3931,7 +3931,7 @@
     },
     {
       "path": "types/lib/low-code/use-runtime.d.ts",
-      "sha256": "ef14e6d881801d20229caafb10bea5f51401026fd2bdf739cf2200c483c94103"
+      "sha256": "88d25a796e18954e08356bfb624f4554f9f0ca5e78bbef8225bc465f1438fa03"
     },
     {
       "path": "types/lib/low-code/validation.d.ts",
@@ -3992,7 +3992,7 @@
   ],
   "distribution": {
     "format": "directory",
-    "sourceManifestSha256": "aa97d34d95c94d5d127282fb1d3ccb7f315a315c595c4c1d9ab824e441d4eb39",
+    "sourceManifestSha256": "476b304a2cf3f9dbc815e60f2e2662af38d5656a41d3740aa850220e9cf24ff4",
     "omitted": [
       "authoring.js.map",
       "core.js.map",
@@ -4405,7 +4405,7 @@
       "fonts/source-han-sans-sc-500.woff2",
       "fonts/source-han-sans-sc-700.woff2",
       "id-DAU2FMyk.js.map",
-      "logic-runtime-Cc7pxBlR.js.map",
+      "logic-runtime-DaQS0jDo.js.map",
       "material-metadata-DlznyyRQ.js.map",
       "product-editor.js.map",
       "runtime.js.map",

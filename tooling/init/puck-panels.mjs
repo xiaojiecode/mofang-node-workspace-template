@@ -43,7 +43,10 @@ function populatePreset(definition, preset, surface) {
         {
             op: 'component.add',
             type: 'Text',
-            props: { text: '等待节点状态', binding: host('nodeFlow', 'data', 'status') },
+            props: {
+                text: '等待节点状态',
+                binding: { ...host('nodeFlow', 'data', 'status'), fallback: '等待节点状态' },
+            },
         },
         {
             op: 'component.add',
@@ -168,7 +171,10 @@ function populatePreset(definition, preset, surface) {
                 op: 'component.add',
                 type: 'Text',
                 parentId: ref('outputs'),
-                props: { text: '候选商品', binding: { from: 'row', path: ['value', 'items'] } },
+                props: {
+                    text: '候选商品',
+                    binding: { from: 'row', path: ['item', 'value', 'items'] },
+                },
             },
         )
     return applyOperations(definition, operations).definition
