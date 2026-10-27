@@ -64,6 +64,30 @@ export function capabilityCard(p: CapabilityCardProps) {
     </div>`
 }
 
+export type CapabilityPanelProps = Omit<DialogProps, 'footer'> &
+    Readonly<{ onConfirm: () => void; confirmDisabled?: boolean }>
+
+/** 能力配置面板复用通用弹窗；调用方持有本次草稿并在确认后提交。 */
+export function capabilityPanel(p: CapabilityPanelProps, content: TemplateResult) {
+    return dialog(
+        {
+            ...p,
+            footer: footer({
+                actions: html`${button({
+                    label: '取消',
+                    onClick: () => p.onClose('cancel'),
+                })}${button({
+                    label: '确认',
+                    variant: 'accent',
+                    disabled: p.confirmDisabled ?? false,
+                    onClick: p.onConfirm,
+                })}`,
+            }),
+        },
+        content,
+    )
+}
+
 export const capabilityStyles = /* @__PURE__ */ (() => css`
     .mf-capability {
         display: flex;
