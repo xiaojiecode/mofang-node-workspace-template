@@ -1,0 +1,398 @@
+{
+    "version": 1,
+    "checkedAt": "2026-10-27",
+    "description": "平台SVG原始资源来源与取证信息。生成产物位于assets/platforms；源文件不自动代表获得品牌授权。原型源缺少网上出处的项目明确保留未确认状态。",
+    "assets": [
+        {
+            "id": "1688",
+            "brand": "1688",
+            "file": "1688.svg",
+            "viewBox": "0 0 32 32",
+            "sha256": "4e60491b272558a00bd3c654315047fb1489391ade3ff404f04a192d3a051db8",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/product-library/platform-1688.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://www.1688.com/",
+                "result": "官网HTTP 200，未检出可直接下载的品牌SVG。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "amazon",
+            "brand": "Amazon",
+            "file": "amazon.svg",
+            "viewBox": "0 0 99.6 30",
+            "sha256": "6c6424aaaab5dfab11b5031ad42f679b590708ae6f96f1003486680ddf86a453",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/amazon.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://press.aboutamazon.com/logos",
+                "result": "官方媒体页HTTP 200；当前零售Amazon主标提供PNG，页面SVG为Amazon News等其它标识，未替换。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "aliexpress",
+            "brand": "AliExpress",
+            "file": "aliexpress.svg",
+            "viewBox": "0 0 102 24",
+            "sha256": "1e19b4bf634bc7009f7a60325f45d92f607018874c556487ada3cf8470ae14a5",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/aliexpress.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://www.aliexpress.com/",
+                "result": "官网HTTP 200；Simple Icons目录有AliExpress，来源指向阿里巴巴年报，单色图形与当前wordmark不同，未替换。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "temu",
+            "brand": "Temu",
+            "file": "temu.svg",
+            "viewBox": "0.49 1.56 68.38 16.47",
+            "sha256": "485a900d0a780d54ad5d86d54bf94ccfac93311588a8f2149c92b89f28f59c77",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/temu.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://www.temu.com/about-temu.html",
+                "result": "官方关于页HTTP 200，未检出可直接下载的品牌SVG。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "tiktok-shop",
+            "brand": "TikTok Shop",
+            "file": "tiktok-shop.svg",
+            "viewBox": "0 0 140 28",
+            "sha256": "8c4cc74b008b0dcaadfb56ac6c1f2a33d1e0367a93e298a2f7e99e4052d546d2",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/tiktok-shop.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://developers.tiktok.com/docs/en/getting-started-design-guidelines",
+                "result": "官方设计规范由主会话联网定位；本次直接下载遇SSL EOF，未取得可替换Shop锁定组合标。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "shopee",
+            "brand": "Shopee",
+            "file": "shopee.svg",
+            "viewBox": "0 0 3109 1024",
+            "sha256": "6c9a67298577cc39c2656dd620e4f5e72c0a792bdf588977d33724c8322eccda",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/shopee.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://shopee.com/",
+                "result": "官网HTTP 200；Simple Icons目录有Shopee单色图形，当前原型为彩色wordmark，未替换。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "shein",
+            "brand": "SHEIN",
+            "file": "shein.svg",
+            "viewBox": "0 0 77 16",
+            "sha256": "ef413b93229f00c9b58e9c58e030cd3943dcc217b1ad9acdca5a516f87126869",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/shein.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://www.sheingroup.com/",
+                "result": "官方集团首页HTTP 200；商店主页超时，未检出可直接下载的对应wordmark SVG。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "mercado",
+            "brand": "Mercado Livre",
+            "file": "mercado.svg",
+            "viewBox": "0 0 501 123",
+            "sha256": "c8496b8274ee882b3bb226b9be2c15aa735fbfa1c14ec0af65ef355483a3b7a4",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/mercado.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://www.mercadolivre.com.br/",
+                "result": "官网HTTP 200，检出官方favicon.svg；当前源为完整wordmark，未以favicon替换。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "kwai-shop",
+            "brand": "Kwai Shop",
+            "file": "kwai-shop.svg",
+            "viewBox": "0 0 134 26",
+            "sha256": "19af891fb47b4b330366210b043b2c9c8bf52fcbbe9fa35ce0b75d01e53f2fc2",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/kwai-shop.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://www.kwai.com/",
+                "result": "官网HTTP 200，仅检出Kwai PNG；没有确认对应Shop组合SVG。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "americanas",
+            "brand": "Americanas",
+            "file": "americanas.svg",
+            "viewBox": "0 0 198 32",
+            "sha256": "352d45e097072a22ac7d4414b670ecfd7384c322ca48935b8b7f3ce03ac45b82",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/americanas.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://www.americanas.com.br/",
+                "result": "官网HTTP 200，检出官方storeLogoIcon.0f542fa4.svg，资产下载返回429，尚未核对与当前源一致。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "magalu",
+            "brand": "Magalu",
+            "file": "magalu.svg",
+            "viewBox": "0 0 103 22",
+            "sha256": "751aed0e2b8c7720a84262a9eb1bfd3ea083b873ab16f650cf042d85b0ad9e56",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/magalu.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://www.magazineluiza.com.br/",
+                "result": "官网返回403；未取得可核对的官方SVG。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "lazada",
+            "brand": "Lazada",
+            "file": "lazada.svg",
+            "viewBox": "0 0 24 24",
+            "sha256": "948107c8c3e58e51d3990aad06d17ac035771a394533eab22a0fb79cd510ab71",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/lazada.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://www.lazada.com/en/",
+                "result": "官网HTTP 200，官方logo_white.svg可下载，viewBox 0 0 132 28；该白字wordmark与当前彩色icon不同，未替换。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "ozon",
+            "brand": "Ozon",
+            "file": "ozon.svg",
+            "viewBox": "0 0 26 26",
+            "sha256": "9143e8f6da726371563029d7dfb2328eb6c3792a9a886129e6d73d809263f821",
+            "source": {
+                "kind": "prototype-migrated",
+                "path": "mf-client-proto/src/assets/store-platforms/ozon.svg",
+                "upstreamUrl": null,
+                "status": "原型迁入；原始网上出处未确认"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://brandlab.ozon.ru/",
+                "result": "官方品牌站直接抓取循环307；官方cdn.ozone.ru品牌包下载成功，含RGB wordmark SVG，当前源为icon，未替换。",
+                "exactExternalMatch": false
+            },
+            "license": {
+                "spdx": null,
+                "status": "原始素材许可未确认；品牌标识不适用本仓库代码许可证",
+                "trademark": "相关品牌商标归各自权利人；本目录仅用于对应平台识别，不暗示授权或合作"
+            }
+        },
+        {
+            "id": "ebay",
+            "brand": "eBay",
+            "file": "ebay.svg",
+            "viewBox": "0 0 288 288",
+            "source": {
+                "kind": "official-brand-package",
+                "upstreamUrl": "https://assets.ebay.com/m/2d5176c6399d84c2/original/eBay-Logo-Package.zip",
+                "member": "eBay-Logo-Package/01-eBayLogo-4Color/eBayLogo-4Color-RGB/eBayLogo-4Color-RGB.svg",
+                "pageUrl": "https://playbook.ebay.com/foundations/logo",
+                "status": "官方资源包提取"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://playbook.ebay.com/foundations/logo",
+                "result": "从官网页面实际下载入口取得资源包，提取指定RGB SVG，非macOS元数据文件。",
+                "exactExternalMatch": true
+            },
+            "license": {
+                "spdx": null,
+                "status": "遵循官方品牌使用规范；不作为CC0或本仓库代码许可证素材再授权",
+                "trademark": "相关品牌商标归各自权利人；仅对应平台识别，不暗示授权或合作"
+            },
+            "sha256": "b96b61adfd89b5c7f4e36c690a48caea640420855bff9a23c1a133ccea5f4070"
+        },
+        {
+            "id": "walmart",
+            "brand": "Walmart",
+            "file": "walmart.svg",
+            "viewBox": "0 0 371 418",
+            "source": {
+                "kind": "official-brand-svg",
+                "upstreamUrl": "https://brandcenter.walmart.com/content/dam/brand/home/brand-identity/spark/Spark.svg",
+                "pageUrl": "https://brandcenter.walmart.com/brand/brand-identity/spark",
+                "status": "官网允许单独使用的 Spark 品牌标识，未单独使用字标"
+            },
+            "verification": {
+                "checkedAt": "2026-10-27",
+                "referenceUrl": "https://brandcenter.walmart.com/brand/brand-identity/spark",
+                "result": "官网Spark品牌页面的独立标识，完整矢量SVG，不含嵌入位图。",
+                "exactExternalMatch": true
+            },
+            "license": {
+                "spdx": null,
+                "status": "遵循官方品牌使用规范；不作为CC0或本仓库代码许可证素材再授权",
+                "trademark": "相关品牌商标归各自权利人；仅对应平台识别，不暗示授权或合作"
+            },
+            "sha256": "9f8231afe91fb3127012c9c24cbb909e6d7f818adbb55cd0b9b42e427ba2a639"
+        }
+    ],
+    "researchReferences": [
+        {
+            "brand": "Americanas",
+            "assetUrl": "https://www.americanas.com.br/_next/static/media/storeLogoIcon.0f542fa4.svg",
+            "result": "官网引用，下载429；未保存"
+        },
+        {
+            "brand": "Lazada",
+            "assetUrl": "https://lazada-com.oss-ap-southeast-1.aliyuncs.com/static/image/logo_white.svg",
+            "result": "HTTP 200，7104 bytes，0 0 132 28；不同锁定组合，不替换现有icon"
+        },
+        {
+            "brand": "Ozon",
+            "assetUrl": "https://cdn.ozone.ru/s3/ozon-disk-api/Brand_Ozon/Design_Team/Web_Design/Guides_Files/Logo_Ozon_1734337486.zip",
+            "member": "Logo_Ozon/RGB/Logo_Ozon_RGB.svg",
+            "result": "官方CDN包已下载至任务研究目录；wordmark不同于现有icon，不替换"
+        },
+        {
+            "library": "Simple Icons",
+            "metadataUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/data/simple-icons.json",
+            "licenseUrl": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/LICENSE.md",
+            "license": "CC0-1.0（库素材版权声明，不授予品牌商标权）",
+            "result": "HTTP 200，核对当前相关条目AliExpress/Shopee/TikTok；未下载或替换本目录资源"
+        },
+        {
+            "brand": "Walmart",
+            "assetUrl": "https://brandcenter.walmart.com/content/dam/brand/assets/wordmark-assets-all.zip",
+            "result": "官方品牌页下载入口，尚未下载"
+        }
+    ]
+}

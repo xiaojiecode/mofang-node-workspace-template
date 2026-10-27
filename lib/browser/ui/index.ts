@@ -60,5 +60,19 @@ export { cockpit } from './components/cockpit'
 export type { CockpitProps, CockpitNode } from './components/cockpit'
 export { activityIcon } from './components/activity-icon'
 export type { ActivityIconProps } from './components/activity-icon'
+export { currencyIcon, currencyNames, uiIcon } from './components/icons'
+export type { CurrencyCode, IconName, IconProps } from './components/icons'
+export { platformIcon } from './components/icons'
+export {
+    currencies,
+    countryRegions,
+    platforms,
+    platformSites,
+    sitesOfPlatform,
+    currencyOfPlatformSite,
+    currencyName,
+} from './catalog/data'
+export type { Currency, CountryRegion, Platform, PlatformSite } from './catalog/data'
+export * from './icons/platform-index'
 export { placeholder } from './components/placeholder-presets'
 export type { PlaceholderProps } from './components/placeholder-presets'
