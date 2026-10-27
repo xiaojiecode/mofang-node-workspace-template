@@ -50,3 +50,34 @@ export function reportMetricCard(p: ReportMetricCardProps) {
         )}
     </div>`
 }
+/** 评分采用度量语义；缺失或越界分数不伪装为零分或执行中进度。 */
+export function reportScore(p: ReportScoreProps) {
+    const max = p.max ?? 100
+    const valid =
+        Number.isFinite(max) &&
+        max > 0 &&
+        p.value !== undefined &&
+        Number.isFinite(p.value) &&
+        p.value >= 0 &&
+        p.value <= max
+    return html`<div class="mf-report-score">
+        <div class="mf-report-score-label">
+            ${p.label}${p.source ? reportSourceBadge(p.source) : nothing}
+        </div>
+        <strong>${valid ? reportNumber(p.value) : '—'}<small>/ ${reportNumber(max)}</small></strong
+        >${valid
+            ? html`<div
+                  class="mf-report-score-track"
+                  role="meter"
+                  aria-label=${p.label}
+                  aria-valuemin="0"
+                  aria-valuemax=${max}
+                  aria-valuenow=${p.value!}
+              >
+                  <span style=${styleMap({ width: `${(p.value! / max) * 100}%` })}></span>
+              </div>`
+            : html`<p class="mf-report-missing">暂无有效评分</p>`}${p.description
+            ? html`<p>${p.description}</p>`
+            : nothing}
+    </div>`
+}
