@@ -1,5 +1,6 @@
 import { placeholderStyles } from '../components/placeholder-presets'
 import { interactionStyles } from './interaction'
+import { warningCardStyles } from '../components/warning-card'
 import { nodePlaceholderStyles } from '../components/placeholder'
 import { nodeStatusStyles } from '../components/node-status'
 import { css } from 'lit'
@@ -1156,4 +1157,4 @@ const baseStyles = /* @__PURE__ */ (() => css`
     }
 `)()
 
-export const panelStyles = [baseStyles, placeholderStyles, interactionStyles, nodePlaceholderStyles, nodeStatusStyles, formStyles, radioStyles, switchStyles, layoutStyles, progressStyles, dialogStyles, capabilityStyles, cascaderStyles]
+export const panelStyles = [baseStyles, placeholderStyles, interactionStyles, warningCardStyles, nodePlaceholderStyles, nodeStatusStyles, formStyles, radioStyles, switchStyles, layoutStyles, progressStyles, dialogStyles, capabilityStyles, cascaderStyles]
