@@ -26,7 +26,7 @@ Tool可能计费。默认只查询能力元数据和Schema、编写代码并做�
 | 何时启动、等谁、怎样结束 | 输入/任务/人工动作与NodeFacts | 逐分支覆盖空输入、零结果、不选择、失败、unknown、暂停与取消 |
 | 结果来源与候选去向 | deliveryId/inputRefs、task结果、候选id/revision | 不按标题猜身份，不伪造来源；已流转项只读 |
 | 页面、动作和历史模式 | settings/business修订、就绪投影与permissions | 保留宿主草稿、必要动作区及禁用原因 |
-| 超时、许可与费用 | node.ts、真实能力元数据、用户授权 | maxToolCalls为正预算；timeoutSeconds=0用平台默认600秒；Tool额度在实际提交时核验 |
+| 超时、许可与费用 | node.ts、真实能力元数据、用户授权 | maxToolCalls为完整子任务跨阶段累计正预算，仅publish_message免计，按作者规范核算分支与轮询；timeoutSeconds=0用平台默认600秒；Tool额度在实际提交时核验 |
 
 ## 文件与最短实现路径
 

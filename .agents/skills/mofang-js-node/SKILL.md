@@ -55,6 +55,7 @@ description: 编写、校验和发布魔方 Goja JS 节点，使用 React 风格
 - 函数体、updater、guard和Project不执行业务；事件处理器逐个等待本次Promise结清，没有跨事件Promise或useEffect业务入口。
 - useTask只绑定静态声明的当前stages子任务；派发保留taskId和真实inputRefs。旧main/stages/lifecycle根源码不兼容；子任务仅保留当前stages。
 - 状态/reducer只产生计划；每阶段最多一次真实能力调用，人工回答使用真实ctx.answer与平台等待身份。
+- 编写或审查节点时核算完整子任务跨阶段、分支和有界轮询的 `maxToolCalls`，按[作者规范](../../../docs/authoring.md)检查调用预算；不能把每阶段单次调用当作总额度。仅 `publish_message`/`ctx.message` 免计，其它内置工具仍计数；目标平台是否已支持需另行核对。
 - onControl/onError只读；未知结果保留操作身份，人工核对而不重发，不恢复业务去重、步骤回用和副作用回放。
 
 类型、辅助字段和业务内容由同节点契约统一；Product/媒体内部结构使用系统可信类型。生命周期候选是items恰好一项的完整输出对象，普通阶段空items不补造商品。

@@ -14,6 +14,10 @@
 
 任务常量显式标注 `TaskDefinition<Input,Output,Cursor>` 后在 spec.tasks 注册，useTask 只绑定。handler 的 spawn 暂存命令；reducer 的 env.commands.spawn 只构造命令并预留 id，id 可保存进下一状态。真实上游派发用 `[event.deliveryId]`，结果候选沿 event.inputRefs，只有无上游入口可用 []。
 
+`node.ts.maxToolCalls` 是每次子任务执行跨全部阶段累计的正整数预算，不是每阶段额度，也不是工具许可列表长度。编写或审查节点的大模型须沿实际阶段和分支核算最大调用数，包含循环/轮询上限、结果查询、人工等待及允许的人工继续；互斥分支取最大路径，无法确定上限时先明确业务边界，不随意填 1 或任意放大。每阶段最多一次真实业务能力调用是另一条限制，不能代替总预算核算。
+
+平台仅对 `publish_message`（含 `ctx.message`）免计工具预算；采集、结果查询、`await_user` 等其它工具仍计数。消息仍受许可、身份、暂停和执行超时约束并保留调用记录。预算 1 可覆盖“一条进度消息 + 一次同步采集 + 一条完成消息”，若采集后还需查询结果或人工等待，必须加入相应次数；只统计实际使用的调用，不为示例虚增预算。免计规则依赖目标平台已部署支持，离线 guide/Mock 或模板更新不能证明远端已生效；冻结历史不自动更新或重跑。验证应覆盖预算刚好够用、耗尽后消息仍可发和其它工具被拒绝。
+
 任务使用当前 stages 与 ctx.input/state/answer，终结/人工等待/暂停/unknown 保持现有规则；不从父闭包拿实时设置。只有 succeeded 有 output；failed 保留错误/核对事实，cancelled 保留原因，unknown 保留原操作不重发。items 空或缺省不追加候选，每个候选恰好一件完整 Product。Product 引用可信 contracts/business，不重写缩略 Schema。
 
 useNodeAction 绑定静态动作，guard 返回 enabled 或禁用原因。handler 接收 payload 与 eventId/sequence/candidates，只读身份和候选修订由平台提供。guard 不替代权限/归属/来源/修订校验。无参必要动作用 host，参数选择用 panel；零结果/不选择/失败必须有结束路径，unknown 先核对。
