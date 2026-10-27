@@ -1,4 +1,5 @@
 import { placeholderStyles } from '../components/placeholder-presets'
+import { publishShopDialogStyles } from '../components/publish-shop-dialog'
 import { activityIconStyles } from '../components/activity-icon'
 import { interactionStyles } from './interaction'
 import { platformStyles } from '../components/platforms'
@@ -1162,4 +1163,4 @@ const baseStyles = /* @__PURE__ */ (() => css`
     }
 `)()
 
-export const panelStyles = [baseStyles, placeholderStyles, activityIconStyles, interactionStyles, platformStyles, warningCardStyles, timelineStyles, cockpitStyles, nodePlaceholderStyles, nodeStatusStyles, executionAccordionStyles, formStyles, radioStyles, switchStyles, layoutStyles, progressStyles, dialogStyles, capabilityStyles, cascaderStyles]
+export const panelStyles = [baseStyles, placeholderStyles, publishShopDialogStyles, activityIconStyles, interactionStyles, platformStyles, warningCardStyles, timelineStyles, cockpitStyles, nodePlaceholderStyles, nodeStatusStyles, executionAccordionStyles, formStyles, radioStyles, switchStyles, layoutStyles, progressStyles, dialogStyles, capabilityStyles, cascaderStyles]

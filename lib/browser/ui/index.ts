@@ -76,5 +76,7 @@ export {
 } from './catalog/data'
 export type { Currency, CountryRegion, Platform, PlatformSite } from './catalog/data'
 export * from './icons/platform-index'
+export { publishShopDialog } from './components/publish-shop-dialog'
+export type { PublishShopDialogProps, PublishShop } from './components/publish-shop-dialog'
 export { placeholder } from './components/placeholder-presets'
 export type { PlaceholderProps } from './components/placeholder-presets'
