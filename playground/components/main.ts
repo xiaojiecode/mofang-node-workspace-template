@@ -1183,6 +1183,7 @@ export class ComponentGallery extends LitElement {
                 'placeholders',
                 'report',
                 'report-parts',
+                'report-schema',
                 'publish-shop',
             ].includes(this.active)
         )
