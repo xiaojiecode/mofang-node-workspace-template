@@ -132,7 +132,7 @@ class CollapsibleSection extends AsyncDirective {
         this.setValue(this.template())
     }
 }
-const collapsibleSection = directive(CollapsibleSection)
+const collapsibleSection = /* @__PURE__ */ directive(CollapsibleSection)
 
 /** 区块标题与工具区共用布局，标题层级保持为 h3。 */
 export function section(p: SectionProps, content: TemplateResult) {
