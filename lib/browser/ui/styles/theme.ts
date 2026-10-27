@@ -1,4 +1,5 @@
 import { interactionStyles } from './interaction'
+import { nodePlaceholderStyles } from '../components/placeholder'
 import { css } from 'lit'
 import { formStyles } from '../components/form'
 import { radioStyles } from '../components/radio'
@@ -1153,4 +1154,4 @@ const baseStyles = /* @__PURE__ */ (() => css`
     }
 `)()
 
-export const panelStyles = [baseStyles, interactionStyles, formStyles, radioStyles, switchStyles, layoutStyles, progressStyles, dialogStyles, capabilityStyles, cascaderStyles]
+export const panelStyles = [baseStyles, interactionStyles, nodePlaceholderStyles, formStyles, radioStyles, switchStyles, layoutStyles, progressStyles, dialogStyles, capabilityStyles, cascaderStyles]
