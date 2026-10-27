@@ -1,5 +1,6 @@
 import { interactionStyles } from './interaction'
 import { css } from 'lit'
+import { formStyles } from '../components/form'
 /** 默认白色内容面；基础控件和业务面板共用语义颜色、尺寸与交互状态。 */
 const baseStyles = /* @__PURE__ */ (() => css`
     .mf-card {
@@ -1145,4 +1146,4 @@ const baseStyles = /* @__PURE__ */ (() => css`
     }
 `)()
 
-export const panelStyles = [baseStyles, interactionStyles]
+export const panelStyles = [baseStyles, interactionStyles, formStyles]

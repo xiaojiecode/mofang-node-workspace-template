@@ -28,3 +28,5 @@ export type {
 export { productSummary } from './product/summary'
 export { productCell, money, percent } from './product/cell'
 export { panelStyles } from './styles/theme'
+export { fieldLabel, formGroup } from './components/form'
+export type { FieldProps } from './components/form'
