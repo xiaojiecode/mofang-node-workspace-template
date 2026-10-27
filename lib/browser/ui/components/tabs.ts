@@ -15,6 +15,7 @@ export type TabsProps = Readonly<{
     label: string
     value: string
     items: readonly TabItem[]
+    variant?: 'segmented' | 'underline'
     onChange: (value: string) => void
 }>
 
@@ -24,7 +25,7 @@ export function tabs(p: TabsProps) {
     const active = enabled.find((item) => item.value === p.value)?.value ?? enabled[0]?.value
     const prefix = `mf-tabs-${encodeURIComponent(p.id)}`
     const id = (value: string) => `${prefix}-${encodeURIComponent(value)}`
-    return html`<div class="mf-tabs">
+    return html`<div class="mf-tabs" data-variant=${p.variant ?? 'segmented'}>
         <div class="mf-tab-list" role="tablist" aria-label=${p.label}>
             ${repeat(
                 p.items,
