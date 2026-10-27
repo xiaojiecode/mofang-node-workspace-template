@@ -1,0 +1,4 @@
+interface:
+    display_name: '魔方 Lit 组件库'
+    short_description: '默认复用官方模板组件开发节点设置与业务面板并验证交互和布局'
+    default_prompt: '使用 $mofang-lit-ui，优先复用组件库实现节点面板并验证交互与布局。'
