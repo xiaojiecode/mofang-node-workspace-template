@@ -30,6 +30,7 @@ export type ConfigurationSnapshot = Readonly<{
     graph: WorkflowGraph;
     autoExecute: boolean;
     official: boolean;
+    usageKind?: 'user' | 'official_instance';
 }>;
 export type SaveConfigurationBody = Readonly<{
     target: ConfigurationTarget;

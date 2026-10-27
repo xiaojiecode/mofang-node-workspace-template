@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "syncedAt": "2026-10-27T05:54:23.734Z",
+  "syncedAt": "2026-10-27T10:04:36.275Z",
   "sources": {
     "mf-client/src/features/workflow/mofangsdk/core/catalog-types.ts": "2756e1d4f57a99d38e8961bb0bf1cf06991bf4336f700031fe9e4f6bec2e8575",
     "mf-client/src/features/workflow/mofangsdk/core/context-types.ts": "bcbc72ecb60248b4189af5b76637124030634dfeb4db7309045b62aa2cd0d077",
@@ -21,7 +21,7 @@
     "mf-client/src/features/workflow/mofangsdk/core/messages.ts": "126c81e950182eb4e79db83d36af8042fd3575b940b4c36733162600dbbeaeda",
     "mf-client/src/features/workflow/mofangsdk/core/mutation-types.ts": "98931bc62a7dd4a7cf116b0a49878773b85590730bd3302125ab07e42111cf28",
     "mf-client/src/features/workflow/mofangsdk/core/node-action-recovery.ts": "71a306677467283fdb1c14485530ebbbacec679c01ab53814261b4c291de3e41",
-    "mf-client/src/features/workflow/mofangsdk/core/node-display-types.ts": "2a93698d5e3e1b138b0cfd271726a4d63f9d2eea61c0ac413a0eb677aad18f17",
+    "mf-client/src/features/workflow/mofangsdk/core/node-display-types.ts": "52861a31655cc06cc6440796b2e67da3c3aab44b7f6c6361d6690ff5d919ef5a",
     "mf-client/src/features/workflow/mofangsdk/core/node-flow-client.ts": "142fe8f89f889265c26658d9bf26e08eb9ed8c4b8a9a8f065b557f6d40d7a508",
     "mf-client/src/features/workflow/mofangsdk/core/node-flow-live.ts": "17b4504637a7e3e46b81dcb09d088c9b790a7ba8faf370cb0331f6de71c20f09",
     "mf-client/src/features/workflow/mofangsdk/core/node-flow-query.ts": "fb5279fa33919d39cc6b5a8cdbb8027d11710e021bcc9f50077ad497892964bc",
@@ -40,7 +40,7 @@
     "mf-client/src/features/workflow/mofangsdk/core/sdk-error.ts": "9a22f0638f9c7c2bd5dd9a76094bac74f2fdbc6cca83a7fb6722cb2b95981233",
     "mf-client/src/features/workflow/mofangsdk/core/serial-queue.ts": "64ea8c2022b9fbcbe8e12ebf97f66c8599f16276884b520ccd7485abfbd6d8c5",
     "mf-client/src/features/workflow/mofangsdk/core/stable-value.ts": "af58e2f6abfa8801e7930e7752440adb758666cd32de8408a19653bd25e03946",
-    "mf-client/src/features/workflow/mofangsdk/core/task-types.ts": "8c836ca77b95963fad7bbf8a87646f4472d27c244733e33b9efc6ec7f90988c2",
+    "mf-client/src/features/workflow/mofangsdk/core/task-types.ts": "9ad5341c0beac953a7e7deb25454afa3ce2002bbb9a4d4950f69e1c6ad3648ab",
     "mf-client/src/features/workflow/mofangsdk/core/toast.ts": "4070b0a055730d042a3dd0eb622af2be13918bad1bebd33886c8fb6768aaf7d4",
     "mf-client/src/features/workflow/mofangsdk/core/transport.ts": "aea0dfe03b497f68d8d63719be75654bb05409f64471b3a42f23a10d0bad85d6",
     "mf-client/src/features/workflow/mofangsdk/core/types.ts": "3cff9370b19eaf52557de381777f045f9dea4643e4ffc583afffb16cddc4b6b7",
@@ -67,7 +67,7 @@
     "mf-client/src/features/workflow/node-pages/node-panel-provider.tsx": "5c259335a31d2926be1882efd0d56932a9bb56cb12895f57481224b8163736b5",
     "mofang-server/web/admin/src/api/workflowJavaScript.ts": "6b6431d370f2af856aa5bcc136986cb178ea71fd38b7dcb0f640d726160e2c85",
     "mofang-server/services/workflow/internal/pagecompiler/compiler.go": "96f2548c67fcc0d484e828321833d1c58af2d14aeae67e6798c4184e98a44cb1",
-    "mofang-server/go.mod": "bea04bf54e8d2bb9456cc4bc9f015870a46b4716b1a32042541c572f876348c3"
+    "mofang-server/go.mod": "026cddfd9d86689000aa9fd39511cfe8ad165c73ce0f88bb23fff843f3af650e"
   },
   "authorTypes": "src/goja/index.ts is maintained against pkg/jsprogram, not generated from Go. Browser declarations exclude execution author exports."
 }

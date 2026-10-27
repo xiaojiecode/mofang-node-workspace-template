@@ -25,6 +25,8 @@ export type NodeTaskPage = Readonly<{
     pageSize: number;
 }>;
 export type RunNodeStatistics = Readonly<{
+    /** 只读收口证据，不参与运行控制。 */
+    inputClosed?: boolean;
     coordinator?: Readonly<{
         sessionId: string;
         status: string;
