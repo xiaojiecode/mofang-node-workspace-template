@@ -6,7 +6,7 @@ import { mkdtemp, mkdir, writeFile, readFile, cp, symlink, rm } from 'node:fs/pr
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readNodePanels, resolvePanelPath } from '../tooling/panels/manifest.mjs'
-import { nodeFiles, presets } from '../tooling/init/templates.mjs'
+import { skeletonFiles } from '../tooling/init/skeleton.mjs'
 import { validateAuthoringPackage } from '@mofang/low-code-page/authoring'
 import { verifyNodeArtifacts } from '../tooling/verify/artifacts.mjs'
 import { prepareSave } from '../tooling/panels/prepare-save.mjs'
@@ -74,35 +74,34 @@ test('面板清单保留旧 Lit，并拒绝无效清单和入口逃逸', async (
     await assert.rejects(readNodePanels('legacy', { rootDir }), /escapes/)
 })
 
-test('四类节点模板的四种渲染组合生成共享校验通过的完整页面', () => {
-    for (const preset of presets)
-        for (const settingsRenderer of ['lit', 'puck'])
-            for (const businessRenderer of ['lit', 'puck']) {
-                const files = nodeFiles('example', preset, { settingsRenderer, businessRenderer })
-                const panels = JSON.parse(files['panels.json'])
-                for (const [surface, renderer] of [
-                    ['settings', settingsRenderer],
-                    ['business', businessRenderer],
-                ]) {
-                    assert.equal(panels[surface].renderer, renderer)
-                    assert.ok(files[panels[surface].entry])
-                    if (renderer === 'puck') {
-                        const value = JSON.parse(files[panels[surface].entry])
-                        const validation = validateAuthoringPackage(value, {
-                            nodeCode: 'example',
-                            surface,
-                        })
-                        assert.equal(validation.valid, true, JSON.stringify(validation))
-                        assert.ok(value.logic)
-                        assert.ok(value.cells)
-                        assert.ok(value.dialogs)
-                    }
+test('骨架的四种渲染组合生成共享校验通过的完整页面', () => {
+    for (const settingsRenderer of ['lit', 'puck'])
+        for (const businessRenderer of ['lit', 'puck']) {
+            const files = skeletonFiles('example', { settingsRenderer, businessRenderer })
+            const panels = JSON.parse(files['panels.json'])
+            for (const [surface, renderer] of [
+                ['settings', settingsRenderer],
+                ['business', businessRenderer],
+            ]) {
+                assert.equal(panels[surface].renderer, renderer)
+                assert.ok(files[panels[surface].entry])
+                if (renderer === 'puck') {
+                    const value = JSON.parse(files[panels[surface].entry])
+                    const validation = validateAuthoringPackage(value, {
+                        nodeCode: 'example',
+                        surface,
+                    })
+                    assert.equal(validation.valid, true, JSON.stringify(validation))
+                    assert.ok(value.logic)
+                    assert.ok(value.cells)
+                    assert.ok(value.dialogs)
                 }
-                assert.equal(Boolean(files['settings.ts']), settingsRenderer === 'lit')
-                assert.equal(Boolean(files['view.ts']), businessRenderer === 'lit')
-                assert.match(files['node.ts'], /code: 'example'/)
             }
-    assert.throws(() => nodeFiles('bad', 'copy', { businessRenderer: 'unknown' }))
+            assert.equal(Boolean(files['settings.ts']), settingsRenderer === 'lit')
+            assert.equal(Boolean(files['view.ts']), businessRenderer === 'lit')
+            assert.match(files['node.ts'], /code: 'example'/)
+        }
+    assert.throws(() => skeletonFiles('bad', { businessRenderer: 'unknown' }))
 })
 
 test('真实构建四种组合，离线保存严格检查当前源码、产物及目录身份', async (t) => {
@@ -124,11 +123,11 @@ test('真实构建四种组合，离线保存严格检查当前源码、产物�
             await writeNode(
                 rootDir,
                 code,
-                nodeFiles(code, 'copy', { settingsRenderer, businessRenderer }),
+                skeletonFiles(code, { settingsRenderer, businessRenderer }),
             )
         }
     // 缺少 panels.json 的旧工程也必须在同一次真实构建中保留行为。
-    const legacy = nodeFiles('legacy', 'copy')
+    const legacy = skeletonFiles('legacy')
     delete legacy['panels.json']
     await writeNode(rootDir, 'legacy', legacy)
     const built = spawnSync(process.execPath, [path.join(rootDir, 'tooling/build/index.mjs')], {

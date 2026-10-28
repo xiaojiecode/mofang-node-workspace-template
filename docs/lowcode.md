@@ -18,17 +18,18 @@ AI 先读取本工程 AGENTS 和低代码技能，查询实际物料及能力合
 
 ```sh
 npm ci
-npm run init -- --dir ../my-puck-nodes --name my-puck-nodes --preset selection --settings-renderer puck --business-renderer puck
+npm run init -- --dir ../my-puck-nodes --name my-puck-nodes
 cd ../my-puck-nodes
 npm ci
+npm run node:new -- --code my-review --settings-renderer puck --business-renderer puck
 ```
 
-`--dir` 决定输出位置，同级目录只是示例。新工程保留模板 Git 祖先，自带工具、技能和编译好的物料包；创建普通节点不需要相邻 frontend 源码。`selection` 是选品执行逻辑起点，AI 仍需按业务需求修改它。
+`--dir` 决定输出位置，同级目录只是示例。新工程保留模板 Git 祖先，自带工具、技能和编译好的物料包；创建普通节点不需要相邻 frontend 源码。`init` 仅创建空 `nodes/`；`node:new` 生成不含业务逻辑、设置字段和动作的骨架，AI 按确认的业务需求补充。
 
 在已有节点工程中增加节点：
 
 ```sh
-npm run node:new -- --code my-review --preset selection --settings-renderer puck --business-renderer puck
+npm run node:new -- --code my-review --settings-renderer puck --business-renderer puck
 ```
 
 `init` 创建工程，`node:new` 创建工程内的节点。目标已存在时命令会拒绝覆盖。AI 应在交付中给出实际工程、`nodes/<code>` 和 `dist/<code>` 路径。

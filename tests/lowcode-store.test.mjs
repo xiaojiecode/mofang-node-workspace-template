@@ -3,14 +3,14 @@ import assert from 'node:assert/strict'
 import os from 'node:os'
 import path from 'node:path'
 import { mkdir, mkdtemp, writeFile, readFile, readdir, rm, symlink } from 'node:fs/promises'
-import { nodeFiles } from '../tooling/init/templates.mjs'
+import { skeletonFiles } from '../tooling/init/skeleton.mjs'
 import { applyOperations } from '@mofang/low-code-page/authoring'
 import { readDocument, changeDocument, restoreDocument } from '../tooling/lowcode/file-store.mjs'
 
 async function fixture(t) {
     const rootDir = await mkdtemp(path.join(os.tmpdir(), 'mf-author-'))
     t.after(() => rm(rootDir, { recursive: true, force: true }))
-    const files = nodeFiles('example', 'copy', {
+    const files = skeletonFiles('example', {
         settingsRenderer: 'puck',
         businessRenderer: 'puck',
     })

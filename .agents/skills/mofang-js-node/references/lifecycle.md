@@ -1,6 +1,6 @@
 # 函数节点协调与必须人工事件
 
-当前新源码使用 mf.node/1，完整API见 [作者规范](../../../../docs/authoring.md)和[案例源](../../../../tooling/init/templates/selection/run.ts)。不提交 createState/ctx.state/view.replace 旧对象，不建立旧协议转换。
+当前新源码使用 mf.node/1，完整API见 [作者规范](../../../../docs/authoring.md)和[最小骨架](../../../../tooling/init/skeleton/run.ts)。不提交 createState/ctx.state/view.replace 旧对象，不建立旧协议转换。
 
 Component只绑定，业务由 useOnStart/useOnInput/useOnTaskResult/useNodeAction 触发。状态Schema、snapshot/updater/reducer及真实inputRefs按作者规范。onControl/onError只读，任务仍使用当前stages。零结果、无选择、失败有无参数host finish；unknown先核对。finish只是生产声明，已有候选/任务/事件/输入仍由平台结清。
 

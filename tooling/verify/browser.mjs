@@ -1,11 +1,41 @@
+import os from 'node:os'
 import assert from 'node:assert/strict'
 import { createServer } from 'vite'
 import { chromium } from 'playwright'
 import path from 'node:path'
 import { root, cache, nodeCodes } from '../paths.mjs'
-import { mkdir, readFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, cp, symlink } from 'node:fs/promises'
+import { spawnSync } from 'node:child_process'
+import { readNodePanels } from '../panels/manifest.mjs'
+// 在隔离冷工程中验证骨架和宿主草稿，不向作者的 nodes/ 写入测试节点。
+await mkdir(cache, { recursive: true })
+const projectBase = cache === root || cache.startsWith(root + path.sep) ? os.tmpdir() : cache
+const area = await mkdtemp(path.join(projectBase, 'browser-'))
+const project = path.join(area, 'project')
+function run(script, args = [], cwd = root) {
+    const result = spawnSync(process.execPath, [path.join(cwd, script), ...args], {
+        cwd,
+        encoding: 'utf8',
+        env: process.env,
+    })
+    if (result.error) throw result.error
+    assert.equal(result.status, 0, result.stdout + result.stderr)
+}
+run('tooling/init/project.mjs', ['--dir', project, '--name', 'browser-fixture'])
+await symlink(path.join(root, 'node_modules'), path.join(project, 'node_modules'), 'junction')
+run('tooling/init/node.mjs', ['--code', 'blank-node'], project)
+// 草稿输入只属于测试夹具，骨架设置面板保持无业务字段。
+await cp(
+    path.join(root, 'tests/fixtures/settings-preview.ts'),
+    path.join(project, 'nodes/blank-node/settings.ts'),
+)
+run(
+    'tooling/build/index.mjs',
+    process.argv.includes('--development') ? ['--development'] : [],
+    project,
+)
 const server = await createServer({
-    configFile: path.join(root, 'playground/vite.config.mjs'),
+    configFile: path.join(project, 'playground/vite.config.mjs'),
     server: { port: 0, strictPort: false },
 })
 let browser
@@ -74,7 +104,7 @@ try {
         await page.locator('#readonly').click()
         assert.equal(await page.locator('#settings input').isDisabled(), false)
         await page.locator('#open-business').click()
-        // 共同Mock宿主区域仅渲染真实声明，不为copy等节点猜造finish。
+        // 共同 Mock 宿主区域仅渲染真实声明，不为骨架猜造 finish。
         assert.equal(await page.locator('#host-actions button').count(), 0)
         await page.getByRole('button', { name: '空结果', exact: true }).click()
         await page.waitForFunction(() => Boolean(document.querySelector('#app').dataset.mounted))
@@ -159,82 +189,19 @@ try {
         assert.ok((await page.locator('#host-actions').textContent()).includes('Mock投影失败'))
         await page.getByRole('button', { name: '有商品', exact: true }).click()
         await page.waitForFunction(() => Boolean(document.querySelector('#app').dataset.mounted))
-        for (const code of await nodeCodes()) {
-            await page.getByRole('button', { name: code, exact: true }).click()
-            await page.waitForFunction(() =>
-                Boolean(document.querySelector('#app').dataset.mounted),
-            )
-            const fixture = JSON.parse(
-                await readFile(path.join(root, 'nodes', code, 'fixtures/input.json'), 'utf8'),
-            )
-            let title = fixture.item?.basic?.title
-            if (!title) {
-                const preview = JSON.parse(
-                    await readFile(path.join(root, 'nodes', code, 'fixtures/preview.json'), 'utf8'),
-                )
-                title = preview.composition.projection.nodeView.rows?.[0]?.product?.basic?.title
-            }
-            assert.ok(title, 'business fixture needs a real visible Product title')
-            await page.locator('#business').getByText(title, { exact: true }).first().waitFor()
-            await page.getByRole('button', { name: '空结果', exact: true }).click()
-            await page.waitForFunction(() =>
-                Boolean(document.querySelector('#app').dataset.mounted),
-            )
-            await page
-                .locator('#business')
-                .getByText(/暂无商品|没有符合条件/)
-                .first()
-                .waitFor()
-            // 使用节点随附的真实静态预览声明，不通过DOM注入制造可用入口。
-            let declaredPreview
-            try {
-                declaredPreview = JSON.parse(
-                    await readFile(path.join(root, 'nodes', code, 'fixtures/preview.json'), 'utf8'),
-                )
-            } catch (error) {
-                if (error.code !== 'ENOENT') throw error
-            }
-            const declaredFinish = declaredPreview?.composition?.projection?.actions?.find(
-                (action) => action.name === 'finish' && action.presentation === 'host',
-            )
-            if (declaredFinish) {
-                const realFinish = page
-                    .locator('#host-actions')
-                    .getByRole('button', { name: declaredFinish.label, exact: true })
-                await realFinish.waitFor()
-                await page.waitForFunction(
-                    (label) =>
-                        ![...document.querySelectorAll('#host-actions button')].find(
-                            (button) => button.textContent === label,
-                        ).disabled,
-                    declaredFinish.label,
-                )
-                await realFinish.click()
-                await page.waitForFunction(() =>
-                    document
-                        .querySelector('#host-actions')
-                        .textContent.includes('finish · applied'),
-                )
-                assert.equal(
-                    await page.evaluate(() => window.preview.current.nodeView.nodeOutput.total),
-                    0,
-                )
-                assert.equal(
-                    await page.evaluate(() => window.preview.current.nodeView.productionFinished),
-                    true,
-                )
-            }
-            await page.getByRole('button', { name: '读取失败', exact: true }).click()
-            await page.waitForFunction(() =>
-                Boolean(document.querySelector('#app').dataset.mounted),
-            )
-            await page.locator('#business [role=alert]').waitFor()
-            await page.getByRole('button', { name: '有商品', exact: true }).click()
-            await page.waitForFunction(() =>
-                Boolean(document.querySelector('#app').dataset.mounted),
-            )
-            await page.locator('#business').getByText(title, { exact: true }).first().waitFor()
-        }
+        await page.getByRole('button', { name: 'blank-node', exact: true }).click()
+        await page.waitForFunction(() => Boolean(document.querySelector('#app').dataset.mounted))
+        await page.locator('#business').getByText('已接通宿主投影。', { exact: true }).waitFor()
+        await page.getByRole('button', { name: '空结果', exact: true }).click()
+        await page.waitForFunction(() => Boolean(document.querySelector('#app').dataset.mounted))
+        await page.locator('#business').getByText('已接通宿主投影。', { exact: true }).waitFor()
+        assert.equal(await page.locator('#host-actions button').count(), 0)
+        await page.getByRole('button', { name: '读取失败', exact: true }).click()
+        await page.waitForFunction(() => Boolean(document.querySelector('#app').dataset.mounted))
+        await page.locator('#business [role=alert]').waitFor()
+        await page.getByRole('button', { name: '有商品', exact: true }).click()
+        await page.waitForFunction(() => Boolean(document.querySelector('#app').dataset.mounted))
+        await page.locator('#business').getByText('已接通宿主投影。', { exact: true }).waitFor()
         await page.locator('#replace').click()
         await page.waitForFunction(() =>
             window.preview.previous.every((f) => f.listeners.size === 0),
@@ -247,8 +214,79 @@ try {
         assert.equal(await page.evaluate(() => window.preview.current.listeners.size), 0)
     }
     assert.deepEqual(errors, [])
+    await server.close()
+    await verifyCurrentProject(browser)
     console.log('浏览器：源码及最终产物、两类面板、草稿、只读、空态、错误、SDK 重绑及清理通过。')
 } finally {
     await browser?.close()
     await server.close()
+}
+
+/** 检查作者当前工程的实际源码和最终产物，不以骨架回归代替业务面板挂载。 */
+async function verifyCurrentProject(browser) {
+    const currentServer = await createServer({
+        configFile: path.join(root, 'playground/vite.config.mjs'),
+        server: { port: 0, strictPort: false },
+    })
+    const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } })
+    const errors = []
+    page.on('pageerror', (error) => errors.push(error.message))
+    try {
+        await currentServer.listen()
+        const url = currentServer.resolvedUrls.local[0]
+        const codes = await nodeCodes()
+        if (codes.length === 0) {
+            const requests = []
+            page.on('request', (request) => {
+                if (request.url().includes('/__lowcode/')) requests.push(request.url())
+            })
+            for (const mode of ['', '?artifacts']) {
+                await page.goto(url + mode)
+                await page.getByRole('heading', { name: '当前工程没有节点' }).waitFor()
+                assert.equal(
+                    await page.locator('.preview-empty code').textContent(),
+                    'npm run node:new -- --code my-node',
+                )
+                assert.equal(await page.locator('#app').getAttribute('data-mounted'), 'empty')
+                assert.equal(await page.locator('#open-business').count(), 0)
+            }
+            assert.deepEqual(requests, [])
+            await page.screenshot({ path: path.join(cache, 'empty-project.png'), fullPage: true })
+        }
+        for (const code of codes) {
+            const panels = await readNodePanels(code)
+            for (const artifacts of [false, true]) {
+                for (const surface of ['settings', 'business']) {
+                    const renderer = panels[surface].renderer
+                    const target = new URL(renderer === 'puck' ? 'lowcode.html' : 'index.html', url)
+                    target.searchParams.set('node', code)
+                    target.searchParams.set('surface', surface)
+                    if (artifacts) target.searchParams.set('artifacts', '')
+                    await page.goto(target.href)
+                    if (renderer === 'puck') {
+                        await page.locator('[data-revision]').waitFor()
+                        assert.equal(
+                            await page.locator('.lowcode-panel [role=alert]').count(),
+                            0,
+                            code + '/' + surface + ': 低代码面板渲染失败',
+                        )
+                    } else {
+                        await page.waitForFunction(() =>
+                            Boolean(document.querySelector('#app').dataset.mounted),
+                        )
+                        assert.equal(
+                            await page.locator('#' + surface + ' > *').count(),
+                            1,
+                            code + '/' + surface + ': 面板未挂载',
+                        )
+                    }
+                }
+            }
+            console.log(code + ': 当前工程源码及最终产物的双面板挂载通过')
+        }
+        assert.deepEqual(errors, [])
+    } finally {
+        await page.close()
+        await currentServer.close()
+    }
 }

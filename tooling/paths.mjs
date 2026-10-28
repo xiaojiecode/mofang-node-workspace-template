@@ -15,7 +15,14 @@ export async function prepareCache() {
  * 不把目录名当作平台目录身份，也不在读取时执行节点程序。
  */
 export async function nodeCodes() {
-    return (await readdir(path.join(root, 'nodes'), { withFileTypes: true }))
+    let entries
+    try {
+        entries = await readdir(path.join(root, 'nodes'), { withFileTypes: true })
+    } catch (error) {
+        if (error.code === 'ENOENT') return []
+        throw error
+    }
+    return entries
         .filter((e) => e.isDirectory())
         .map((e) => e.name)
         .sort()

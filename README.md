@@ -13,10 +13,11 @@ npm ci
 npm run init -- --dir ../my-nodes --name my-nodes
 cd ../my-nodes
 npm ci
+npm run node:new -- --code my-node
 npm run dev
 ```
 
-默认生成 copy、selection、human-wait、multi-instance 四个真实源码起点；只保留一种可加 `--preset copy`。已有工程新增用 `npm run node:new -- --code my-node --preset copy`，目标存在时直接失败。Node 22.12+，Goja/平台验证需要 Go 1.26.5+；依赖保持 lock 中精确版本，不自动浮动升级。
+模板和 `init` 创建的新工程都从空 `nodes/` 开始。已有工程用 `npm run node:new -- --code my-node` 按需创建中性骨架，目标存在时直接失败。空工程打开预览时会显示创建命令提示；不再提供业务预设或 `--preset` 参数。骨架只包含空双 Schema、最小 `mf.node/1` 入口、独立面板、页面准备程序和空 fixture，不调用能力、不创建任务或候选，也不自动声明生产结束。请按已确认业务补充契约、状态、任务和结束路径后再发布或运行。Node 22.12+，Goja/平台验证需要 Go 1.26.5+；依赖保持 lock 中精确版本，不自动浮动升级。
 
 ```text
 nodes/<code>/
@@ -28,8 +29,8 @@ nodes/<code>/
   view.ts        Lit 业务面板
   settings.page.json  Puck 设置页完整包，选用 Puck 时生成
   business.page.json  Puck 业务页完整包，选用 Puck 时生成
-  page.ts        可选节点级页面准备程序，缺省要求真实item输入
-  tasks/         当前 StageProgram 阶段程序
+  page.ts        骨架的空输入准备程序，按 inputSchema 补充
+  tasks/         按业务需要新增的 StageProgram 阶段程序，不随骨架生成
   fixtures/      明确的本地验证数据
 lib/
   author/        @mofang/node，实际 mf.node/1 作者运行时
@@ -53,7 +54,7 @@ vendor/          固定版本的低代码作者/运行库及工作流 SDK/适配
 
 输入/任务输出保留真实 deliveryId/inputRefs；Product 使用完整可信类型，不手写缩略业务 Schema。子任务继续当前 stages 与 ctx.input/state/answer，每阶段最多一次能力调用；unknown 不自动重发，人工回答沿真实等待身份。
 
-finish 是事件计划末尾的生产声明，不直接完成节点，不放行/丢弃已有候选。无参必要动作由共同宿主入口提供；参数选择由业务面板提交。动作 accepted、applied、子任务成功和节点成功分别显示。selection 示例覆盖零输入、未选择、失败收尾；它不是 FastMoss 业务节点的替代实现。
+finish 是事件计划末尾的生产声明，不直接完成节点，不放行/丢弃已有候选。无参必要动作由共同宿主入口提供；参数选择由业务面板提交。动作 accepted、applied、子任务成功和节点成功分别显示。骨架没有预设业务规则，节点作者须实现零输入、未选择、失败和未知结果的处理路径。
 
 ## 低代码面板由 AI 搭建
 
@@ -62,9 +63,9 @@ finish 是事件计划末尾的生产声明，不直接完成节点，不放行/
 首次使用先看 [Puck 使用与接入说明](docs/lowcode.md)：环境准备、独立工程位置、交互预览、各部分职责，以及保存和发布的区别。AI 搭建时按 [物料使用指南](.agents/skills/mofang-lowcode-node/references/materials.md) 选择组件、组合字段和详情交互。
 
 ```sh
-npm run node:new -- --code review-products --preset selection --settings-renderer puck --business-renderer puck
-# 创建独立工程也接受相同的两个 renderer 选项
-npm run init -- --dir ../review-nodes --name review-nodes --preset selection --settings-renderer puck --business-renderer lit
+npm run node:new -- --code review-products --settings-renderer puck --business-renderer puck
+# 混合渲染时，两个面板分别指定；init 只创建空工程
+npm run node:new -- --code review-mixed --settings-renderer puck --business-renderer lit
 ```
 
 节点清单示例：
@@ -106,7 +107,7 @@ node tooling/cli.mjs lowcode preview --code review-products --surface business -
 
 预览只挂载运行页面，用户可填表、选择、点按钮；页面没有物料栏、拖拽设计器或 JSON 编辑入口。preview 命令只给出 URL，不启动服务；先探测端口，复用已有 `npm run dev`，在默认外部浏览器核对实际 revision。Mock 操作只影响预览内存，不能证明真实第三方接口、平台保存或节点运行已成功。配置接口不等于授权调用接口；真实调用和写入另行确认范围。
 
-Puck 设置页自动绑定 `main1`，备注写入宿主受控草稿。选品模板以就绪投影的 rows 显示商品，勾选后提交 keys；共享动作适配等到 applied 后才显示成功。accepted 只表示动作已受理，取消、失败和结果未知不会被当作成功。
+Puck 设置页保留 `main1` 宿主表单绑定，骨架不预置业务字段或提交动作。作者按已确认契约添加设置字段、就绪投影绑定和参数动作；共享动作适配等到 applied 后才显示成功。accepted 只表示动作已受理，取消、失败和结果未知不会被当作成功。
 
 ### 构建与离线保存准备
 
@@ -134,7 +135,7 @@ npm run verify:goja
 npm run verify:platform -- --workspace /path/to/mofangv6
 ```
 
-`npm run check` 执行格式/类型/构建/产物/回归/CLI回环测试/浏览器/Goja。平台验证使用真实 Go 模块和页面编译器，不启动服务或写库；它不替代 Workflow 事务、权限、Tool 账本或完整业务。更完整的分层要求见 [验证表](docs/verification.md)。
+`npm run check` 执行格式/类型/构建/产物/回归/CLI回环测试/浏览器/Goja。平台验证应从已创建并构建节点的独立工程运行，模板空目录会明确失败。它使用真实 Go 模块和页面编译器，不启动服务或写库；它不替代 Workflow 事务、权限、Tool 账本或完整业务。更完整的分层要求见 [验证表](docs/verification.md)。
 
 fixtures/goja-test.js 使用普通 JavaScript 脚本语法，最后一个表达式提供验证结果。异步测试写成 `(async () => { /* 断言 */ return { passed: true } })()`，不写文件顶层 return。运行器分别加载程序与 fixture，检查异常、Promise 拒绝、未结清及缺少结果；函数内部 return 仍用于结果和分支控制。
 

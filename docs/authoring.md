@@ -1,6 +1,6 @@
 # 函数节点作者 API
 
-实际实现与完整类型在 [lib/author](../lib/author/index.ts)。函数节点的静态 spec 使用 state/tasks/actions 三张映射；每个槽提供 key/schema/initial，任务使用当前 StageProgram，动作提供 name/label/description/presentation/payloadSchema。示例唯一生成源在 [copy](../tooling/init/templates/copy/run.ts)、[selection](../tooling/init/templates/selection/run.ts)、[human-wait](../tooling/init/templates/human-wait/run.ts)、[multi-instance](../tooling/init/templates/multi-instance/run.ts)。
+实际实现与完整类型在 [lib/author](../lib/author/index.ts)。函数节点的静态 spec 使用 state/tasks/actions 三张映射；每个槽提供 key/schema/initial，任务使用当前 StageProgram，动作提供 name/label/description/presentation/payloadSchema。中性骨架唯一生成源在 [skeleton](../tooling/init/skeleton/run.ts)，只声明空 state/tasks/actions 和空 nodeView；任务、人工动作及结束规则由作者按确认的业务补充。
 
 `defineNode(spec, Component)` 在装载时只提取静态声明；Component 在实际 Handle/Project 中绑定。函数体可读取本次快照做纯计算，不能触发业务，不能条件/循环或 await 后注册 Hook。运行绑定检查动作是否完整、声明身份是否真实、nodeView 是否恰好一次；保存不能证明任意程序全部分支。
 
