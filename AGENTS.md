@@ -44,6 +44,8 @@ setter不改变当前闭包快照；累加用纯updater，状态和命令耦合�
 
 ## 面板与人工事件
 
+创建节点页面或调整页面结构前，必须按[页面效果确认](docs/ai-behavior.md#页面效果确认)提供一句用途说明和完整节点面板示意图，询问用户是否调整；确认后再搭建，预览按图验收。
+
 settings走宿主受控草稿，不另开保存链路。settings/business 独立选择 Lit 或 Puck；没有 panels.json 的旧节点沿用 settings.ts/view.ts，存在但不合法则报错。新ABI只读取composition的就绪投影，不用旧nodeView兜底。动作受理、应用效果和节点成功分别显示。
 
 无参数必要动作由共同宿主区域提供，full-panel也不能省略；带参数动作需真实页面入口，覆盖零结果、不选择、失败与核对。关闭抽屉不等于finish，finish不代替流转/丢弃候选。

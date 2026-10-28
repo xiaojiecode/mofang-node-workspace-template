@@ -5,10 +5,19 @@ export const guide = {
         '询问业务缺口',
         'catalog 查询实际能力',
         'inspect 获取页面修订',
+        '一句用途说明 + 完整节点面板示意图，询问是否调整并确认后再搭建',
         'apply 原子修改',
         'validate 检查',
         'preview 交互验证',
     ],
+    pageStructureConfirmation: {
+        reference: 'docs/ai-behavior.md#页面效果确认',
+        when: '创建页面或调整结构前；已有确认沿用，纯逻辑修复不重复询问',
+        scope: '完整展开的节点面板，最多带工作流画布，不含系统左侧导航',
+        content: '说明默认展示什么、能做什么；图中按实际布局画出标题、状态、列表表头和示例行、按钮及实际存在的右侧执行信息，不漏画客户端区域',
+        question: '默认准备做成图里这样，需要增加、删除或调整哪些内容？',
+        verification: '确认后搭建，预览按图验收；无法核实或配置的区域说明限制，不虚构隐藏能力',
+    },
     tools: {
         guide: {},
         catalog: {

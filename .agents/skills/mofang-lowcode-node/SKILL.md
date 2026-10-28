@@ -9,6 +9,8 @@ description: 在魔方节点工作区中由 AI 创建或修改 Puck 低代码配
 
 ## 开发闭环
 
+创建页面或调整结构时，先执行[页面效果确认](../../../docs/ai-behavior.md#页面效果确认)：一句话说明展示内容与操作，画出实际完整节点面板（最多带画布，不含系统导航），询问是否调整并取得确认。已有确认沿用；可先只读查询能力和现状，搭建在确认后进行，预览按图核对。
+
 1. 运行 `node tooling/cli.mjs lowcode guide`，再按需 `catalog --query <关键词>`、`catalog --id <能力>`。操作格式用 `catalog --id operations`；完整 SDK 用 `catalog --category sdk`。以当前安装包生成的目录为准，不另抄组件表。
 2. 新节点使用 `node tooling/cli.mjs node:new --code <编码> --preset selection --settings-renderer puck --business-renderer puck`。两个面板分别选型，旧 Lit 合同保留。
 3. `lowcode inspect --code <编码> --surface settings|business` 获取组件身份和 revision。先交付最小可运行页面，再按有意义的批次加入数据、交互与样式。
