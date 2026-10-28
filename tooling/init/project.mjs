@@ -94,6 +94,8 @@ await cp(path.join(root, 'vendor'), path.join(target, 'vendor'), {
 for (const file of ['package.json', 'package-lock.json']) {
     const value = JSON.parse(await readFile(path.join(target, file), 'utf8'))
     value.name = values.name
+    // 页面发布产物是宿主直接加载的 CommonJS；新工程不应让 .js 按 ESM 解析。
+    if (file === 'package.json') delete value.type
     if (file === 'package-lock.json') value.packages[''].name = values.name
     await writeFile(path.join(target, file), JSON.stringify(value, null, 4) + '\n')
 }
