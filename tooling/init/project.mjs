@@ -3,28 +3,18 @@ import path from 'node:path'
 import { cp, mkdir, readdir, writeFile, readFile, rm } from 'node:fs/promises'
 import { root } from '../paths.mjs'
 import { initializeGitHistory, initializeWorkspace } from '../upstream/index.mjs'
-import { nodeFiles, presets } from './templates.mjs'
 const { values } = parseArgs({
     options: {
         dir: { type: 'string' },
         name: { type: 'string' },
-        preset: { type: 'string', default: 'all' },
-        'settings-renderer': { type: 'string', default: 'lit' },
-        'business-renderer': { type: 'string', default: 'lit' },
     },
 })
 if (
     !values.dir ||
     !values.name ||
-    !/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/.test(values.name) ||
-    (values.preset !== 'all' && !presets.includes(values.preset)) ||
-    ![values['settings-renderer'], values['business-renderer']].every((renderer) =>
-        ['lit', 'puck'].includes(renderer),
-    )
+    !/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/.test(values.name)
 )
-    throw new Error(
-        'init requires --dir <empty-dir> --name <package-name> [--preset all|copy|selection|human-wait|multi-instance]',
-    )
+    throw new Error('init requires --dir <empty-dir> --name <package-name>')
 const target = path.resolve(values.dir)
 if (target === root || target.startsWith(root + path.sep))
     throw new Error('new project must be outside template root')
@@ -35,7 +25,7 @@ try {
 }
 await mkdir(target, { recursive: true })
 const sourceCommit = await initializeGitHistory(target)
-// Only this newly created checkout is reset to the requested starter content.
+// 仅在本次新建的工程中重置起始内容。
 // vendor 必须使用当前完整快照，不能残留 Git 基线中的旧大包。
 for (const name of ['nodes', 'shared', 'vendor', '.agents/managed.json'])
     await rm(path.join(target, name), { recursive: true, force: true })
@@ -99,20 +89,11 @@ for (const file of ['package.json', 'package-lock.json']) {
     if (file === 'package-lock.json') value.packages[''].name = values.name
     await writeFile(path.join(target, file), JSON.stringify(value, null, 4) + '\n')
 }
-// shared belongs to the current user's business; a fresh scaffold starts empty.
+// shared 属于当前用户业务，新工程从空目录开始。
 await mkdir(path.join(target, 'shared'), { recursive: true })
 await writeFile(path.join(target, 'shared/.gitkeep'), '')
-for (const preset of values.preset === 'all' ? presets : [values.preset]) {
-    for (const [relative, content] of Object.entries(
-        nodeFiles(preset, preset, {
-            settingsRenderer: values['settings-renderer'],
-            businessRenderer: values['business-renderer'],
-        }),
-    )) {
-        const file = path.join(target, 'nodes', preset, relative)
-        await mkdir(path.dirname(file), { recursive: true })
-        await writeFile(file, content, { flag: 'wx' })
-    }
-}
+// 初始化只准备空的节点目录；使用 node:new 按需创建中性骨架。
+await mkdir(path.join(target, 'nodes'), { recursive: true })
+await writeFile(path.join(target, 'nodes/.gitkeep'), '')
 await initializeWorkspace(target, sourceCommit)
 console.log('created ' + target + '; next: npm ci && npm run check')

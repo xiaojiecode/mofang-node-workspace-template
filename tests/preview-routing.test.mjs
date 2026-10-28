@@ -1,9 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFile } from 'node:fs/promises'
+import { readFile, mkdir, mkdtemp, writeFile, cp, symlink, rm } from 'node:fs/promises'
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { transform } from 'esbuild'
-import { lowcodePreviewPlugin } from '../tooling/lowcode/preview-server.mjs'
-import { nodeCodes } from '../tooling/paths.mjs'
+import { root, cache } from '../tooling/paths.mjs'
+import { skeletonFiles } from '../tooling/init/skeleton.mjs'
 
 const source = await readFile(
     new URL('../playground/src/panel-routing.ts', import.meta.url),
@@ -38,7 +40,21 @@ test('四种渲染组合的面板 URL 保留节点、场景、只读和产物模
     }
 })
 
-test('预览清单 GET 独立于页面 renderer，POST 被拒绝且不创建服务', async () => {
+test('预览清单 GET 独立于页面 renderer，POST 被拒绝且不创建服务', async (t) => {
+    await mkdir(cache, { recursive: true })
+    const project = await mkdtemp(path.join(cache, 'routing-'))
+    t.after(() => rm(project, { recursive: true, force: true }))
+    await cp(path.join(root, 'tooling'), path.join(project, 'tooling'), { recursive: true })
+    await symlink(path.join(root, 'node_modules'), path.join(project, 'node_modules'), 'junction')
+    const code = 'routing-node'
+    for (const [name, content] of Object.entries(skeletonFiles(code))) {
+        const file = path.join(project, 'nodes', code, name)
+        await mkdir(path.dirname(file), { recursive: true })
+        await writeFile(file, content)
+    }
+    const { lowcodePreviewPlugin } = await import(
+        pathToFileURL(path.join(project, 'tooling/lowcode/preview-server.mjs')).href
+    )
     let handler
     lowcodePreviewPlugin().configureServer({
         watcher: { add() {}, on() {} },
@@ -50,8 +66,6 @@ test('预览清单 GET 独立于页面 renderer，POST 被拒绝且不创建服�
             },
         },
     })
-    const code = (await nodeCodes())[0]
-    assert.ok(code)
     const request = async (method, url) => {
         const response = {
             statusCode: 200,

@@ -12,7 +12,7 @@ test('压缩与可读构建使用同一组生产版 Lit 指令', () => {
                 '--input-type=module',
                 '-e',
                 `import {bundle,litMode,buildMode} from './tooling/build/bundle.mjs';
-                 const value=await bundle('./tooling/init/templates/copy/settings.ts','panel');
+                 const value=await bundle('./tooling/init/skeleton/settings.ts','panel');
                  console.log(JSON.stringify({litMode,buildMode,inputs:value.inputs,bytes:value.code.length}));`,
                 '--',
                 ...args,

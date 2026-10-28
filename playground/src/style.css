@@ -60,6 +60,33 @@ summary:focus-visible {
     height: 100vh;
     min-height: 560px;
 }
+/* 空工程显示明确的创建入口，不挂载面板或请求不存在的节点。 */
+.preview-empty {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    align-self: start;
+    justify-self: center;
+    display: grid;
+    gap: 12px;
+    max-width: 100%;
+    margin-top: 120px;
+    padding: 32px;
+}
+.preview-empty h1 {
+    font-size: 20px;
+    line-height: 1.4;
+}
+.preview-empty p {
+    color: var(--muted-foreground);
+}
+.preview-empty pre {
+    margin: 4px 0 0;
+    padding: 16px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font: 13px/1.6 var(--shell-mono);
+}
 /* 左侧导航：品牌与本地节点列表。按钮可访问名称保持节点 code，供浏览器回归定位。 */
 .shell-nav {
     display: flex;

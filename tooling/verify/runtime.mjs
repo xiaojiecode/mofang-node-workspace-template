@@ -15,13 +15,9 @@ const task = cache
 await prepareCache()
 const panels = []
 for (const minify of [true, false]) {
-    const result = await bundle(
-        path.join(root, 'tooling/init/templates/copy/settings.ts'),
-        'panel',
-        {
-            minify,
-        },
-    )
+    const result = await bundle(path.join(root, 'tests/fixtures/settings-preview.ts'), 'panel', {
+        minify,
+    })
     panels.push((await transform(result.code, { format: 'cjs', target: 'es2022' })).code)
 }
 // 在真实 Vite 配置下比较所有宿主：模板压缩与可读面板必须使用同一浏览器语义。

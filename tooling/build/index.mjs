@@ -12,6 +12,7 @@ import { validateAuthoringPackage } from '@mofang/low-code-page/authoring'
 const size = (bytes) => `${(bytes / 1024).toFixed(2)} KiB`
 const milliseconds = (value) => Number(value.toFixed(2))
 const started = performance.now()
+await mkdir(dist, { recursive: true })
 const report = {
     mode: buildMode,
     minified: buildMode === 'production',

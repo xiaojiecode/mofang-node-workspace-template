@@ -1,6 +1,6 @@
 # 子任务阶段与 Tool
 
-公开根源码必须是工程构建的 mf.node/1。旧独立 main/stages/lifecycle 根入口全部拒绝；当前 StageProgram 只用于静态 tasks 表，不是另一个发布格式。完整真实类型在 [goja](../../../../lib/contracts/src/goja/index.ts)，案例见 [人工回答](../../../../tooling/init/templates/human-wait/tasks/main.ts)。
+公开根源码必须是工程构建的 mf.node/1。旧独立 main/stages/lifecycle 根入口全部拒绝；当前 StageProgram 只用于静态 tasks 表，不是另一个发布格式。完整真实类型在 [goja](../../../../lib/contracts/src/goja/index.ts)，阶段编写见 [作者规范](../../../../docs/authoring.md)，新骨架不生成任务。
 
 每个任务为 `{entry,steps}`，阶段名与entry由宿主验证。每次阶段都用新VM，ctx.input为派发时的明确输入，没有ctx.config；ctx.state为next/awaitUser/pauseNode显式保存的JSON；ctx.answer只能来自平台真实等待身份与回合。父节点需要传入的配置必须放spawn input，不能捕获协调器快照。
 

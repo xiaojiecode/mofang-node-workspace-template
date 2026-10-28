@@ -1,41 +1,58 @@
+import os from 'node:os'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import path from 'node:path'
-import { mkdtemp, mkdir, readFile, lstat, symlink, writeFile, access } from 'node:fs/promises'
+import {
+    mkdtemp,
+    mkdir,
+    readFile,
+    lstat,
+    symlink,
+    writeFile,
+    access,
+    readdir,
+} from 'node:fs/promises'
 import { constants } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { pathToFileURL } from 'node:url'
 import { transform } from 'esbuild'
 import { parse } from 'acorn'
-import { nodeFiles, presets } from '../tooling/init/templates.mjs'
+import { skeletonFiles } from '../tooling/init/skeleton.mjs'
 import { root, cache } from '../tooling/paths.mjs'
 
-for (const preset of presets)
-    test(preset + ' 新函数节点生成包含完整契约与独立面板', async () => {
-        const files = nodeFiles('new-node', preset)
-        for (const [name, source] of Object.entries(files)) {
-            if (name.endsWith('.ts')) await transform(source, { loader: 'ts', target: 'es2016' })
-            if (name === 'fixtures/goja-test.js')
-                parse(source, { ecmaVersion: 'latest', sourceType: 'script' })
-        }
-        for (const name of [
-            'node.ts',
-            'run.ts',
-            'contract.ts',
-            'settings.ts',
-            'view.ts',
-            'fixtures/input.json',
-            'fixtures/goja-test.js',
-        ])
-            assert.ok(files[name], name)
-        assert.match(files['run.ts'], /abi: 'mf.node\/1'/)
-        assert.match(files['node.ts'], /code: 'new-node'/)
-        assert.ok(!Object.keys(files).some((file) => file.includes('executor/')))
-    })
+test('中性骨架包含完整契约与独立面板，不生成业务逻辑', async () => {
+    const files = skeletonFiles('new-node')
+    for (const [name, source] of Object.entries(files)) {
+        if (name.endsWith('.ts')) await transform(source, { loader: 'ts', target: 'es2016' })
+        if (name === 'fixtures/goja-test.js')
+            parse(source, { ecmaVersion: 'latest', sourceType: 'script' })
+    }
+    for (const name of [
+        'node.ts',
+        'run.ts',
+        'contract.ts',
+        'settings.ts',
+        'view.ts',
+        'fixtures/input.json',
+        'fixtures/goja-test.js',
+    ])
+        assert.ok(files[name], name)
+    assert.match(files['run.ts'], /abi: 'mf.node\/1'/)
+    assert.match(files['node.ts'], /code: 'new-node'/)
+    assert.ok(
+        !Object.keys(files).some((file) => file.includes('executor/') || file.startsWith('tasks/')),
+    )
+    assert.match(files['run.ts'], /state: \{\}/)
+    assert.match(files['run.ts'], /tasks: \{\}/)
+    assert.match(files['run.ts'], /actions: \{\}/)
+    assert.ok(files['page.ts'])
+    assert.throws(() => skeletonFiles('../invalid'))
+})
 
 test('冷初始化携带完整技能和模板Git祖先，真实类型和构建可运行', async () => {
     await mkdir(cache, { recursive: true })
-    const area = await mkdtemp(path.join(cache, 'cold-')),
+    const projectBase = cache === root || cache.startsWith(root + path.sep) ? os.tmpdir() : cache
+    const area = await mkdtemp(path.join(projectBase, 'cold-')),
         target = path.join(area, 'project')
     const initialized = spawnSync(
         process.execPath,
@@ -150,16 +167,8 @@ test('冷初始化携带完整技能和模板Git祖先，真实类型和构建�
         JSON.parse(await readFile(path.join(target, '.agents/upstream.json'), 'utf8')).kind,
         'project',
     )
-    // 只在隔离冷工程中覆写copy，保留真实商品输入契约并验证构建选择page.ts。
-    await writeFile(
-        path.join(target, 'nodes/copy/page.ts'),
-        `
-import type { PagePreparation, PageProgramContext } from '@mofang/contracts/page-program'
-export async function prepareInput(_context: PageProgramContext): Promise<PagePreparation> {
-    return { kind: 'requires_input', fields: ['item'], reason: 'cold-node-page-override' }
-}
-`,
-    )
+    assert.deepEqual(await readdir(path.join(target, 'nodes')), ['.gitkeep'])
+    // 空工程必须能独立检查，不依赖仓库自带节点或既有 dist。
     for (const script of ['typecheck', 'build', 'verify']) {
         const result = spawnSync('npm', ['run', script], {
             cwd: target,
@@ -168,7 +177,65 @@ export async function prepareInput(_context: PageProgramContext): Promise<PagePr
         })
         assert.equal(result.status, 0, script + ': ' + result.stdout + result.stderr)
     }
-    // 自定义程序与默认程序都保持真实输入要求，差异证明没有忽略节点级入口。
+    assert.equal(
+        JSON.parse(await readFile(path.join(target, 'dist/build-report.json'), 'utf8')).nodes
+            .length,
+        0,
+    )
+    for (const code of ['blank-node', 'custom-page']) {
+        const created = spawnSync(
+            process.execPath,
+            [path.join(target, 'tooling/cli.mjs'), 'node:new', '--code', code],
+            { cwd: target, encoding: 'utf8' },
+        )
+        assert.equal(created.status, 0, created.stdout + created.stderr)
+    }
+    const duplicate = spawnSync(
+        process.execPath,
+        [path.join(target, 'tooling/cli.mjs'), 'node:new', '--code', 'blank-node'],
+        { cwd: target, encoding: 'utf8' },
+    )
+    assert.notEqual(duplicate.status, 0)
+    assert.match(duplicate.stderr, /EEXIST/)
+    const retired = spawnSync(
+        process.execPath,
+        [
+            path.join(target, 'tooling/cli.mjs'),
+            'node:new',
+            '--code',
+            'retired-node',
+            '--preset',
+            'copy',
+        ],
+        { cwd: target, encoding: 'utf8' },
+    )
+    assert.notEqual(retired.status, 0)
+    await assert.rejects(lstat(path.join(target, 'nodes/retired-node')), { code: 'ENOENT' })
+    // 仅覆写隔离工程的页面程序，证明构建没有忽略节点级入口。
+    await writeFile(
+        path.join(target, 'nodes/custom-page/page.ts'),
+        `
+import type { PagePreparation, PageProgramContext } from '@mofang/contracts/page-program'
+export async function prepareInput(_context: PageProgramContext): Promise<PagePreparation> {
+    return { kind: 'requires_input', fields: ['item'], reason: 'cold-node-page-override' }
+}
+`,
+    )
+    for (const script of ['typecheck', 'build', 'verify', 'verify:goja']) {
+        const result = spawnSync('npm', ['run', script], {
+            cwd: target,
+            encoding: 'utf8',
+            env: process.env,
+        })
+        assert.equal(result.status, 0, script + ': ' + result.stdout + result.stderr)
+    }
+    const minification = spawnSync(process.execPath, ['--test', 'tests/minification.test.mjs'], {
+        cwd: target,
+        encoding: 'utf8',
+        env: process.env,
+    })
+    assert.equal(minification.status, 0, minification.stdout + minification.stderr)
+    // 默认骨架不虚构输入；自定义程序保留自己的输入要求。
     const pageContext = {
         context: { input: {} },
         deliveries: [],
@@ -176,17 +243,22 @@ export async function prepareInput(_context: PageProgramContext): Promise<PagePr
             throw new Error('unexpected data read')
         },
     }
-    const selectionPageModule = await import(
-        pathToFileURL(path.join(target, 'dist/selection/pageProgram.js')).href
+    const blankPageModule = await import(
+        pathToFileURL(path.join(target, 'dist/blank-node/pageProgram.js')).href
     )
-    const selectionPage = selectionPageModule.default ?? selectionPageModule
-    assert.deepEqual((await selectionPage.prepareInput(pageContext)).fields, ['item'])
-    const copyPageModule = await import(
-        pathToFileURL(path.join(target, 'dist/copy/pageProgram.js')).href
+    const blankPage = blankPageModule.default ?? blankPageModule
+    assert.deepEqual(await blankPage.prepareInput(pageContext), {
+        kind: 'prepared',
+        values: {},
+        usedRefs: [],
+        fieldSources: {},
+    })
+    const customPageModule = await import(
+        pathToFileURL(path.join(target, 'dist/custom-page/pageProgram.js')).href
     )
-    const copyPage = copyPageModule.default ?? copyPageModule
-    assert.deepEqual((await copyPage.prepareInput(pageContext)).fields, ['item'])
-    assert.equal((await copyPage.prepareInput(pageContext)).reason, 'cold-node-page-override')
+    const customPage = customPageModule.default ?? customPageModule
+    assert.deepEqual((await customPage.prepareInput(pageContext)).fields, ['item'])
+    assert.equal((await customPage.prepareInput(pageContext)).reason, 'cold-node-page-override')
     // 逐个注入真实类型错误，防止根配置变为 solution 后 CLI 只检查了空入口。
     for (const file of [
         'tests/types/browser.ts',
@@ -218,7 +290,7 @@ export async function prepareInput(_context: PageProgramContext): Promise<PagePr
     )
     assert.equal(lit.status, 0, lit.stderr)
     assert.match(lit.stdout, /nodes/)
-    // Reusing a generated workspace as scaffolding must not carry its user's business helpers.
+    // 从生成工程再创建工程时，不能复制已有业务节点或用户公共源码。
     await writeFile(path.join(target, 'shared/user-business.ts'), "export const owner = 'user'\n")
     const second = path.join(area, 'second-project')
     const regenerated = spawnSync(
@@ -234,6 +306,7 @@ export async function prepareInput(_context: PageProgramContext): Promise<PagePr
     )
     assert.equal(regenerated.status, 0, regenerated.stdout + regenerated.stderr)
     await assert.rejects(lstat(path.join(second, 'shared/user-business.ts')), { code: 'ENOENT' })
+    assert.deepEqual(await readdir(path.join(second, 'nodes')), ['.gitkeep'])
     assert.equal(
         await readFile(path.join(target, 'shared/user-business.ts'), 'utf8'),
         "export const owner = 'user'\n",

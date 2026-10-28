@@ -429,7 +429,7 @@ resizer.onkeydown = (event) => {
     dragged = heights[event.key]!
     renderDrawer()
 }
-new ResizeObserver(renderDrawer).observe(stage)
+if (codes.length > 0) new ResizeObserver(renderDrawer).observe(stage)
 for (const button of drawer.querySelectorAll<HTMLButtonElement>('[data-fullscreen]'))
     button.onclick = () => {
         fullscreen = !fullscreen
@@ -477,6 +477,18 @@ function restoreSettings() {
     pushSettings()
 }
 async function mount() {
+    if (codes.length === 0) {
+        const empty = element('main', '', 'preview-empty')
+        const title = element('h1', '当前工程没有节点')
+        title.id = 'preview-empty-title'
+        empty.setAttribute('aria-labelledby', title.id)
+        const command = element('pre')
+        command.append(element('code', 'npm run node:new -- --code my-node'))
+        empty.append(title, element('p', '在工程目录运行以下命令创建骨架，然后刷新预览。'), command)
+        document.querySelector('.workspace')!.replaceChildren(empty)
+        app.dataset.mounted = 'empty'
+        return
+    }
     const turn = ++sequence
     delete app.dataset.mounted
     const manifestResponse = await fetch('/__lowcode/' + encodeURIComponent(active) + '/manifest')
@@ -611,7 +623,7 @@ document.querySelector<HTMLButtonElement>('#replace')!.onclick = () => {
     for (const element of elements) element.sdk = current.sdk
 }
 renderDrawer()
-// Local test observability; this module is never part of a platform bundle.
+// 仅供本地测试观察；本模块不进入平台发布产物。
 Object.assign(window, {
     preview: {
         get current() {
