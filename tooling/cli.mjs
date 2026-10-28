@@ -71,12 +71,12 @@ if (command === 'upstream') {
         return probe.status === 0
     })
     if (!python) throw new Error('需要可用的 Python 3，请安装后重试')
+    // 兼容直接调用包装器时多传的一个参数分隔符；npm 脚本仍按文档使用 `--` 转发。
+    const platformArgs = process.argv.slice(3)
+    if (platformArgs[0] === '--') platformArgs.shift()
     const result = spawnSync(
         python,
-        [
-            path.join(root, '.agents/skills/mofang-js-node/scripts/mofang_node.py'),
-            ...process.argv.slice(3),
-        ],
+        [path.join(root, '.agents/skills/mofang-js-node/scripts/mofang_node.py'), ...platformArgs],
         { stdio: 'inherit' },
     )
     if (result.error) throw result.error

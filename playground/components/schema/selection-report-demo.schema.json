@@ -1,408 +1,372 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:mofang:preview:selection-report-demo-input",
-  "title": "选品报告演示源数据 · 七区块输入",
-  "description": "metric/score/trend/matrix/categories/source/action 为本页原始演示输入。完整报告通过 mapReportFixture 映射；不应直接作为 SelectionReportData 使用。",
-  "type": "object",
-  "required": [
-    "metric",
-    "score",
-    "trend",
-    "matrix",
-    "categories",
-    "source",
-    "action"
-  ],
-  "properties": {
-    "metric": {
-      "$ref": "#/definitions/metric"
-    },
-    "score": {
-      "$ref": "#/definitions/score"
-    },
-    "trend": {
-      "$ref": "#/definitions/trend"
-    },
-    "matrix": {
-      "$ref": "#/definitions/matrix"
-    },
-    "categories": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/category"
-      }
-    },
-    "source": {
-      "$ref": "#/definitions/source"
-    },
-    "action": {
-      "$ref": "#/definitions/action"
-    }
-  },
-  "additionalProperties": true,
-  "definitions": {
-    "source": {
-      "title": "数据来源",
-      "type": "object",
-      "required": [
-        "label"
-      ],
-      "additionalProperties": true,
-      "properties": {
-        "label": {
-          "type": "string",
-          "pattern": "\\S"
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "urn:mofang:preview:selection-report-demo-input",
+    "title": "选品报告演示源数据 · 七区块输入",
+    "description": "metric/score/trend/matrix/categories/source/action 为本页原始演示输入。完整报告通过 mapReportFixture 映射；不应直接作为 SelectionReportData 使用。",
+    "type": "object",
+    "required": ["metric", "score", "trend", "matrix", "categories", "source", "action"],
+    "properties": {
+        "metric": {
+            "$ref": "#/definitions/metric"
         },
-        "description": {
-          "type": "string"
+        "score": {
+            "$ref": "#/definitions/score"
         },
-        "icon": false
-      },
-      "description": "JSON 不保存 Lit 图标对象，已知图标由预览代码重建。"
-    },
-    "metric": {
-      "title": "指标卡输入",
-      "type": "object",
-      "required": [
-        "label"
-      ],
-      "additionalProperties": true,
-      "properties": {
-        "label": {
-          "type": "string",
-          "pattern": "\\S"
-        },
-        "value": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "number"
-            }
-          ]
-        },
-        "unit": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "note": {
-          "type": "string"
-        },
-        "source": {
-          "$ref": "#/definitions/source"
-        }
-      }
-    },
-    "score": {
-      "title": "评分输入",
-      "type": "object",
-      "required": [
-        "label"
-      ],
-      "additionalProperties": true,
-      "properties": {
-        "label": {
-          "type": "string",
-          "pattern": "\\S"
-        },
-        "value": {
-          "type": "number"
-        },
-        "max": {
-          "type": "number",
-          "exclusiveMinimum": 0
-        },
-        "description": {
-          "type": "string"
-        },
-        "source": {
-          "$ref": "#/definitions/source"
-        }
-      },
-      "description": "缺失或越界的评分由展示组件明确处理，不补成零分。"
-    },
-    "trendPoint": {
-      "title": "趋势数据点",
-      "type": "object",
-      "required": [
-        "label"
-      ],
-      "additionalProperties": true,
-      "properties": {
-        "label": {
-          "type": "string"
-        },
-        "value": {
-          "type": "number"
-        }
-      }
-    },
-    "trend": {
-      "title": "趋势图输入",
-      "type": "object",
-      "required": [
-        "title",
-        "accessibleLabel",
-        "series"
-      ],
-      "additionalProperties": true,
-      "properties": {
-        "title": {
-          "type": "string",
-          "pattern": "\\S"
-        },
-        "accessibleLabel": {
-          "type": "string",
-          "pattern": "\\S"
-        },
-        "series": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/trendPoint"
-          }
-        },
-        "color": {
-          "type": "string"
-        },
-        "unit": {
-          "type": "string"
-        },
-        "summary": {
-          "type": "string"
-        },
-        "note": {
-          "type": "string"
-        },
-        "source": {
-          "$ref": "#/definitions/source"
-        }
-      },
-      "description": "value 可缺失，缺值断线；零、负值、单点和空序列合法。"
-    },
-    "axis": {
-      "title": "矩阵轴",
-      "type": "object",
-      "required": [
-        "label",
-        "threshold"
-      ],
-      "additionalProperties": true,
-      "properties": {
-        "label": {
-          "type": "string",
-          "pattern": "\\S"
-        },
-        "value": {
-          "type": "number"
-        },
-        "threshold": {
-          "type": "number"
-        }
-      }
-    },
-    "matrix": {
-      "title": "机会矩阵输入",
-      "type": "object",
-      "required": [
-        "title",
-        "x",
-        "y"
-      ],
-      "additionalProperties": true,
-      "properties": {
-        "title": {
-          "type": "string",
-          "pattern": "\\S"
-        },
-        "x": {
-          "$ref": "#/definitions/axis"
-        },
-        "y": {
-          "$ref": "#/definitions/axis"
-        },
-        "description": {
-          "type": "string"
-        },
-        "conclusion": {
-          "type": "string"
-        }
-      }
-    },
-    "action": {
-      "title": "行动建议输入",
-      "type": "object",
-      "required": [
-        "title",
-        "description"
-      ],
-      "additionalProperties": true,
-      "properties": {
-        "title": {
-          "type": "string",
-          "pattern": "\\S"
-        },
-        "description": {
-          "type": "string"
-        },
-        "step": {
-          "type": "string"
-        },
-        "sources": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/source"
-          }
-        },
-        "action": false
-      },
-      "description": "JSON 只保存展示数据，不接受可执行回调。"
-    },
-    "product": {
-      "title": "代表商品",
-      "type": "object",
-      "required": [
-        "id",
-        "name"
-      ],
-      "additionalProperties": true,
-      "properties": {
-        "id": {
-          "type": "string",
-          "pattern": "\\S"
-        },
-        "name": {
-          "type": "string",
-          "pattern": "\\S"
-        },
-        "imageUrl": {
-          "type": "string",
-          "description": "本地图片地址；地址语义由调试校验检查。"
-        },
-        "price": {
-          "type": "number"
-        },
-        "currencyCode": {
-          "type": "string"
-        },
-        "units": {
-          "type": "number"
-        },
-        "growth": {
-          "type": "number"
-        },
-        "promoters": {
-          "type": "number"
-        },
-        "source": {
-          "type": "string"
-        }
-      }
-    },
-    "category": {
-      "title": "类目报告",
-      "type": "object",
-      "required": [
-        "id",
-        "name"
-      ],
-      "additionalProperties": true,
-      "properties": {
-        "id": {
-          "type": "string",
-          "pattern": "\\S"
-        },
-        "name": {
-          "type": "string",
-          "pattern": "\\S"
-        },
-        "englishName": {
-          "type": "string"
-        },
-        "summary": {
-          "type": "string"
-        },
-        "units": {
-          "type": "number"
-        },
-        "gmv": {
-          "type": "number"
-        },
-        "currencyCode": {
-          "type": "string"
-        },
-        "growth": {
-          "type": "number"
-        },
-        "promoters": {
-          "type": "number"
-        },
-        "newUnits": {
-          "type": "number"
-        },
-        "searchMomentum": {
-          "type": "number"
-        },
-        "platformScore": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
-        },
-        "searchScore": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
-        },
-        "opportunityScore": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
-        },
-        "productConcentration": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
-        },
-        "shopConcentration": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
-        },
-        "promotionOverlap": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
-        },
-        "newProductOverlap": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
-        },
-        "demand": {
-          "type": "array",
-          "items": {
+        "trend": {
             "$ref": "#/definitions/trend"
-          }
         },
-        "products": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/product"
-          }
+        "matrix": {
+            "$ref": "#/definitions/matrix"
         },
-        "actions": {
-          "type": "array",
-          "items": {
+        "categories": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/category"
+            }
+        },
+        "source": {
+            "$ref": "#/definitions/source"
+        },
+        "action": {
             "$ref": "#/definitions/action"
-          }
-        },
-        "conclusion": {
-          "type": "string"
         }
-      },
-      "description": "可选指标缺失合法；id 唯一性由自定义校验负责。"
+    },
+    "additionalProperties": true,
+    "definitions": {
+        "source": {
+            "title": "数据来源",
+            "type": "object",
+            "required": ["label"],
+            "additionalProperties": true,
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "icon": false
+            },
+            "description": "JSON 不保存 Lit 图标对象，已知图标由预览代码重建。"
+        },
+        "metric": {
+            "title": "指标卡输入",
+            "type": "object",
+            "required": ["label"],
+            "additionalProperties": true,
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "number"
+                        }
+                    ]
+                },
+                "unit": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/source"
+                }
+            }
+        },
+        "score": {
+            "title": "评分输入",
+            "type": "object",
+            "required": ["label"],
+            "additionalProperties": true,
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "value": {
+                    "type": "number"
+                },
+                "max": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                },
+                "description": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/source"
+                }
+            },
+            "description": "缺失或越界的评分由展示组件明确处理，不补成零分。"
+        },
+        "trendPoint": {
+            "title": "趋势数据点",
+            "type": "object",
+            "required": ["label"],
+            "additionalProperties": true,
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "trend": {
+            "title": "趋势图输入",
+            "type": "object",
+            "required": ["title", "accessibleLabel", "series"],
+            "additionalProperties": true,
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "accessibleLabel": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "series": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/trendPoint"
+                    }
+                },
+                "color": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/source"
+                }
+            },
+            "description": "value 可缺失，缺值断线；零、负值、单点和空序列合法。"
+        },
+        "axis": {
+            "title": "矩阵轴",
+            "type": "object",
+            "required": ["label", "threshold"],
+            "additionalProperties": true,
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "value": {
+                    "type": "number"
+                },
+                "threshold": {
+                    "type": "number"
+                }
+            }
+        },
+        "matrix": {
+            "title": "机会矩阵输入",
+            "type": "object",
+            "required": ["title", "x", "y"],
+            "additionalProperties": true,
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "x": {
+                    "$ref": "#/definitions/axis"
+                },
+                "y": {
+                    "$ref": "#/definitions/axis"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "conclusion": {
+                    "type": "string"
+                }
+            }
+        },
+        "action": {
+            "title": "行动建议输入",
+            "type": "object",
+            "required": ["title", "description"],
+            "additionalProperties": true,
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "step": {
+                    "type": "string"
+                },
+                "sources": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/source"
+                    }
+                },
+                "action": false
+            },
+            "description": "JSON 只保存展示数据，不接受可执行回调。"
+        },
+        "product": {
+            "title": "代表商品",
+            "type": "object",
+            "required": ["id", "name"],
+            "additionalProperties": true,
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "name": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "imageUrl": {
+                    "type": "string",
+                    "description": "本地图片地址；地址语义由调试校验检查。"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "currencyCode": {
+                    "type": "string"
+                },
+                "units": {
+                    "type": "number"
+                },
+                "growth": {
+                    "type": "number"
+                },
+                "promoters": {
+                    "type": "number"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "category": {
+            "title": "类目报告",
+            "type": "object",
+            "required": ["id", "name"],
+            "additionalProperties": true,
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "name": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "englishName": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "units": {
+                    "type": "number"
+                },
+                "gmv": {
+                    "type": "number"
+                },
+                "currencyCode": {
+                    "type": "string"
+                },
+                "growth": {
+                    "type": "number"
+                },
+                "promoters": {
+                    "type": "number"
+                },
+                "newUnits": {
+                    "type": "number"
+                },
+                "searchMomentum": {
+                    "type": "number"
+                },
+                "platformScore": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "searchScore": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "opportunityScore": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "productConcentration": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "shopConcentration": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "promotionOverlap": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "newProductOverlap": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "demand": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/trend"
+                    }
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/product"
+                    }
+                },
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/action"
+                    }
+                },
+                "conclusion": {
+                    "type": "string"
+                }
+            },
+            "description": "可选指标缺失合法；id 唯一性由自定义校验负责。"
+        }
     }
-  }
 }

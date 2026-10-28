@@ -33,8 +33,12 @@ export async function runLowcode(argv) {
     if (action === 'guide') {
         let packages = null
         try {
-            packages = JSON.parse(await readFile(new URL('../../vendor/lowcode-lock.json', import.meta.url), 'utf8'))
-        } catch (error) { if (error.code !== 'ENOENT') throw error }
+            packages = JSON.parse(
+                await readFile(new URL('../../vendor/lowcode-lock.json', import.meta.url), 'utf8'),
+            )
+        } catch (error) {
+            if (error.code !== 'ENOENT') throw error
+        }
         return { ...guide, provenance: { source: 'vendor/lowcode-lock.json', packages } }
     }
     const authoring = await import('@mofang/low-code-page/authoring')
@@ -189,7 +193,8 @@ export async function runLowcode(argv) {
         return { key: document.key, revision: document.revision, ...checked }
     }
     if (action === 'preview') {
-        if (values.scene && !['ready', 'empty', 'error'].includes(values.scene)) throw failure('invalid_scene', 'scene 必须为 ready、empty 或 error')
+        if (values.scene && !['ready', 'empty', 'error'].includes(values.scene))
+            throw failure('invalid_scene', 'scene 必须为 ready、empty 或 error')
         if (!checked.valid) throw failure('validation_failed', '页面校验未通过，不能预览', checked)
         const port = Number(values.port ?? process.env.MF_PREVIEW_PORT ?? 5188)
         if (!Number.isInteger(port) || port < 1 || port > 65535)

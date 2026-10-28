@@ -2,7 +2,7 @@ import { parseArgs } from 'node:util'
 import path from 'node:path'
 import { mkdir, writeFile, realpath } from 'node:fs/promises'
 import { root } from '../paths.mjs'
-import { nodeFiles } from './templates.mjs'
+import { nodeFiles, presets } from './templates.mjs'
 import { containedPath } from '../panels/manifest.mjs'
 const { values } = parseArgs({
     options: {
@@ -12,6 +12,17 @@ const { values } = parseArgs({
         'business-renderer': { type: 'string', default: 'lit' },
     },
 })
+if (
+    typeof values.code !== 'string' ||
+    !/^[a-z][a-z0-9-]{0,63}$/.test(values.code) ||
+    !presets.includes(values.preset) ||
+    ![values['settings-renderer'], values['business-renderer']].every((renderer) =>
+        ['lit', 'puck'].includes(renderer),
+    )
+)
+    throw new Error(
+        'node:new requires --code <lowercase-kebab> [--preset copy|selection|human-wait|multi-instance] [--settings-renderer lit|puck] [--business-renderer lit|puck]',
+    )
 const files = nodeFiles(values.code, values.preset, {
     settingsRenderer: values['settings-renderer'],
     businessRenderer: values['business-renderer'],

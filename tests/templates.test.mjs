@@ -108,6 +108,7 @@ test('冷初始化携带完整技能和模板Git祖先，真实类型和构建�
     )
     await symlink(path.join(root, 'node_modules'), path.join(target, 'node_modules'), 'dir')
     const generatedPackage = JSON.parse(await readFile(path.join(target, 'package.json'), 'utf8'))
+    assert.equal(generatedPackage.type, undefined)
     assert.equal(generatedPackage.scripts['test:ui'], 'node tooling/verify/ui.mjs')
     assert.equal(
         generatedPackage.scripts['test:transitions'],
@@ -175,11 +176,15 @@ export async function prepareInput(_context: PageProgramContext): Promise<PagePr
             throw new Error('unexpected data read')
         },
     }
-    const selectionPage = await import(
+    const selectionPageModule = await import(
         pathToFileURL(path.join(target, 'dist/selection/pageProgram.js')).href
     )
+    const selectionPage = selectionPageModule.default ?? selectionPageModule
     assert.deepEqual((await selectionPage.prepareInput(pageContext)).fields, ['item'])
-    const copyPage = await import(pathToFileURL(path.join(target, 'dist/copy/pageProgram.js')).href)
+    const copyPageModule = await import(
+        pathToFileURL(path.join(target, 'dist/copy/pageProgram.js')).href
+    )
+    const copyPage = copyPageModule.default ?? copyPageModule
     assert.deepEqual((await copyPage.prepareInput(pageContext)).fields, ['item'])
     assert.equal((await copyPage.prepareInput(pageContext)).reason, 'cold-node-page-override')
     // 逐个注入真实类型错误，防止根配置变为 solution 后 CLI 只检查了空入口。

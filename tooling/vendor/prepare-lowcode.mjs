@@ -55,7 +55,10 @@ export async function prepareLowcodePackage(source, stage) {
         // 移除映射后不保留文件尾空行；许可文本只统一换行，原文内容不变。
         if (/\.(js|css|txt)$/.test(file.path))
             content = Buffer.from(
-                content.toString('utf8').replace(/\r\n/g, '\n').replace(/\n{2,}$/, '\n'),
+                content
+                    .toString('utf8')
+                    .replace(/\r\n/g, '\n')
+                    .replace(/\n{2,}$/, '\n'),
             )
         const destination = path.join(stage, file.path)
         await mkdir(path.dirname(destination), { recursive: true })
