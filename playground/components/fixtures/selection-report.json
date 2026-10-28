@@ -1,826 +1,826 @@
 {
-  "metric": {
-    "label": "重点细分类目月度成交额",
-    "value": 2719200,
-    "unit": "USD",
-    "description": "2026年9月美国TikTok Shop · 宠物喂养 · 第三方公开类目报告",
-    "source": {
-      "label": "TikTok Shop / 蔚云出海",
-      "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
-    }
-  },
-  "score": {
-    "label": "综合机会分",
-    "value": 82.0,
-    "description": "0—100内部研究评分：平台规模/增长/达人环境70%，外部搜索关注30%，扣除履约与波动风险；不是平台官方评级。"
-  },
-  "trend": {
-    "title": "宠物喂养 · 近5个月GMV走势",
-    "accessibleLabel": "2026年5至9月宠物喂养GMV美元",
-    "series": [
-      {
-        "label": "2026-05",
-        "value": 1438500
-      },
-      {
-        "label": "2026-06",
-        "value": 1802000
-      },
-      {
-        "label": "2026-07",
-        "value": 1827500
-      },
-      {
-        "label": "2026-08",
-        "value": 1815900
-      },
-      {
-        "label": "2026-09",
-        "value": 2719200
-      }
+    "metric": {
+        "label": "重点细分类目月度成交额",
+        "value": 2719200,
+        "unit": "USD",
+        "description": "2026年9月美国TikTok Shop · 宠物喂养 · 第三方公开类目报告",
+        "source": {
+            "label": "TikTok Shop / 蔚云出海",
+            "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
+        }
+    },
+    "score": {
+        "label": "综合机会分",
+        "value": 82.0,
+        "description": "0—100内部研究评分：平台规模/增长/达人环境70%，外部搜索关注30%，扣除履约与波动风险；不是平台官方评级。"
+    },
+    "trend": {
+        "title": "宠物喂养 · 近5个月GMV走势",
+        "accessibleLabel": "2026年5至9月宠物喂养GMV美元",
+        "series": [
+            {
+                "label": "2026-05",
+                "value": 1438500
+            },
+            {
+                "label": "2026-06",
+                "value": 1802000
+            },
+            {
+                "label": "2026-07",
+                "value": 1827500
+            },
+            {
+                "label": "2026-08",
+                "value": 1815900
+            },
+            {
+                "label": "2026-09",
+                "value": 2719200
+            }
+        ],
+        "note": "单位USD，2026年5—9月。曲线采用公开类目月度数据，不混用商品累计销量。"
+    },
+    "matrix": {
+        "title": "宠物喂养 · 平台与搜索双源矩阵",
+        "x": {
+            "label": "平台成交动能",
+            "value": 88,
+            "threshold": 70
+        },
+        "y": {
+            "label": "搜索需求关注",
+            "value": 78,
+            "threshold": 65
+        },
+        "conclusion": "宠物喂养处于平台增长和外部需求关注度相对较高的象限；须关注近期跳增的持续性。"
+    },
+    "categories": [
+        {
+            "id": "travel",
+            "name": "宠物出行",
+            "englishName": "Pet Carriers & Travel Supplies",
+            "units": 21350,
+            "gmv": 930700,
+            "growth": -6.76,
+            "promoters": 640,
+            "newUnits": 1670,
+            "searchMomentum": 6.8,
+            "platformScore": 54,
+            "searchScore": 66,
+            "opportunityScore": 55.6,
+            "productConcentration": 49,
+            "shopConcentration": 37,
+            "promotionOverlap": 57,
+            "newProductOverlap": 21,
+            "currencyCode": "USD",
+            "summary": "2026年9月美国站「出行包和旅行用品」GMV为93.07万美元，环比回落6.76%。6月曾达到99.47万美元，8月短暂修复后9月再度走弱。",
+            "conclusion": "需求较有季节性且客单偏高。优先试小型背包、车载防护等易运输产品；推车类需重点核对体积重、退货与破损风险。",
+            "demand": [
+                {
+                    "title": "平台成交需求",
+                    "accessibleLabel": "宠物出行近5个月TikTok Shop月度GMV（美元）",
+                    "series": [
+                        {
+                            "label": "2026-05",
+                            "value": 736300
+                        },
+                        {
+                            "label": "2026-06",
+                            "value": 994700
+                        },
+                        {
+                            "label": "2026-07",
+                            "value": 928100
+                        },
+                        {
+                            "label": "2026-08",
+                            "value": 998200
+                        },
+                        {
+                            "label": "2026-09",
+                            "value": 930700
+                        }
+                    ],
+                    "summary": "最高月份：2026-08，GMV $998,200；最近月份：2026-09，环比 -6.76%",
+                    "source": {
+                        "label": "TikTok Shop / 蔚云出海",
+                        "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
+                    },
+                    "note": "按2026年5—9月第三方公开类目报告还原，单位USD；玩具为猫玩具与狗玩具两个类目GMV之和。"
+                },
+                {
+                    "title": "外部搜索需求",
+                    "accessibleLabel": "宠物出行近12个月关键词相对关注度研究指数",
+                    "series": [
+                        {
+                            "label": "2025-10",
+                            "value": 55
+                        },
+                        {
+                            "label": "2025-11",
+                            "value": 49
+                        },
+                        {
+                            "label": "2025-12",
+                            "value": 43
+                        },
+                        {
+                            "label": "2026-01",
+                            "value": 44
+                        },
+                        {
+                            "label": "2026-02",
+                            "value": 46
+                        },
+                        {
+                            "label": "2026-03",
+                            "value": 54
+                        },
+                        {
+                            "label": "2026-04",
+                            "value": 61
+                        },
+                        {
+                            "label": "2026-05",
+                            "value": 69
+                        },
+                        {
+                            "label": "2026-06",
+                            "value": 77
+                        },
+                        {
+                            "label": "2026-07",
+                            "value": 80
+                        },
+                        {
+                            "label": "2026-08",
+                            "value": 75
+                        },
+                        {
+                            "label": "2026-09",
+                            "value": 66
+                        }
+                    ],
+                    "summary": "关注度高点：2026-07；近3个月较前3个月变化 +6.8%",
+                    "source": {
+                        "label": "搜索关注度研究",
+                        "description": "美国市场宠物相关关键词关注度的相对研究指数（0—100），非Google Trends官方导出的精确月度数值。"
+                    },
+                    "note": "趋势研究指数范围0—100，衡量关键词相对关注度而非搜索量；与平台GMV不共用数据来源。"
+                }
+            ],
+            "products": [
+                {
+                    "id": "travel-1",
+                    "name": "Sweetcrispy 三轮折叠宠物推车",
+                    "imageUrl": "/assets/report/pet-stroller.png",
+                    "price": 53.98,
+                    "currencyCode": "USD",
+                    "units": 680,
+                    "growth": 8,
+                    "promoters": 54,
+                    "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
+                },
+                {
+                    "id": "travel-2",
+                    "name": "透气网面双肩宠物外出背包",
+                    "imageUrl": "/assets/report/pet-carrier-backpack.png",
+                    "price": 17.57,
+                    "currencyCode": "USD",
+                    "units": 1120,
+                    "growth": -11,
+                    "promoters": 77,
+                    "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
+                },
+                {
+                    "id": "travel-3",
+                    "name": "车载宠物硬底后排扩展防护垫",
+                    "imageUrl": "/assets/report/pet-carseat.png",
+                    "price": 133.0,
+                    "currencyCode": "USD",
+                    "units": 2714,
+                    "growth": 49,
+                    "promoters": 484,
+                    "source": "TokConnect：截至2026-10-18近30天估算销量 / 达人数据"
+                }
+            ],
+            "actions": [
+                {
+                    "step": "STEP 01",
+                    "title": "验证市场切入点",
+                    "description": "核对宠物出行对应平台三级类目的GMV与近5个月波动，确认需求是否可持续。",
+                    "sources": [
+                        {
+                            "label": "蔚云出海 / TikTok Shop 月报",
+                            "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
+                        }
+                    ]
+                },
+                {
+                    "step": "STEP 02",
+                    "title": "核验候选SKU",
+                    "description": "检查TikTok Shop单品价格、物流规格、真实在售状态，并区分累计售出与近30天销量。",
+                    "sources": [
+                        {
+                            "label": "蔚云出海 / TikTok Shop 月报",
+                            "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
+                        },
+                        {
+                            "label": "TikTok Shop 商品目录",
+                            "description": "公开在售商品与价格仅作SKU验证；销量与达人覆盖须按商品明细另行复核。"
+                        }
+                    ]
+                },
+                {
+                    "step": "STEP 03",
+                    "title": "完成试卖与利润测算",
+                    "description": "结合平台佣金、达人成本、履约、退货与小批量采购报价测算贡献毛利，再决定是否扩品。",
+                    "sources": [
+                        {
+                            "label": "TikTok Shop / APPA",
+                            "description": "平台类目研究结合美国宠物行业消费数据，仅作为市场规模和需求长期性参照。"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "feeding",
+            "name": "宠物喂养",
+            "englishName": "Pet Feeding Accessories",
+            "units": 66500,
+            "gmv": 2719200,
+            "growth": 49.74,
+            "promoters": 1680,
+            "newUnits": 7750,
+            "searchMomentum": 13.7,
+            "platformScore": 88,
+            "searchScore": 78,
+            "opportunityScore": 82.0,
+            "productConcentration": 43,
+            "shopConcentration": 40,
+            "promotionOverlap": 68,
+            "newProductOverlap": 34,
+            "currencyCode": "USD",
+            "summary": "2026年9月「喂养用具」GMV为271.92万美元，环比增长49.74%，增量90.33万美元，是当月宠物用品三级类目最显著的增长贡献项。",
+            "conclusion": "当前成交势能最强，重点评估饮水机、定时喂食器、慢食碗。需连续观察2—3个月，以判断9月激增是持续需求还是头部SKU集中放量。",
+            "demand": [
+                {
+                    "title": "平台成交需求",
+                    "accessibleLabel": "宠物喂养近5个月TikTok Shop月度GMV（美元）",
+                    "series": [
+                        {
+                            "label": "2026-05",
+                            "value": 1438500
+                        },
+                        {
+                            "label": "2026-06",
+                            "value": 1802000
+                        },
+                        {
+                            "label": "2026-07",
+                            "value": 1827500
+                        },
+                        {
+                            "label": "2026-08",
+                            "value": 1815900
+                        },
+                        {
+                            "label": "2026-09",
+                            "value": 2719200
+                        }
+                    ],
+                    "summary": "最高月份：2026-09，GMV $2,719,200；最近月份：2026-09，环比 +49.74%",
+                    "source": {
+                        "label": "TikTok Shop / 蔚云出海",
+                        "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
+                    },
+                    "note": "按2026年5—9月第三方公开类目报告还原，单位USD；玩具为猫玩具与狗玩具两个类目GMV之和。"
+                },
+                {
+                    "title": "外部搜索需求",
+                    "accessibleLabel": "宠物喂养近12个月关键词相对关注度研究指数",
+                    "series": [
+                        {
+                            "label": "2025-10",
+                            "value": 63
+                        },
+                        {
+                            "label": "2025-11",
+                            "value": 62
+                        },
+                        {
+                            "label": "2025-12",
+                            "value": 64
+                        },
+                        {
+                            "label": "2026-01",
+                            "value": 61
+                        },
+                        {
+                            "label": "2026-02",
+                            "value": 60
+                        },
+                        {
+                            "label": "2026-03",
+                            "value": 65
+                        },
+                        {
+                            "label": "2026-04",
+                            "value": 69
+                        },
+                        {
+                            "label": "2026-05",
+                            "value": 70
+                        },
+                        {
+                            "label": "2026-06",
+                            "value": 73
+                        },
+                        {
+                            "label": "2026-07",
+                            "value": 77
+                        },
+                        {
+                            "label": "2026-08",
+                            "value": 80
+                        },
+                        {
+                            "label": "2026-09",
+                            "value": 84
+                        }
+                    ],
+                    "summary": "关注度高点：2026-09；近3个月较前3个月变化 +13.7%",
+                    "source": {
+                        "label": "搜索关注度研究",
+                        "description": "美国市场宠物相关关键词关注度的相对研究指数（0—100），非Google Trends官方导出的精确月度数值。"
+                    },
+                    "note": "趋势研究指数范围0—100，衡量关键词相对关注度而非搜索量；与平台GMV不共用数据来源。"
+                }
+            ],
+            "products": [
+                {
+                    "id": "feeding-1",
+                    "name": "VEWO 11L 大容量犬用饮水机",
+                    "price": 69.0,
+                    "currencyCode": "USD",
+                    "units": 9561,
+                    "growth": 54,
+                    "promoters": 511,
+                    "source": "TokConnect：截至2026-10-18近30天估算销量 / 达人数据"
+                },
+                {
+                    "id": "feeding-2",
+                    "name": "HAPAW 3L 智能猫饮水机",
+                    "price": 53.61,
+                    "currencyCode": "USD",
+                    "units": 5346,
+                    "growth": 19,
+                    "promoters": 376,
+                    "source": "TokConnect：截至2026-10-18近30天估算销量 / 达人数据"
+                },
+                {
+                    "id": "feeding-3",
+                    "name": "Yipetor 滚珠慢食狗碗",
+                    "price": 19.9,
+                    "currencyCode": "USD",
+                    "units": 2880,
+                    "growth": -6,
+                    "promoters": 62,
+                    "source": "HashIQ商品页近日电商跟踪 / 近30天销量与增长估计"
+                }
+            ],
+            "actions": [
+                {
+                    "step": "STEP 01",
+                    "title": "验证市场切入点",
+                    "description": "核对宠物喂养对应平台三级类目的GMV与近5个月波动，确认需求是否可持续。",
+                    "sources": [
+                        {
+                            "label": "蔚云出海 / TikTok Shop 月报",
+                            "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
+                        }
+                    ]
+                },
+                {
+                    "step": "STEP 02",
+                    "title": "核验候选SKU",
+                    "description": "检查TikTok Shop单品价格、物流规格、真实在售状态，并区分累计售出与近30天销量。",
+                    "sources": [
+                        {
+                            "label": "蔚云出海 / TikTok Shop 月报",
+                            "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
+                        },
+                        {
+                            "label": "TikTok Shop 商品目录",
+                            "description": "公开在售商品与价格仅作SKU验证；销量与达人覆盖须按商品明细另行复核。"
+                        }
+                    ]
+                },
+                {
+                    "step": "STEP 03",
+                    "title": "完成试卖与利润测算",
+                    "description": "结合平台佣金、达人成本、履约、退货与小批量采购报价测算贡献毛利，再决定是否扩品。",
+                    "sources": [
+                        {
+                            "label": "TikTok Shop / APPA",
+                            "description": "平台类目研究结合美国宠物行业消费数据，仅作为市场规模和需求长期性参照。"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "grooming",
+            "name": "宠物清洁",
+            "englishName": "Pet Grooming & Hygiene",
+            "units": 141200,
+            "gmv": 2863600,
+            "growth": -8.92,
+            "promoters": 1240,
+            "newUnits": 6530,
+            "searchMomentum": -13.1,
+            "platformScore": 48,
+            "searchScore": 62,
+            "opportunityScore": 48.2,
+            "productConcentration": 29,
+            "shopConcentration": 36,
+            "promotionOverlap": 47,
+            "newProductOverlap": 20,
+            "currencyCode": "USD",
+            "summary": "2026年9月「猫狗清洁美容」GMV为286.36万美元，环比下滑8.92%，从6月350.31万美元高点连续三个月回落。",
+            "conclusion": "总体规模仍大，但近期走势偏弱。优先评估复购型清洁耗材和差异化除毛工具，避免仅凭视频热度扩库存；关注耗材资质与安全宣称。",
+            "demand": [
+                {
+                    "title": "平台成交需求",
+                    "accessibleLabel": "宠物清洁近5个月TikTok Shop月度GMV（美元）",
+                    "series": [
+                        {
+                            "label": "2026-05",
+                            "value": 3128900
+                        },
+                        {
+                            "label": "2026-06",
+                            "value": 3503100
+                        },
+                        {
+                            "label": "2026-07",
+                            "value": 3244200
+                        },
+                        {
+                            "label": "2026-08",
+                            "value": 3144000
+                        },
+                        {
+                            "label": "2026-09",
+                            "value": 2863600
+                        }
+                    ],
+                    "summary": "最高月份：2026-06，GMV $3,503,100；最近月份：2026-09，环比 -8.92%",
+                    "source": {
+                        "label": "TikTok Shop / 蔚云出海",
+                        "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
+                    },
+                    "note": "按2026年5—9月第三方公开类目报告还原，单位USD；玩具为猫玩具与狗玩具两个类目GMV之和。"
+                },
+                {
+                    "title": "外部搜索需求",
+                    "accessibleLabel": "宠物清洁近12个月关键词相对关注度研究指数",
+                    "series": [
+                        {
+                            "label": "2025-10",
+                            "value": 68
+                        },
+                        {
+                            "label": "2025-11",
+                            "value": 69
+                        },
+                        {
+                            "label": "2025-12",
+                            "value": 67
+                        },
+                        {
+                            "label": "2026-01",
+                            "value": 71
+                        },
+                        {
+                            "label": "2026-02",
+                            "value": 72
+                        },
+                        {
+                            "label": "2026-03",
+                            "value": 76
+                        },
+                        {
+                            "label": "2026-04",
+                            "value": 79
+                        },
+                        {
+                            "label": "2026-05",
+                            "value": 81
+                        },
+                        {
+                            "label": "2026-06",
+                            "value": 77
+                        },
+                        {
+                            "label": "2026-07",
+                            "value": 73
+                        },
+                        {
+                            "label": "2026-08",
+                            "value": 69
+                        },
+                        {
+                            "label": "2026-09",
+                            "value": 64
+                        }
+                    ],
+                    "summary": "关注度高点：2026-05；近3个月较前3个月变化 -13.1%",
+                    "source": {
+                        "label": "搜索关注度研究",
+                        "description": "美国市场宠物相关关键词关注度的相对研究指数（0—100），非Google Trends官方导出的精确月度数值。"
+                    },
+                    "note": "趋势研究指数范围0—100，衡量关键词相对关注度而非搜索量；与平台GMV不共用数据来源。"
+                }
+            ],
+            "products": [
+                {
+                    "id": "grooming-1",
+                    "name": "Pecute 三合一蒸汽除毛梳",
+                    "price": 19.99,
+                    "currencyCode": "USD",
+                    "units": 1980,
+                    "growth": -12,
+                    "promoters": 88,
+                    "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
+                },
+                {
+                    "id": "grooming-2",
+                    "name": "We Love Doodles 专业开结针梳",
+                    "price": 38.64,
+                    "currencyCode": "USD",
+                    "units": 620,
+                    "growth": -7,
+                    "promoters": 49,
+                    "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
+                },
+                {
+                    "id": "grooming-3",
+                    "name": "PETHROOM Healing Brush 宠物梳",
+                    "price": 22.09,
+                    "currencyCode": "USD",
+                    "units": 540,
+                    "growth": -3,
+                    "promoters": 36,
+                    "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
+                }
+            ],
+            "actions": [
+                {
+                    "step": "STEP 01",
+                    "title": "验证市场切入点",
+                    "description": "核对宠物清洁对应平台三级类目的GMV与近5个月波动，确认需求是否可持续。",
+                    "sources": [
+                        {
+                            "label": "蔚云出海 / TikTok Shop 月报",
+                            "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
+                        }
+                    ]
+                },
+                {
+                    "step": "STEP 02",
+                    "title": "核验候选SKU",
+                    "description": "检查TikTok Shop单品价格、物流规格、真实在售状态，并区分累计售出与近30天销量。",
+                    "sources": [
+                        {
+                            "label": "蔚云出海 / TikTok Shop 月报",
+                            "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
+                        },
+                        {
+                            "label": "TikTok Shop 商品目录",
+                            "description": "公开在售商品与价格仅作SKU验证；销量与达人覆盖须按商品明细另行复核。"
+                        }
+                    ]
+                },
+                {
+                    "step": "STEP 03",
+                    "title": "完成试卖与利润测算",
+                    "description": "结合平台佣金、达人成本、履约、退货与小批量采购报价测算贡献毛利，再决定是否扩品。",
+                    "sources": [
+                        {
+                            "label": "TikTok Shop / APPA",
+                            "description": "平台类目研究结合美国宠物行业消费数据，仅作为市场规模和需求长期性参照。"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "toys",
+            "name": "宠物玩具",
+            "englishName": "Pet Toys (Cats & Dogs)",
+            "units": 112850,
+            "gmv": 2111600,
+            "growth": -3.96,
+            "promoters": 2140,
+            "newUnits": 9380,
+            "searchMomentum": -3.2,
+            "platformScore": 61,
+            "searchScore": 73,
+            "opportunityScore": 62.6,
+            "productConcentration": 31,
+            "shopConcentration": 30,
+            "promotionOverlap": 71,
+            "newProductOverlap": 42,
+            "currencyCode": "USD",
+            "summary": "2026年9月猫玩具GMV120.78万美元、狗玩具90.38万美元，合计211.16万美元。相比8月两类合计219.87万美元，环比下降约3.96%。",
+            "conclusion": "内容互动性强、低价SKU适合短视频演示，但复制速度快、同质化竞争明显。适合做小批量多款测款，优先验证耐用性与宠物安全。",
+            "demand": [
+                {
+                    "title": "平台成交需求",
+                    "accessibleLabel": "宠物玩具近5个月TikTok Shop月度GMV（美元）",
+                    "series": [
+                        {
+                            "label": "2026-05",
+                            "value": 1800700
+                        },
+                        {
+                            "label": "2026-06",
+                            "value": 2174000
+                        },
+                        {
+                            "label": "2026-07",
+                            "value": 2252600
+                        },
+                        {
+                            "label": "2026-08",
+                            "value": 2198700
+                        },
+                        {
+                            "label": "2026-09",
+                            "value": 2111600
+                        }
+                    ],
+                    "summary": "最高月份：2026-07，GMV $2,252,600；最近月份：2026-09，环比 -3.96%",
+                    "source": {
+                        "label": "TikTok Shop / 蔚云出海",
+                        "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
+                    },
+                    "note": "按2026年5—9月第三方公开类目报告还原，单位USD；玩具为猫玩具与狗玩具两个类目GMV之和。"
+                },
+                {
+                    "title": "外部搜索需求",
+                    "accessibleLabel": "宠物玩具近12个月关键词相对关注度研究指数",
+                    "series": [
+                        {
+                            "label": "2025-10",
+                            "value": 79
+                        },
+                        {
+                            "label": "2025-11",
+                            "value": 83
+                        },
+                        {
+                            "label": "2025-12",
+                            "value": 91
+                        },
+                        {
+                            "label": "2026-01",
+                            "value": 69
+                        },
+                        {
+                            "label": "2026-02",
+                            "value": 63
+                        },
+                        {
+                            "label": "2026-03",
+                            "value": 66
+                        },
+                        {
+                            "label": "2026-04",
+                            "value": 70
+                        },
+                        {
+                            "label": "2026-05",
+                            "value": 74
+                        },
+                        {
+                            "label": "2026-06",
+                            "value": 78
+                        },
+                        {
+                            "label": "2026-07",
+                            "value": 72
+                        },
+                        {
+                            "label": "2026-08",
+                            "value": 70
+                        },
+                        {
+                            "label": "2026-09",
+                            "value": 73
+                        }
+                    ],
+                    "summary": "关注度高点：2025-12；近3个月较前3个月变化 -3.2%",
+                    "source": {
+                        "label": "搜索关注度研究",
+                        "description": "美国市场宠物相关关键词关注度的相对研究指数（0—100），非Google Trends官方导出的精确月度数值。"
+                    },
+                    "note": "趋势研究指数范围0—100，衡量关键词相对关注度而非搜索量；与平台GMV不共用数据来源。"
+                }
+            ],
+            "products": [
+                {
+                    "id": "toys-1",
+                    "name": "Mizusu 多尾替换互动逗猫玩具",
+                    "price": 12.99,
+                    "currencyCode": "USD",
+                    "units": 6200,
+                    "growth": -5,
+                    "promoters": 188,
+                    "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
+                },
+                {
+                    "id": "toys-2",
+                    "name": "Potaroma 躲猫猫感应羽毛玩具",
+                    "price": 30.98,
+                    "currencyCode": "USD",
+                    "units": 960,
+                    "growth": -9,
+                    "promoters": 81,
+                    "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
+                },
+                {
+                    "id": "toys-3",
+                    "name": "HAPPYCODE 三合一自动猫咪互动机",
+                    "price": 28.99,
+                    "currencyCode": "USD",
+                    "units": 740,
+                    "growth": 17,
+                    "promoters": 57,
+                    "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
+                }
+            ],
+            "actions": [
+                {
+                    "step": "STEP 01",
+                    "title": "验证市场切入点",
+                    "description": "核对宠物玩具对应平台三级类目的GMV与近5个月波动，确认需求是否可持续。",
+                    "sources": [
+                        {
+                            "label": "蔚云出海 / TikTok Shop 月报",
+                            "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
+                        }
+                    ]
+                },
+                {
+                    "step": "STEP 02",
+                    "title": "核验候选SKU",
+                    "description": "检查TikTok Shop单品价格、物流规格、真实在售状态，并区分累计售出与近30天销量。",
+                    "sources": [
+                        {
+                            "label": "蔚云出海 / TikTok Shop 月报",
+                            "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
+                        },
+                        {
+                            "label": "TikTok Shop 商品目录",
+                            "description": "公开在售商品与价格仅作SKU验证；销量与达人覆盖须按商品明细另行复核。"
+                        }
+                    ]
+                },
+                {
+                    "step": "STEP 03",
+                    "title": "完成试卖与利润测算",
+                    "description": "结合平台佣金、达人成本、履约、退货与小批量采购报价测算贡献毛利，再决定是否扩品。",
+                    "sources": [
+                        {
+                            "label": "TikTok Shop / APPA",
+                            "description": "平台类目研究结合美国宠物行业消费数据，仅作为市场规模和需求长期性参照。"
+                        }
+                    ]
+                }
+            ]
+        }
     ],
-    "note": "单位USD，2026年5—9月。曲线采用公开类目月度数据，不混用商品累计销量。"
-  },
-  "matrix": {
-    "title": "宠物喂养 · 平台与搜索双源矩阵",
-    "x": {
-      "label": "平台成交动能",
-      "value": 88,
-      "threshold": 70
+    "source": {
+        "label": "TikTok Shop / 蔚云出海",
+        "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
     },
-    "y": {
-      "label": "搜索需求关注",
-      "value": 78,
-      "threshold": 65
-    },
-    "conclusion": "宠物喂养处于平台增长和外部需求关注度相对较高的象限；须关注近期跳增的持续性。"
-  },
-  "categories": [
-    {
-      "id": "travel",
-      "name": "宠物出行",
-      "englishName": "Pet Carriers & Travel Supplies",
-      "units": 21350,
-      "gmv": 930700,
-      "growth": -6.76,
-      "promoters": 640,
-      "newUnits": 1670,
-      "searchMomentum": 6.8,
-      "platformScore": 54,
-      "searchScore": 66,
-      "opportunityScore": 55.6,
-      "productConcentration": 49,
-      "shopConcentration": 37,
-      "promotionOverlap": 57,
-      "newProductOverlap": 21,
-      "currencyCode": "USD",
-      "summary": "2026年9月美国站「出行包和旅行用品」GMV为93.07万美元，环比回落6.76%。6月曾达到99.47万美元，8月短暂修复后9月再度走弱。",
-      "conclusion": "需求较有季节性且客单偏高。优先试小型背包、车载防护等易运输产品；推车类需重点核对体积重、退货与破损风险。",
-      "demand": [
-        {
-          "title": "平台成交需求",
-          "accessibleLabel": "宠物出行近5个月TikTok Shop月度GMV（美元）",
-          "series": [
+    "action": {
+        "step": "STEP 01",
+        "title": "进入候选商品核验",
+        "description": "优先打开宠物喂养候选商品，核验商品售价、物流毛利与近30天动销；此操作仍仅向调用方发出回调。",
+        "sources": [
             {
-              "label": "2026-05",
-              "value": 736300
+                "label": "蔚云出海 / TikTok Shop 月报",
+                "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
             },
             {
-              "label": "2026-06",
-              "value": 994700
-            },
-            {
-              "label": "2026-07",
-              "value": 928100
-            },
-            {
-              "label": "2026-08",
-              "value": 998200
-            },
-            {
-              "label": "2026-09",
-              "value": 930700
+                "label": "TikTok Shop 商品目录",
+                "description": "公开在售商品与价格仅作SKU验证；销量与达人覆盖须按商品明细另行复核。"
             }
-          ],
-          "summary": "最高月份：2026-08，GMV $998,200；最近月份：2026-09，环比 -6.76%",
-          "source": {
-            "label": "TikTok Shop / 蔚云出海",
-            "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
-          },
-          "note": "按2026年5—9月第三方公开类目报告还原，单位USD；玩具为猫玩具与狗玩具两个类目GMV之和。"
-        },
-        {
-          "title": "外部搜索需求",
-          "accessibleLabel": "宠物出行近12个月关键词相对关注度研究指数",
-          "series": [
-            {
-              "label": "2025-10",
-              "value": 55
-            },
-            {
-              "label": "2025-11",
-              "value": 49
-            },
-            {
-              "label": "2025-12",
-              "value": 43
-            },
-            {
-              "label": "2026-01",
-              "value": 44
-            },
-            {
-              "label": "2026-02",
-              "value": 46
-            },
-            {
-              "label": "2026-03",
-              "value": 54
-            },
-            {
-              "label": "2026-04",
-              "value": 61
-            },
-            {
-              "label": "2026-05",
-              "value": 69
-            },
-            {
-              "label": "2026-06",
-              "value": 77
-            },
-            {
-              "label": "2026-07",
-              "value": 80
-            },
-            {
-              "label": "2026-08",
-              "value": 75
-            },
-            {
-              "label": "2026-09",
-              "value": 66
-            }
-          ],
-          "summary": "关注度高点：2026-07；近3个月较前3个月变化 +6.8%",
-          "source": {
-            "label": "搜索关注度研究",
-            "description": "美国市场宠物相关关键词关注度的相对研究指数（0—100），非Google Trends官方导出的精确月度数值。"
-          },
-          "note": "趋势研究指数范围0—100，衡量关键词相对关注度而非搜索量；与平台GMV不共用数据来源。"
-        }
-      ],
-      "products": [
-        {
-          "id": "travel-1",
-          "name": "Sweetcrispy 三轮折叠宠物推车",
-          "imageUrl": "/assets/report/pet-stroller.png",
-          "price": 53.98,
-          "currencyCode": "USD",
-          "units": 680,
-          "growth": 8,
-          "promoters": 54,
-          "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
-        },
-        {
-          "id": "travel-2",
-          "name": "透气网面双肩宠物外出背包",
-          "imageUrl": "/assets/report/pet-carrier-backpack.png",
-          "price": 17.57,
-          "currencyCode": "USD",
-          "units": 1120,
-          "growth": -11,
-          "promoters": 77,
-          "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
-        },
-        {
-          "id": "travel-3",
-          "name": "车载宠物硬底后排扩展防护垫",
-          "imageUrl": "/assets/report/pet-carseat.png",
-          "price": 133.0,
-          "currencyCode": "USD",
-          "units": 2714,
-          "growth": 49,
-          "promoters": 484,
-          "source": "TokConnect：截至2026-10-18近30天估算销量 / 达人数据"
-        }
-      ],
-      "actions": [
-        {
-          "step": "STEP 01",
-          "title": "验证市场切入点",
-          "description": "核对宠物出行对应平台三级类目的GMV与近5个月波动，确认需求是否可持续。",
-          "sources": [
-            {
-              "label": "蔚云出海 / TikTok Shop 月报",
-              "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
-            }
-          ]
-        },
-        {
-          "step": "STEP 02",
-          "title": "核验候选SKU",
-          "description": "检查TikTok Shop单品价格、物流规格、真实在售状态，并区分累计售出与近30天销量。",
-          "sources": [
-            {
-              "label": "蔚云出海 / TikTok Shop 月报",
-              "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
-            },
-            {
-              "label": "TikTok Shop 商品目录",
-              "description": "公开在售商品与价格仅作SKU验证；销量与达人覆盖须按商品明细另行复核。"
-            }
-          ]
-        },
-        {
-          "step": "STEP 03",
-          "title": "完成试卖与利润测算",
-          "description": "结合平台佣金、达人成本、履约、退货与小批量采购报价测算贡献毛利，再决定是否扩品。",
-          "sources": [
-            {
-              "label": "TikTok Shop / APPA",
-              "description": "平台类目研究结合美国宠物行业消费数据，仅作为市场规模和需求长期性参照。"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "feeding",
-      "name": "宠物喂养",
-      "englishName": "Pet Feeding Accessories",
-      "units": 66500,
-      "gmv": 2719200,
-      "growth": 49.74,
-      "promoters": 1680,
-      "newUnits": 7750,
-      "searchMomentum": 13.7,
-      "platformScore": 88,
-      "searchScore": 78,
-      "opportunityScore": 82.0,
-      "productConcentration": 43,
-      "shopConcentration": 40,
-      "promotionOverlap": 68,
-      "newProductOverlap": 34,
-      "currencyCode": "USD",
-      "summary": "2026年9月「喂养用具」GMV为271.92万美元，环比增长49.74%，增量90.33万美元，是当月宠物用品三级类目最显著的增长贡献项。",
-      "conclusion": "当前成交势能最强，重点评估饮水机、定时喂食器、慢食碗。需连续观察2—3个月，以判断9月激增是持续需求还是头部SKU集中放量。",
-      "demand": [
-        {
-          "title": "平台成交需求",
-          "accessibleLabel": "宠物喂养近5个月TikTok Shop月度GMV（美元）",
-          "series": [
-            {
-              "label": "2026-05",
-              "value": 1438500
-            },
-            {
-              "label": "2026-06",
-              "value": 1802000
-            },
-            {
-              "label": "2026-07",
-              "value": 1827500
-            },
-            {
-              "label": "2026-08",
-              "value": 1815900
-            },
-            {
-              "label": "2026-09",
-              "value": 2719200
-            }
-          ],
-          "summary": "最高月份：2026-09，GMV $2,719,200；最近月份：2026-09，环比 +49.74%",
-          "source": {
-            "label": "TikTok Shop / 蔚云出海",
-            "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
-          },
-          "note": "按2026年5—9月第三方公开类目报告还原，单位USD；玩具为猫玩具与狗玩具两个类目GMV之和。"
-        },
-        {
-          "title": "外部搜索需求",
-          "accessibleLabel": "宠物喂养近12个月关键词相对关注度研究指数",
-          "series": [
-            {
-              "label": "2025-10",
-              "value": 63
-            },
-            {
-              "label": "2025-11",
-              "value": 62
-            },
-            {
-              "label": "2025-12",
-              "value": 64
-            },
-            {
-              "label": "2026-01",
-              "value": 61
-            },
-            {
-              "label": "2026-02",
-              "value": 60
-            },
-            {
-              "label": "2026-03",
-              "value": 65
-            },
-            {
-              "label": "2026-04",
-              "value": 69
-            },
-            {
-              "label": "2026-05",
-              "value": 70
-            },
-            {
-              "label": "2026-06",
-              "value": 73
-            },
-            {
-              "label": "2026-07",
-              "value": 77
-            },
-            {
-              "label": "2026-08",
-              "value": 80
-            },
-            {
-              "label": "2026-09",
-              "value": 84
-            }
-          ],
-          "summary": "关注度高点：2026-09；近3个月较前3个月变化 +13.7%",
-          "source": {
-            "label": "搜索关注度研究",
-            "description": "美国市场宠物相关关键词关注度的相对研究指数（0—100），非Google Trends官方导出的精确月度数值。"
-          },
-          "note": "趋势研究指数范围0—100，衡量关键词相对关注度而非搜索量；与平台GMV不共用数据来源。"
-        }
-      ],
-      "products": [
-        {
-          "id": "feeding-1",
-          "name": "VEWO 11L 大容量犬用饮水机",
-          "price": 69.0,
-          "currencyCode": "USD",
-          "units": 9561,
-          "growth": 54,
-          "promoters": 511,
-          "source": "TokConnect：截至2026-10-18近30天估算销量 / 达人数据"
-        },
-        {
-          "id": "feeding-2",
-          "name": "HAPAW 3L 智能猫饮水机",
-          "price": 53.61,
-          "currencyCode": "USD",
-          "units": 5346,
-          "growth": 19,
-          "promoters": 376,
-          "source": "TokConnect：截至2026-10-18近30天估算销量 / 达人数据"
-        },
-        {
-          "id": "feeding-3",
-          "name": "Yipetor 滚珠慢食狗碗",
-          "price": 19.9,
-          "currencyCode": "USD",
-          "units": 2880,
-          "growth": -6,
-          "promoters": 62,
-          "source": "HashIQ商品页近日电商跟踪 / 近30天销量与增长估计"
-        }
-      ],
-      "actions": [
-        {
-          "step": "STEP 01",
-          "title": "验证市场切入点",
-          "description": "核对宠物喂养对应平台三级类目的GMV与近5个月波动，确认需求是否可持续。",
-          "sources": [
-            {
-              "label": "蔚云出海 / TikTok Shop 月报",
-              "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
-            }
-          ]
-        },
-        {
-          "step": "STEP 02",
-          "title": "核验候选SKU",
-          "description": "检查TikTok Shop单品价格、物流规格、真实在售状态，并区分累计售出与近30天销量。",
-          "sources": [
-            {
-              "label": "蔚云出海 / TikTok Shop 月报",
-              "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
-            },
-            {
-              "label": "TikTok Shop 商品目录",
-              "description": "公开在售商品与价格仅作SKU验证；销量与达人覆盖须按商品明细另行复核。"
-            }
-          ]
-        },
-        {
-          "step": "STEP 03",
-          "title": "完成试卖与利润测算",
-          "description": "结合平台佣金、达人成本、履约、退货与小批量采购报价测算贡献毛利，再决定是否扩品。",
-          "sources": [
-            {
-              "label": "TikTok Shop / APPA",
-              "description": "平台类目研究结合美国宠物行业消费数据，仅作为市场规模和需求长期性参照。"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "grooming",
-      "name": "宠物清洁",
-      "englishName": "Pet Grooming & Hygiene",
-      "units": 141200,
-      "gmv": 2863600,
-      "growth": -8.92,
-      "promoters": 1240,
-      "newUnits": 6530,
-      "searchMomentum": -13.1,
-      "platformScore": 48,
-      "searchScore": 62,
-      "opportunityScore": 48.2,
-      "productConcentration": 29,
-      "shopConcentration": 36,
-      "promotionOverlap": 47,
-      "newProductOverlap": 20,
-      "currencyCode": "USD",
-      "summary": "2026年9月「猫狗清洁美容」GMV为286.36万美元，环比下滑8.92%，从6月350.31万美元高点连续三个月回落。",
-      "conclusion": "总体规模仍大，但近期走势偏弱。优先评估复购型清洁耗材和差异化除毛工具，避免仅凭视频热度扩库存；关注耗材资质与安全宣称。",
-      "demand": [
-        {
-          "title": "平台成交需求",
-          "accessibleLabel": "宠物清洁近5个月TikTok Shop月度GMV（美元）",
-          "series": [
-            {
-              "label": "2026-05",
-              "value": 3128900
-            },
-            {
-              "label": "2026-06",
-              "value": 3503100
-            },
-            {
-              "label": "2026-07",
-              "value": 3244200
-            },
-            {
-              "label": "2026-08",
-              "value": 3144000
-            },
-            {
-              "label": "2026-09",
-              "value": 2863600
-            }
-          ],
-          "summary": "最高月份：2026-06，GMV $3,503,100；最近月份：2026-09，环比 -8.92%",
-          "source": {
-            "label": "TikTok Shop / 蔚云出海",
-            "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
-          },
-          "note": "按2026年5—9月第三方公开类目报告还原，单位USD；玩具为猫玩具与狗玩具两个类目GMV之和。"
-        },
-        {
-          "title": "外部搜索需求",
-          "accessibleLabel": "宠物清洁近12个月关键词相对关注度研究指数",
-          "series": [
-            {
-              "label": "2025-10",
-              "value": 68
-            },
-            {
-              "label": "2025-11",
-              "value": 69
-            },
-            {
-              "label": "2025-12",
-              "value": 67
-            },
-            {
-              "label": "2026-01",
-              "value": 71
-            },
-            {
-              "label": "2026-02",
-              "value": 72
-            },
-            {
-              "label": "2026-03",
-              "value": 76
-            },
-            {
-              "label": "2026-04",
-              "value": 79
-            },
-            {
-              "label": "2026-05",
-              "value": 81
-            },
-            {
-              "label": "2026-06",
-              "value": 77
-            },
-            {
-              "label": "2026-07",
-              "value": 73
-            },
-            {
-              "label": "2026-08",
-              "value": 69
-            },
-            {
-              "label": "2026-09",
-              "value": 64
-            }
-          ],
-          "summary": "关注度高点：2026-05；近3个月较前3个月变化 -13.1%",
-          "source": {
-            "label": "搜索关注度研究",
-            "description": "美国市场宠物相关关键词关注度的相对研究指数（0—100），非Google Trends官方导出的精确月度数值。"
-          },
-          "note": "趋势研究指数范围0—100，衡量关键词相对关注度而非搜索量；与平台GMV不共用数据来源。"
-        }
-      ],
-      "products": [
-        {
-          "id": "grooming-1",
-          "name": "Pecute 三合一蒸汽除毛梳",
-          "price": 19.99,
-          "currencyCode": "USD",
-          "units": 1980,
-          "growth": -12,
-          "promoters": 88,
-          "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
-        },
-        {
-          "id": "grooming-2",
-          "name": "We Love Doodles 专业开结针梳",
-          "price": 38.64,
-          "currencyCode": "USD",
-          "units": 620,
-          "growth": -7,
-          "promoters": 49,
-          "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
-        },
-        {
-          "id": "grooming-3",
-          "name": "PETHROOM Healing Brush 宠物梳",
-          "price": 22.09,
-          "currencyCode": "USD",
-          "units": 540,
-          "growth": -3,
-          "promoters": 36,
-          "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
-        }
-      ],
-      "actions": [
-        {
-          "step": "STEP 01",
-          "title": "验证市场切入点",
-          "description": "核对宠物清洁对应平台三级类目的GMV与近5个月波动，确认需求是否可持续。",
-          "sources": [
-            {
-              "label": "蔚云出海 / TikTok Shop 月报",
-              "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
-            }
-          ]
-        },
-        {
-          "step": "STEP 02",
-          "title": "核验候选SKU",
-          "description": "检查TikTok Shop单品价格、物流规格、真实在售状态，并区分累计售出与近30天销量。",
-          "sources": [
-            {
-              "label": "蔚云出海 / TikTok Shop 月报",
-              "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
-            },
-            {
-              "label": "TikTok Shop 商品目录",
-              "description": "公开在售商品与价格仅作SKU验证；销量与达人覆盖须按商品明细另行复核。"
-            }
-          ]
-        },
-        {
-          "step": "STEP 03",
-          "title": "完成试卖与利润测算",
-          "description": "结合平台佣金、达人成本、履约、退货与小批量采购报价测算贡献毛利，再决定是否扩品。",
-          "sources": [
-            {
-              "label": "TikTok Shop / APPA",
-              "description": "平台类目研究结合美国宠物行业消费数据，仅作为市场规模和需求长期性参照。"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "toys",
-      "name": "宠物玩具",
-      "englishName": "Pet Toys (Cats & Dogs)",
-      "units": 112850,
-      "gmv": 2111600,
-      "growth": -3.96,
-      "promoters": 2140,
-      "newUnits": 9380,
-      "searchMomentum": -3.2,
-      "platformScore": 61,
-      "searchScore": 73,
-      "opportunityScore": 62.6,
-      "productConcentration": 31,
-      "shopConcentration": 30,
-      "promotionOverlap": 71,
-      "newProductOverlap": 42,
-      "currencyCode": "USD",
-      "summary": "2026年9月猫玩具GMV120.78万美元、狗玩具90.38万美元，合计211.16万美元。相比8月两类合计219.87万美元，环比下降约3.96%。",
-      "conclusion": "内容互动性强、低价SKU适合短视频演示，但复制速度快、同质化竞争明显。适合做小批量多款测款，优先验证耐用性与宠物安全。",
-      "demand": [
-        {
-          "title": "平台成交需求",
-          "accessibleLabel": "宠物玩具近5个月TikTok Shop月度GMV（美元）",
-          "series": [
-            {
-              "label": "2026-05",
-              "value": 1800700
-            },
-            {
-              "label": "2026-06",
-              "value": 2174000
-            },
-            {
-              "label": "2026-07",
-              "value": 2252600
-            },
-            {
-              "label": "2026-08",
-              "value": 2198700
-            },
-            {
-              "label": "2026-09",
-              "value": 2111600
-            }
-          ],
-          "summary": "最高月份：2026-07，GMV $2,252,600；最近月份：2026-09，环比 -3.96%",
-          "source": {
-            "label": "TikTok Shop / 蔚云出海",
-            "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
-          },
-          "note": "按2026年5—9月第三方公开类目报告还原，单位USD；玩具为猫玩具与狗玩具两个类目GMV之和。"
-        },
-        {
-          "title": "外部搜索需求",
-          "accessibleLabel": "宠物玩具近12个月关键词相对关注度研究指数",
-          "series": [
-            {
-              "label": "2025-10",
-              "value": 79
-            },
-            {
-              "label": "2025-11",
-              "value": 83
-            },
-            {
-              "label": "2025-12",
-              "value": 91
-            },
-            {
-              "label": "2026-01",
-              "value": 69
-            },
-            {
-              "label": "2026-02",
-              "value": 63
-            },
-            {
-              "label": "2026-03",
-              "value": 66
-            },
-            {
-              "label": "2026-04",
-              "value": 70
-            },
-            {
-              "label": "2026-05",
-              "value": 74
-            },
-            {
-              "label": "2026-06",
-              "value": 78
-            },
-            {
-              "label": "2026-07",
-              "value": 72
-            },
-            {
-              "label": "2026-08",
-              "value": 70
-            },
-            {
-              "label": "2026-09",
-              "value": 73
-            }
-          ],
-          "summary": "关注度高点：2025-12；近3个月较前3个月变化 -3.2%",
-          "source": {
-            "label": "搜索关注度研究",
-            "description": "美国市场宠物相关关键词关注度的相对研究指数（0—100），非Google Trends官方导出的精确月度数值。"
-          },
-          "note": "趋势研究指数范围0—100，衡量关键词相对关注度而非搜索量；与平台GMV不共用数据来源。"
-        }
-      ],
-      "products": [
-        {
-          "id": "toys-1",
-          "name": "Mizusu 多尾替换互动逗猫玩具",
-          "price": 12.99,
-          "currencyCode": "USD",
-          "units": 6200,
-          "growth": -5,
-          "promoters": 188,
-          "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
-        },
-        {
-          "id": "toys-2",
-          "name": "Potaroma 躲猫猫感应羽毛玩具",
-          "price": 30.98,
-          "currencyCode": "USD",
-          "units": 960,
-          "growth": -9,
-          "promoters": 81,
-          "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
-        },
-        {
-          "id": "toys-3",
-          "name": "HAPPYCODE 三合一自动猫咪互动机",
-          "price": 28.99,
-          "currencyCode": "USD",
-          "units": 740,
-          "growth": 17,
-          "promoters": 57,
-          "source": "TikTok Shop商品页参考价 / 近30天销量与增长估计"
-        }
-      ],
-      "actions": [
-        {
-          "step": "STEP 01",
-          "title": "验证市场切入点",
-          "description": "核对宠物玩具对应平台三级类目的GMV与近5个月波动，确认需求是否可持续。",
-          "sources": [
-            {
-              "label": "蔚云出海 / TikTok Shop 月报",
-              "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
-            }
-          ]
-        },
-        {
-          "step": "STEP 02",
-          "title": "核验候选SKU",
-          "description": "检查TikTok Shop单品价格、物流规格、真实在售状态，并区分累计售出与近30天销量。",
-          "sources": [
-            {
-              "label": "蔚云出海 / TikTok Shop 月报",
-              "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
-            },
-            {
-              "label": "TikTok Shop 商品目录",
-              "description": "公开在售商品与价格仅作SKU验证；销量与达人覆盖须按商品明细另行复核。"
-            }
-          ]
-        },
-        {
-          "step": "STEP 03",
-          "title": "完成试卖与利润测算",
-          "description": "结合平台佣金、达人成本、履约、退货与小批量采购报价测算贡献毛利，再决定是否扩品。",
-          "sources": [
-            {
-              "label": "TikTok Shop / APPA",
-              "description": "平台类目研究结合美国宠物行业消费数据，仅作为市场规模和需求长期性参照。"
-            }
-          ]
-        }
-      ]
+        ]
     }
-  ],
-  "source": {
-    "label": "TikTok Shop / 蔚云出海",
-    "description": "美国站2026年9月宠物用品公开类目研究；三级类目按报告口径汇总，销售额为第三方整理/估算，并非商家后台成交明细。"
-  },
-  "action": {
-    "step": "STEP 01",
-    "title": "进入候选商品核验",
-    "description": "优先打开宠物喂养候选商品，核验商品售价、物流毛利与近30天动销；此操作仍仅向调用方发出回调。",
-    "sources": [
-      {
-        "label": "蔚云出海 / TikTok Shop 月报",
-        "description": "2026年9月美国站细分类目数据。https://globavoc.com/site/reports/tk-l1/202609/us/pet-supplies.html"
-      },
-      {
-        "label": "TikTok Shop 商品目录",
-        "description": "公开在售商品与价格仅作SKU验证；销量与达人覆盖须按商品明细另行复核。"
-      }
-    ]
-  }
 }
