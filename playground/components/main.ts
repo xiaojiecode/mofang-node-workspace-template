@@ -43,6 +43,9 @@ import type { CascadeOption, RangeValue, CurrencyCode, IconName } from '@mofang/
 import './states'
 import './products'
 import './foundation'
+import './date-time'
+import './dropdown-button'
+import './node-card'
 import './publish-shop'
 import './report'
 import './report-schema'
@@ -1990,6 +1993,12 @@ export class ComponentGallery extends LitElement {
                 </div>`
             case 'form':
                 return this.fieldForm()
+            case 'node-card':
+                return html`<mf-node-card-demo></mf-node-card-demo>`
+            case 'dropdown-button':
+                return html`<mf-dropdown-button-examples></mf-dropdown-button-examples>`
+            case 'date-time':
+                return html`<mf-date-time-examples></mf-date-time-examples>`
             case 'input':
                 return html`<div class="demo-stack">
                     ${textField({

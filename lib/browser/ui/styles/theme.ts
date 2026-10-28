@@ -1,3 +1,6 @@
+import { dateTimeStyles } from '../components/date-time'
+import { nodeCardStyles } from '../components/node-card'
+import { dropdownButtonStyles } from '../components/dropdown-button'
 import { reportStyles } from '../report/styles'
 import { placeholderStyles } from '../components/placeholder-presets'
 import { publishShopDialogStyles } from '../components/publish-shop-dialog'
@@ -781,9 +784,25 @@ const baseStyles = /* @__PURE__ */ (() => css`
     .mf-tab:focus-visible {
         outline-offset: -3px;
     }
+    .mf-tab-panels {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+        isolation: isolate;
+    }
     .mf-tab-panel {
+        grid-area: 1 / 1;
+        min-height: 0;
         padding-top: 12px;
         min-width: 0;
+    }
+    .mf-tab-panel[data-active='true'] {
+        z-index: 1;
+    }
+    .mf-tab-panel[hidden] {
+        display: none;
     }
     .mf-table th {
         font-size: 14px;
@@ -794,6 +813,40 @@ const baseStyles = /* @__PURE__ */ (() => css`
     }
     .mf-table td {
         padding: 8px;
+    }
+    .mf-table[data-fixed-layout] {
+        container-type: inline-size;
+        container-name: mf-data-table;
+        isolation: isolate;
+    }
+    .mf-table[data-fixed-layout] table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .mf-table[data-fixed-layout] th,
+    .mf-table[data-fixed-layout] td {
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+    }
+    .mf-table[data-fixed-layout] th {
+        z-index: 3;
+    }
+    .mf-table[data-fixed-layout] tbody tr {
+        background: var(--mf-bg);
+    }
+    .mf-table[data-fixed-layout] [data-frozen] {
+        position: sticky;
+    }
+    .mf-table[data-fixed-layout] td[data-frozen] {
+        z-index: 2;
+        background: inherit;
+    }
+    .mf-table[data-fixed-layout] th[data-frozen] {
+        z-index: 4;
+    }
+    .mf-table[data-fixed-layout] [data-freeze-edge] {
+        border-right: 1px solid var(--mf-line);
+        box-shadow: 5px 0 6px -5px color-mix(in srgb, var(--mf-fg) 25%, transparent);
     }
     .mf-table td.mf-table-refresh {
         padding: 10px 12px;
@@ -1166,6 +1219,9 @@ const baseStyles = /* @__PURE__ */ (() => css`
 
 export const panelStyles = [
     baseStyles,
+    dateTimeStyles,
+    nodeCardStyles,
+    dropdownButtonStyles,
     formStyles,
     radioStyles,
     switchStyles,

@@ -45,6 +45,7 @@ test('中性骨架包含完整契约与独立面板，不生成业务逻辑', as
     assert.match(files['run.ts'], /state: \{\}/)
     assert.match(files['run.ts'], /tasks: \{\}/)
     assert.match(files['run.ts'], /actions: \{\}/)
+    assert.match(files['view.ts'], /return nodeCard\(/)
     assert.ok(files['page.ts'])
     assert.throws(() => skeletonFiles('../invalid'))
 })

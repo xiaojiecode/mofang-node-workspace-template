@@ -8,7 +8,7 @@ import { emptyState } from './content'
 import { skeleton } from './skeleton'
 
 export type TableColumn<Row> = Readonly<{
-    title: string
+    title: string | TemplateResult
     cell: (row: Row) => TemplateResult | string | number | typeof nothing
     width?: string
     align?: 'left' | 'right' | 'center'
@@ -16,6 +16,10 @@ export type TableColumn<Row> = Readonly<{
 
 export type TableSelection = Readonly<{
     selected: ReadonlySet<string>
+    /** 调用方持有完整结果时，可显式提供跨页全选范围；缺省仅选择当前页。 */
+    allKeys?: readonly string[]
+    /** 与实际全选范围一致的可访问名称。 */
+    allLabel?: string
     /** 行不可选时返回原因，例如“已提交”；返回空串表示可选。 */
     disabledReason: (key: string) => string
     onToggle: (key: string, checked: boolean) => void
@@ -31,6 +35,12 @@ export function dataTable<Row>(
     key: (row: Row) => string,
     columns: readonly TableColumn<Row>[],
     options: {
+        /** 固定布局使用列的 CSS 宽度，未提供时为 160px；宽度包含内边距与边框。 */
+        fixedLayout?: boolean
+        /** 从左起冻结的物理列数，包含可选的勾选列；仅固定布局生效。 */
+        freezeColumns?: number
+        /** 固定布局下勾选列的 CSS 宽度，默认 38px。 */
+        selectionWidth?: string
         selection?: TableSelection
         empty?: string
         rowState?: (row: Row) => string
@@ -41,24 +51,56 @@ export function dataTable<Row>(
     } = {},
 ) {
     const selection = options.selection
+    const fixed = Boolean(options.fixedLayout)
+    const widths = [
+        ...(selection ? [options.selectionWidth ?? '38px'] : []),
+        ...columns.map((column) => column.width ?? '160px'),
+    ]
+    const frozen = fixed
+        ? Math.min(widths.length, Math.max(0, Math.floor(options.freezeColumns ?? 0)))
+        : 0
+    const width = `calc(${widths.join(' + ')})`
+    const cellStyle = (index: number) =>
+        styleMap({
+            ...(fixed ? { width: widths[index], boxSizing: 'border-box' } : {}),
+            ...(index < frozen
+                ? { left: index ? `calc(${widths.slice(0, index).join(' + ')})` : '0px' }
+                : {}),
+        })
     const selectable = selection
-        ? rows
-              .map(key)
-              .filter(
-                  (item) => !options.loading && !options.error && !selection.disabledReason(item),
-              )
+        ? (selection.allKeys ?? rows.map(key)).filter(
+              (item) => !options.loading && !options.error && !selection.disabledReason(item),
+          )
         : []
     const allChecked =
         selectable.length > 0 && selectable.every((item) => selection?.selected.has(item))
     const someChecked = selectable.some((item) => selection?.selected.has(item))
-    return html`<div class="mf-table" aria-busy=${Boolean(options.loading && !options.error)}>
-        <table aria-label=${options.label ?? nothing}>
+    return html`<div
+        class="mf-table"
+        ?data-fixed-layout=${fixed}
+        aria-busy=${Boolean(options.loading && !options.error)}
+    >
+        <table
+            aria-label=${options.label ?? nothing}
+            style=${styleMap(fixed ? { width, minWidth: width, tableLayout: 'fixed' } : {})}
+        >
+            ${fixed
+                ? html`<colgroup>
+                      ${widths.map((value) => html`<col style=${styleMap({ width: value })} />`)}
+                  </colgroup>`
+                : nothing}
             <thead>
                 <tr>
                     ${selection
-                        ? html`<th class="mf-check">
+                        ? html`<th
+                              class="mf-check"
+                              scope="col"
+                              ?data-frozen=${frozen > 0}
+                              ?data-freeze-edge=${frozen === 1}
+                              style=${cellStyle(0)}
+                          >
                               ${checkbox({
-                                  label: '选择本页可选行',
+                                  label: selection.allLabel ?? '选择本页可选行',
                                   labelHidden: true,
                                   checked: allChecked,
                                   indeterminate: someChecked && !allChecked,
@@ -68,10 +110,14 @@ export function dataTable<Row>(
                           </th>`
                         : nothing}
                     ${columns.map(
-                        (column) =>
+                        (column, index) =>
                             html`<th
                                 scope="col"
-                                style=${styleMap({ width: column.width })}
+                                style=${fixed
+                                    ? cellStyle(index + (selection ? 1 : 0))
+                                    : styleMap({ width: column.width })}
+                                ?data-frozen=${index + (selection ? 1 : 0) < frozen}
+                                ?data-freeze-edge=${index + (selection ? 1 : 0) === frozen - 1}
                                 data-align=${column.align ?? 'left'}
                             >
                                 ${column.title}
@@ -141,7 +187,12 @@ export function dataTable<Row>(
                                   ?data-disabled=${Boolean(reason)}
                               >
                                   ${selection
-                                      ? html`<td class="mf-check">
+                                      ? html`<td
+                                            class="mf-check"
+                                            ?data-frozen=${frozen > 0}
+                                            ?data-freeze-edge=${frozen === 1}
+                                            style=${cellStyle(0)}
+                                        >
                                             ${checkbox({
                                                 label: reason ? `不可选择：${reason}` : '选择此行',
                                                 title: reason,
@@ -154,8 +205,16 @@ export function dataTable<Row>(
                                         </td>`
                                       : nothing}
                                   ${columns.map(
-                                      (column) =>
-                                          html`<td data-align=${column.align ?? 'left'}>
+                                      (column, index) =>
+                                          html`<td
+                                              data-align=${column.align ?? 'left'}
+                                              style=${fixed
+                                                  ? cellStyle(index + (selection ? 1 : 0))
+                                                  : nothing}
+                                              ?data-frozen=${index + (selection ? 1 : 0) < frozen}
+                                              ?data-freeze-edge=${index + (selection ? 1 : 0) ===
+                                              frozen - 1}
+                                          >
                                               ${column.cell(row)}
                                           </td>`,
                                   )}

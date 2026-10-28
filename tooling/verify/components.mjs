@@ -4,6 +4,7 @@ import path from 'node:path'
 import { createServer } from 'vite'
 import { chromium } from 'playwright'
 import { root, cache } from '../paths.mjs'
+import { chooseCalendarDraft } from './calendar-input.mjs'
 
 // 独立服务使用空闲端口，不干扰用户正在验收的预览进程。
 const server = await createServer({
@@ -68,6 +69,62 @@ try {
     )
     assert.equal(await host.locator('input[name=readonly-input]').isDisabled(), true)
     checks.push('数字零值与空值区分；非法输入保留；步进边界；只读输入禁用')
+
+    await navigate('日期 / 时间选择')
+    const dates = host.locator('mf-date-time-examples')
+    const date = dates.getByRole('combobox', { name: '日期', exact: true })
+    const dateTime = dates.getByRole('combobox', { name: '本地日期时间', exact: true })
+    let calendar = await chooseCalendarDraft(dates, '日期', '2026-10-01')
+    assert.equal(await dates.evaluate((element) => element.date), '', '选择尚未确认不能回写')
+    await calendar.getByRole('button', { name: '确认', exact: true }).click()
+    assert.equal(await dates.evaluate((element) => element.date), '2026-10-01')
+    await date.click()
+    calendar = dates.getByRole('dialog', { name: '选择日期', exact: true })
+    const dateDraft = calendar.getByRole('textbox', { name: '所选日期', exact: true })
+    await dateDraft.fill('2026-09-30')
+    assert.equal(await dates.evaluate((element) => element.date), '2026-10-01')
+    assert.equal(
+        await calendar.getByRole('button', { name: '确认', exact: true }).isDisabled(),
+        true,
+    )
+    await dates.evaluate((element) => {
+        element.note = '触发其它字段刷新'
+    })
+    assert.equal(await dateDraft.inputValue(), '2026-09-30')
+    assert.equal(await dateDraft.getAttribute('aria-invalid'), 'true')
+    await dates.evaluate((element) => {
+        element.date = '2026-12-31'
+    })
+    await calendar.waitFor({ state: 'hidden' })
+    await date.click()
+    assert.equal(await dateDraft.inputValue(), '2026-12-31')
+    assert.equal(await dateDraft.getAttribute('aria-invalid'), 'false')
+    assert.equal(await calendar.getByRole('alert').isHidden(), true)
+    await calendar.getByRole('button', { name: '清空', exact: true }).click()
+    assert.equal(await dates.evaluate((element) => element.date), '2026-12-31')
+    await calendar.getByRole('button', { name: '确认', exact: true }).click()
+    assert.equal(await dates.evaluate((element) => element.date), '')
+    let clock = await chooseCalendarDraft(dates, '本地日期时间', '2026-10-01T00:00')
+    await clock.getByRole('button', { name: '确认', exact: true }).click()
+    assert.equal(await dates.evaluate((element) => element.dateTime), '2026-10-01T00:00')
+    await dateTime.click()
+    clock = dates.getByRole('dialog', { name: '选择本地日期时间', exact: true })
+    await clock.getByRole('textbox', { name: '所选日期', exact: true }).fill('2027-01-01')
+    assert.equal(await clock.getByRole('button', { name: '确认', exact: true }).isDisabled(), true)
+    assert.equal(await dates.evaluate((element) => element.dateTime), '2026-10-01T00:00')
+    await clock.getByRole('button', { name: '取消', exact: true }).click()
+    clock = await chooseCalendarDraft(dates, '本地日期时间', '2026-12-31T23:59')
+    await clock.getByRole('button', { name: '确认', exact: true }).click()
+    assert.equal(await dates.evaluate((element) => element.dateTime), '2026-12-31T23:59')
+    await dateTime.click()
+    await clock.getByRole('button', { name: '清空', exact: true }).click()
+    await clock.getByRole('button', { name: '确认', exact: true }).click()
+    assert.equal(await dates.evaluate((element) => element.dateTime), '')
+    for (const name of ['只读日期', '禁用日期', '未提供回调'])
+        assert.equal(await dates.getByRole('combobox', { name, exact: true }).isDisabled(), true)
+    checks.push(
+        '统一日历确认才回写；日期与本地时间标准字符串、清空、上下界、非法草稿保留、外部重置清错及只读禁用',
+    )
 
     await navigate('区间输入')
     await host.locator('input[name=demo-price-min]').fill('20')

@@ -197,6 +197,7 @@ try {
         await first.focus()
         await page.keyboard.press('ArrowRight')
         assert.equal(await host.evaluate((e) => e.active), 'json')
+        await host.getByLabel('页签保留输入').waitFor({ state: 'hidden' })
         assert.equal(await host.getByLabel('页签保留输入').isVisible(), false)
         await page.keyboard.press('End')
         assert.equal(await host.evaluate((e) => e.active), 'json', '跳过禁用页签')
