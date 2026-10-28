@@ -3,6 +3,16 @@ const examples: Record<
     string,
     readonly [string, readonly Readonly<{ name: string; description: string }>[]]
 > = {
+    'node-card': [
+        'nodeCard({ aside: cockpit({ id, nodes, collapsed, onCollapsedChange }), collapsed }, html`业务内容`)',
+        [
+            { name: 'content', description: '默认填满宿主宽高的正文模板；正文壳不增加滚动层。' },
+            {
+                name: 'aside / collapsed',
+                description: '可选右侧模板，展开340px、收起44px；事件由cockpit控制。',
+            },
+        ],
+    ],
     card: [
         '// 内容由宿主传入，selected 只表示当前选择\ncard({ title: "选品调研", description: "调研范围", selected: true }, html`正文`)',
         [
@@ -18,6 +28,38 @@ const examples: Record<
                 name: 'suffixIcon / spinner',
                 description: '输入右侧图标与数字上下步进；越界值保留输入并提示错误。',
             },
+        ],
+    ],
+    'dropdown-button': [
+        'dropdownButton({ label: "批量操作", items: [{ id: "bind", label: "批量绑定店铺", onSelect: openBinding }, { id: "publish", label: "批量发布", disabled: true, disabledReason: "请先选择商品", onSelect: publish }] })',
+        [
+            {
+                name: 'items / onSelect',
+                description: '稳定动作标识、文案及选择回调；组件不保存业务数据。',
+            },
+            {
+                name: 'disabled / disabledReason',
+                description: '禁用整个菜单或单项，键盘跳过不可用动作。',
+            },
+            {
+                name: 'variant / size / align',
+                description: '沿用 button 基座样式，浮层支持起点或末端对齐。',
+            },
+        ],
+    ],
+    'date-time': [
+        'dateTimeField({ name: "startAt", label: "计划时间", value, mode: "datetime-local", min: "2026-10-01T00:00", onChange })\n// mode: "date" 仅选日期；整框打开内置日历，确认回写，取消/Escape/外点丢弃草稿；不转换时区',
+        [
+            {
+                name: 'mode / value / onChange',
+                description: '日期或本地时间；受控字符串，浮层确认才回写，清空后确认回传空字符串。',
+            },
+            {
+                name: 'min / max',
+                description:
+                    '同模式标准字符串边界；越界日期禁选，非法草稿保留提示，修正前不能确认。',
+            },
+            { name: 'readOnly / disabled', description: '只读、禁用或没有回调时阻止编辑。' },
         ],
     ],
     form: [

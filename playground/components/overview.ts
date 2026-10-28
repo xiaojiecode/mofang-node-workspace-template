@@ -3,8 +3,10 @@ import type { TemplateResult } from 'lit'
 import { reportOverviewData, reportDefaultCategoryId, reportDemoData } from './report'
 import {
     card,
+    nodeCard,
     formGroup,
     textField,
+    dateTimeField,
     numberField,
     fieldLabel,
     selectField,
@@ -16,6 +18,7 @@ import {
     flow,
     footer,
     button,
+    dropdownButton,
     tabs,
     progressBar,
     nodePlaceholder,
@@ -90,6 +93,13 @@ const dialogBody = (title: string, body: TemplateResult) =>
 /** 总览复用实际模板函数，只放一组代表状态，交互由卡片直链统一接管。 */
 export function overviewPreview(id: string): TemplateResult {
     switch (id) {
+        case 'node-card':
+            return html`<div style="height:180px">
+                ${nodeCard(
+                    { aside: html`<p>驾驶舱</p>`, collapsed: true },
+                    html`<p>业务内容填满可用空间</p>`,
+                )}
+            </div>`
         case 'combined':
             return card(
                 { title: '选品调研', selected: true, description: '锁定适合当前市场的商品' },
@@ -375,6 +385,23 @@ export function overviewPreview(id: string): TemplateResult {
                 ${platformIcon('tiktok_shop')}<strong>TikTok Shop</strong
                 ><span>美国站 · ${currencyIcon('USD')} 美元 USD</span>
             </div>`
+        case 'dropdown-button':
+            return dropdownButton({
+                label: '批量操作',
+                items: [
+                    { id: 'bind', label: '批量绑定店铺', onSelect: noop },
+                    { id: 'pricing', label: '批量定价', onSelect: noop },
+                ],
+            })
+        case 'date-time':
+            return dateTimeField({
+                name: 'overview-date',
+                label: '日期',
+                value: '2026-10-28',
+                mode: 'date',
+                compact: true,
+                onChange: noop,
+            })
         case 'controls':
             return html`<div class="overview-stack">
                 ${button({ label: '开始调研', variant: 'accent', onClick: noop })}${button({

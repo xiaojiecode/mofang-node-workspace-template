@@ -1,6 +1,8 @@
 export { textField } from './components/field'
 export { textarea } from './components/field'
 export type { TextFieldProps, TextareaProps } from './components/field'
+export { dateTimeField, dateTimeStyles } from './components/date-time'
+export type { DateTimeFieldProps } from './components/date-time'
 export { text, url, section, badge, emptyState } from './components/content'
 export type { TextProps, UrlProps, SectionProps } from './components/content'
 export { card } from './components/card'
@@ -101,3 +103,9 @@ export {
     reportActionCard,
 } from './report'
 export type * from './report/types'
+
+export { dropdownButton } from './components/dropdown-button'
+export type { DropdownButtonProps, DropdownButtonItem } from './components/dropdown-button'
+
+export { nodeCard } from './components/node-card'
+export type { NodeCardProps } from './components/node-card'

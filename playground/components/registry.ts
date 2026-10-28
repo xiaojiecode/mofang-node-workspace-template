@@ -119,6 +119,11 @@ export const galleryRegistry: readonly GalleryGroup[] = [
         title: '布局与容器',
         items: [
             {
+                id: 'node-card',
+                label: 'NodeCard 节点业务容器',
+                description: '填满宿主的业务正文与可收起驾驶舱。',
+            },
+            {
                 id: 'card',
                 label: 'Card 卡片',
                 description: '标题、说明、图标与内容容器。',
@@ -184,9 +189,19 @@ export const galleryRegistry: readonly GalleryGroup[] = [
                 description: '按钮、复选框及多行草稿输入。',
             },
             {
+                id: 'dropdown-button',
+                label: '动作下拉按钮',
+                description: '按钮样式的动作菜单，支持键盘、禁用与外点关闭。',
+            },
+            {
                 id: 'input',
                 label: '输入框 / 数字步进',
                 description: '文本、后缀图标及数字步进。',
+            },
+            {
+                id: 'date-time',
+                label: '日期 / 时间选择',
+                description: '原生日期和本地时间，保留标准字符串。',
             },
             {
                 id: 'required',

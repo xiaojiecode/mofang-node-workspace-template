@@ -6,11 +6,28 @@
 
 `tabs({id,label,value,items,onChange,variant?})` 默认保留旧分段外观；`variant:'underline'` 为蓝色下划线。item 为 `{value,label,content,disabled?}`，值与 ID 稳定唯一。方向键/Home/End 跳过禁用项，非活动内容保留 DOM 并隐藏/inert，切页保留输入。标题区不独立竖滚动，内容区由宿主安排滚动；很多标签允许横向可达，不用裁切隐藏末项。
 
+## 默认节点业务容器
+
+节点业务默认使用 `nodeCard({aside?,collapsed?},content)`，从 `@mofang/browser` 导入。容器和正文默认填满宿主剩余宽高，保持 `min-width:0/min-height:0`；宿主先提供有限高度，不能再给业务卡片固定600px、70vh上限或外部margin。设置面板继续沿原宿主草稿布局，不包业务容器。
+
+右侧用内置 `cockpit` 作为 `aside`，两者使用同一个受控 `collapsed`。NodeCard 统一侧栏展开340px、收起44px，内部按339px排版，通过裁切宽度收起；不在业务节点重复造驾驶舱或宽度测量器。节点过程、能力、来源和输出只取就绪投影或宿主当前真实事实，缺失就显示空态；本地演示商品数量不能当成真实候选或输出。
+
+正文壳和NodeCard本身不滚动。结果表格只保留一层滚动：外部结果容器 `flex:1;min-height:0;overflow:hidden`，其直接 `.mf-table` 用 `height:100%;max-height:none;box-sizing:border-box` 承担横纵滚动，分页保持容器底部且不遮末行。报告使用其内置正文滚动，不再外叠overflow:auto。
+
+`tabs` 切换统一带默认160ms淡入淡出与轻位移，失活页立即inert/aria-hidden，退场完才隐藏；所有页面DOM、输入和滚动位置保留。普通订阅刷新不会重播，快速反向从当前画面接续；`motionDuration:0`或减少动态效果偏好立即切换，业务页面不要再包一层切页动画。
+
+```ts
+nodeCard({
+    collapsed,
+    aside: cockpit({ id, nodes, collapsed, onCollapsedChange }),
+}, html`业务正文`)
+```
+
 ## 表格
 
 `dataTable(rows,key,columns,options)` 负责渲染和回调。列为 `TableColumn<Row>`：`title,cell,width?,align?`；稳定 `key(row)` 用于保留行、图片和输入 DOM。`options` 含 `selection,empty,rowState,loading,label,error`。`error:{title,description?,onRetry?}` 优先展示错误与可选重试回调，表格不执行请求。加载但已有数据时保留行，显示刷新提示并禁用行选择；调用方同时把分页设为 busy。空列表加载显示骨架，实际无数据使用空态。
 
-`TableSelection` 为 `selected:ReadonlySet<string>`、`disabledReason(key)`、`onToggle(key,checked)`、`onToggleAll(keys,checked)`。全选仅针对本次传入的可选行；跨页选择保留、筛选时是否清除由业务层明确决定，表格不推断。只读可保留选择列并返回禁用原因，避免状态切换挤动布局。
+`TableSelection` 为 `selected:ReadonlySet<string>`、`disabledReason(key)`、`onToggle(key,checked)`、`onToggleAll(keys,checked)`。全选缺省仅针对本次传入的可选行。调用方确实持有完整结果时，可传 `allKeys` 和与范围一致的 `allLabel` 使表头选中/半选/禁用及回调统一基于全量可选键；不把服务端未知分页当作全量。跨页选择保留、筛选时是否清除仍由业务层明确决定，表格不推断。只读可保留选择列并返回禁用原因，避免状态切换挤动布局。
 
 商品表格复用 `productCell(product,secondary?)`、`image`、`text`、`url`、`money(value,currency)`、`percent(value)`，列仍由业务定义，不复制一套商品表格控件。缺失价格/指标显示占位，不补零；`percent` 接受 0–100，`money` 不猜币种。完整商品结构来自 `@mofang/contracts/business`，不要把第三方原始对象强转成 Product。
 
