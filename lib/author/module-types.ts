@@ -72,6 +72,7 @@ export interface NodeManifest {
         readonly name: string
         readonly entry: string
         readonly steps: readonly string[]
+        readonly tools?: readonly string[]
     }[]
     readonly actions: readonly {
         readonly name: string

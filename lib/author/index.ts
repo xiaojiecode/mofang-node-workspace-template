@@ -476,8 +476,18 @@ export function defineNode<T extends NodeSpec>(spec: T, Component: () => undefin
             const steps = Object.keys(objectValue(program.steps, 'task steps')).sort()
             if (typeof program.entry !== 'string' || !steps.includes(program.entry))
                 throw new Error('task entry must name a declared stage')
+            if (task.tools !== undefined) {
+                if (!Array.isArray(task.tools)) throw new Error('子任务tools必须是工具名称数组')
+                task.tools.forEach((tool: unknown) => identity(tool, '子任务工具名'))
+                unique(task.tools)
+            }
             tasks[task.name] = task.program
-            return { name: task.name, entry: program.entry, steps }
+            return {
+                name: task.name,
+                entry: program.entry,
+                steps,
+                ...(task.tools !== undefined ? { tools: [...task.tools] } : {}),
+            }
         })
         .sort((a, b) => a.name.localeCompare(b.name))
     const manifest = readonlyCopy({

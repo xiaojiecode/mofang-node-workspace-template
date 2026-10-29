@@ -35,6 +35,7 @@ export default defineConfig({
         alias: [
             ...litAliases,
             { find: '@mofang/browser', replacement: path.join(root, 'lib/browser/index.ts') },
+            { find: '@mofang/node', replacement: path.join(root, 'lib/author/index.ts') },
         ],
         dedupe: [
             'react',
