@@ -1,6 +1,59 @@
-import { M as MofangSDKError, c as createMofangSDK } from "./create-sdk-BvGSuWE9.js";
+import { M as MofangSDKError, c as createMofangSDK } from "./create-sdk-j9doBNe-.js";
 const WORKFLOW_SDK_VERSION = "1";
 const WORKFLOW_SDK_METHODS = [
+  {
+    path: "readOnlyActions.submit",
+    kind: "async",
+    effect: "write",
+    label: "独立只读查询 · 提交",
+    description: "独立只读查询 · 提交；参数与返回值遵循公开 SDK 合同。",
+    signature: "(body: SubmitReadOnlyActionBody): Promise<ReadOnlyActionAccepted>",
+    parameters: [
+      {
+        name: "body",
+        type: "Readonly<{ runId: ID; nodeInstanceId: ID; actionName: string; payload: JSONObject; }>",
+        fields: [
+          {
+            name: "runId",
+            type: "string"
+          },
+          {
+            name: "nodeInstanceId",
+            type: "string"
+          },
+          {
+            name: "actionName",
+            type: "string"
+          },
+          {
+            name: "payload",
+            type: "JSONObject"
+          }
+        ]
+      }
+    ],
+    example: "await sdk.readOnlyActions.submit(input.body)"
+  },
+  {
+    path: "readOnlyActions.get",
+    kind: "async",
+    effect: "read",
+    label: "独立只读查询 · 读取",
+    description: "独立只读查询 · 读取；参数与返回值遵循公开 SDK 合同。",
+    signature: "(executionId: ID, options?: MofangRequestOptions): Promise<ReadOnlyActionExecution>",
+    parameters: [
+      {
+        name: "executionId",
+        type: "string"
+      },
+      {
+        name: "options",
+        type: "Readonly<{ signal?: AbortSignal; fresh?: boolean; }> | undefined",
+        optional: true
+      }
+    ],
+    example: "await sdk.readOnlyActions.get(input.executionId, input.options)"
+  },
   {
     path: "http.request",
     kind: "async",
@@ -861,7 +914,7 @@ const WORKFLOW_SDK_METHODS = [
           },
           {
             name: "conclusion",
-            type: '"failed" | "succeeded"'
+            type: '"succeeded" | "failed"'
           },
           {
             name: "evidence",
@@ -1072,7 +1125,7 @@ const WORKFLOW_SDK_METHODS = [
     effect: "read",
     label: "上下文 · 读取本地状态",
     description: "上下文 · 读取本地状态；参数与返回值遵循公开 SDK 合同。",
-    signature: '(): Readonly<{ data: Readonly<{ sdkVersion: "1"; contextRevision: Revision; workflowId: ID; workspaceId: ID; spaceId: ID; nodeInstanceId: ID; nodeKey: string; runId?: ID; nodeRunId?: ID; taskId?: ID; mode: "auto" | "manual"; view: "current" | "history" | "preview"; inputRequestId?: ID; inputManifest?: Readonly<{ taskId: ID; id: ID; inputRequestId: ID; valuesRef: Readonly<{ id: ID; sha256: string; kind: "json" | "file" | "record_set"; }>; inputHash: string; usedRefs: readonly Readonly<{ kind: "delivery" | "input_manifest" | "node_run_output" | "record_version" | "domain" | "config_revision" | "node_definition" | "action" | "result_proposal" | "operation"; id: ID; path?: string; }>[]; fieldSources: Readonly<Record<string, readonly Readonly<{ kind: "delivery" | "input_manifest" | "node_run_output" | "record_version" | "domain" | "config_revision" | "node_definition" | "action" | "result_proposal" | "operation"; id: ID; path?: string; }>[]>>; predecessors: readonly Readonly<{ nodeInstanceId: ID; nodeKey: string; generation: Revision; nodeRunId: ID; sourceRunId: ID; sourceNodeRunId: ID; }>[]; configRevisionId: ID; programHash: string; panelRevisionId: ID; inboxWatermark: Revision; createdAt: string; }>; input: JSONObject | null; config: JSONObject | null; configRevisionId: ID; pendingConfigRevisionId?: ID; inboxWatermark: Revision; predecessorRefs: readonly Readonly<{ nodeInstanceId: ID; nodeKey: string; generation: Revision; nodeRunId: ID; sourceRunId: ID; sourceNodeRunId: ID; }>[]; output?: Readonly<{ nodeRunId: ID; nodeInstanceId: ID; runId: ID; status: string; generation?: number; values: JSONObject | null; writtenAt?: string; }>; plan?: Readonly<{ seq: number; updatedAt: string; explanation?: string; steps: readonly Readonly<{ id: string; title: string; status: "pending" | "in_progress" | "completed"; }>[]; }>; agentAwait?: Readonly<{ waitingToolCallId: ID; prompt: string; output?: JSONObject; }>; continuation?: Readonly<{ expectedGateRevision: string; expectedWaitingTurn?: number; }>; state: Readonly<{ status: string; phase: string; closure: "open" | "settling" | "closed"; }>; control: Readonly<{ revision: Revision; desiredState: "running" | "paused"; phase: "applying" | "applied" | "blocked"; reasons: readonly JSONObject[]; inFlightToolCount: number; unknownToolCount: number; }>; wait?: WaitEnvelope; permissions: Readonly<{ canEditConfig: boolean; canEditDefinition: boolean; canPrepare: boolean; canExecute: boolean; canCommit: boolean; }>; panel: Readonly<{ revisionId: ID; renderMode: PanelRenderMode; frontendAdapter?: string; lowcode?: Readonly<{ rendererKey: string; config: JsonObject; }>; compiledHash?: string; programHash?: string; }>; settingsPanel: SettingsPanelReference; }> | null; loading: boolean; stale: boolean; error: MofangSDKError | null; revision: Revision | null; }>',
+    signature: '(): Readonly<{ data: Readonly<{ sdkVersion: "1"; contextRevision: Revision; workflowId: ID; workspaceId: ID; spaceId: ID; nodeInstanceId: ID; nodeKey: string; runId?: ID; nodeRunId?: ID; taskId?: ID; mode: "auto" | "manual"; view: "current" | "history" | "preview"; inputRequestId?: ID; inputManifest?: Readonly<{ taskId: ID; id: ID; inputRequestId: ID; valuesRef: Readonly<{ id: ID; sha256: string; kind: "json" | "file" | "record_set"; }>; inputHash: string; usedRefs: readonly Readonly<{ kind: "delivery" | "input_manifest" | "node_run_output" | "record_version" | "domain" | "config_revision" | "node_definition" | "action" | "result_proposal" | "operation"; id: ID; path?: string; }>[]; fieldSources: Readonly<Record<string, readonly Readonly<{ kind: "delivery" | "input_manifest" | "node_run_output" | "record_version" | "domain" | "config_revision" | "node_definition" | "action" | "result_proposal" | "operation"; id: ID; path?: string; }>[]>>; predecessors: readonly Readonly<{ nodeInstanceId: ID; nodeKey: string; generation: Revision; nodeRunId: ID; sourceRunId: ID; sourceNodeRunId: ID; }>[]; configRevisionId: ID; programHash: string; panelRevisionId: ID; inboxWatermark: Revision; createdAt: string; }>; input: JSONObject | null; config: JSONObject | null; configRevisionId: ID; pendingConfigRevisionId?: ID; inboxWatermark: Revision; predecessorRefs: readonly Readonly<{ nodeInstanceId: ID; nodeKey: string; generation: Revision; nodeRunId: ID; sourceRunId: ID; sourceNodeRunId: ID; }>[]; output?: Readonly<{ nodeRunId: ID; nodeInstanceId: ID; runId: ID; status: string; generation?: number; values: JSONObject | null; writtenAt?: string; }>; plan?: Readonly<{ seq: number; updatedAt: string; explanation?: string; steps: readonly Readonly<{ id: string; title: string; status: "pending" | "in_progress" | "completed"; }>[]; }>; agentAwait?: Readonly<{ waitingToolCallId: ID; prompt: string; output?: JSONObject; }>; readOnlyActions?: readonly Readonly<{ name: string; label: string; description: string; payloadSchema: JSONObject; outputSchema: JSONObject; }>[]; continuation?: Readonly<{ expectedGateRevision: string; expectedWaitingTurn?: number; }>; state: Readonly<{ status: string; phase: string; closure: "open" | "settling" | "closed"; }>; control: Readonly<{ revision: Revision; desiredState: "running" | "paused"; phase: "applying" | "applied" | "blocked"; reasons: readonly JSONObject[]; inFlightToolCount: number; unknownToolCount: number; }>; wait?: WaitEnvelope; permissions: Readonly<{ canEditConfig: boolean; canEditDefinition: boolean; canPrepare: boolean; canExecute: boolean; canCommit: boolean; }>; panel: Readonly<{ revisionId: ID; renderMode: PanelRenderMode; frontendAdapter?: string; lowcode?: Readonly<{ rendererKey: string; config: JsonObject; }>; compiledHash?: string; programHash?: string; }>; settingsPanel: SettingsPanelReference; }> | null; loading: boolean; stale: boolean; error: MofangSDKError | null; revision: Revision | null; }>',
     parameters: [],
     example: "sdk.context.getState()"
   },
@@ -1082,7 +1135,7 @@ const WORKFLOW_SDK_METHODS = [
     effect: "read",
     label: "上下文 · 读取本地快照",
     description: "上下文 · 读取本地快照；参数与返回值遵循公开 SDK 合同。",
-    signature: '(): Readonly<{ sdkVersion: "1"; contextRevision: Revision; workflowId: ID; workspaceId: ID; spaceId: ID; nodeInstanceId: ID; nodeKey: string; runId?: ID; nodeRunId?: ID; taskId?: ID; mode: "auto" | "manual"; view: "current" | "history" | "preview"; inputRequestId?: ID; inputManifest?: Readonly<{ taskId: ID; id: ID; inputRequestId: ID; valuesRef: Readonly<{ id: ID; sha256: string; kind: "json" | "file" | "record_set"; }>; inputHash: string; usedRefs: readonly Readonly<{ kind: "delivery" | "input_manifest" | "node_run_output" | "record_version" | "domain" | "config_revision" | "node_definition" | "action" | "result_proposal" | "operation"; id: ID; path?: string; }>[]; fieldSources: Readonly<Record<string, readonly Readonly<{ kind: "delivery" | "input_manifest" | "node_run_output" | "record_version" | "domain" | "config_revision" | "node_definition" | "action" | "result_proposal" | "operation"; id: ID; path?: string; }>[]>>; predecessors: readonly Readonly<{ nodeInstanceId: ID; nodeKey: string; generation: Revision; nodeRunId: ID; sourceRunId: ID; sourceNodeRunId: ID; }>[]; configRevisionId: ID; programHash: string; panelRevisionId: ID; inboxWatermark: Revision; createdAt: string; }>; input: JSONObject | null; config: JSONObject | null; configRevisionId: ID; pendingConfigRevisionId?: ID; inboxWatermark: Revision; predecessorRefs: readonly Readonly<{ nodeInstanceId: ID; nodeKey: string; generation: Revision; nodeRunId: ID; sourceRunId: ID; sourceNodeRunId: ID; }>[]; output?: Readonly<{ nodeRunId: ID; nodeInstanceId: ID; runId: ID; status: string; generation?: number; values: JSONObject | null; writtenAt?: string; }>; plan?: Readonly<{ seq: number; updatedAt: string; explanation?: string; steps: readonly Readonly<{ id: string; title: string; status: "pending" | "in_progress" | "completed"; }>[]; }>; agentAwait?: Readonly<{ waitingToolCallId: ID; prompt: string; output?: JSONObject; }>; continuation?: Readonly<{ expectedGateRevision: string; expectedWaitingTurn?: number; }>; state: Readonly<{ status: string; phase: string; closure: "open" | "settling" | "closed"; }>; control: Readonly<{ revision: Revision; desiredState: "running" | "paused"; phase: "applying" | "applied" | "blocked"; reasons: readonly JSONObject[]; inFlightToolCount: number; unknownToolCount: number; }>; wait?: WaitEnvelope; permissions: Readonly<{ canEditConfig: boolean; canEditDefinition: boolean; canPrepare: boolean; canExecute: boolean; canCommit: boolean; }>; panel: Readonly<{ revisionId: ID; renderMode: PanelRenderMode; frontendAdapter?: string; lowcode?: Readonly<{ rendererKey: string; config: JsonObject; }>; compiledHash?: string; programHash?: string; }>; settingsPanel: SettingsPanelReference; }> | null',
+    signature: '(): Readonly<{ sdkVersion: "1"; contextRevision: Revision; workflowId: ID; workspaceId: ID; spaceId: ID; nodeInstanceId: ID; nodeKey: string; runId?: ID; nodeRunId?: ID; taskId?: ID; mode: "auto" | "manual"; view: "current" | "history" | "preview"; inputRequestId?: ID; inputManifest?: Readonly<{ taskId: ID; id: ID; inputRequestId: ID; valuesRef: Readonly<{ id: ID; sha256: string; kind: "json" | "file" | "record_set"; }>; inputHash: string; usedRefs: readonly Readonly<{ kind: "delivery" | "input_manifest" | "node_run_output" | "record_version" | "domain" | "config_revision" | "node_definition" | "action" | "result_proposal" | "operation"; id: ID; path?: string; }>[]; fieldSources: Readonly<Record<string, readonly Readonly<{ kind: "delivery" | "input_manifest" | "node_run_output" | "record_version" | "domain" | "config_revision" | "node_definition" | "action" | "result_proposal" | "operation"; id: ID; path?: string; }>[]>>; predecessors: readonly Readonly<{ nodeInstanceId: ID; nodeKey: string; generation: Revision; nodeRunId: ID; sourceRunId: ID; sourceNodeRunId: ID; }>[]; configRevisionId: ID; programHash: string; panelRevisionId: ID; inboxWatermark: Revision; createdAt: string; }>; input: JSONObject | null; config: JSONObject | null; configRevisionId: ID; pendingConfigRevisionId?: ID; inboxWatermark: Revision; predecessorRefs: readonly Readonly<{ nodeInstanceId: ID; nodeKey: string; generation: Revision; nodeRunId: ID; sourceRunId: ID; sourceNodeRunId: ID; }>[]; output?: Readonly<{ nodeRunId: ID; nodeInstanceId: ID; runId: ID; status: string; generation?: number; values: JSONObject | null; writtenAt?: string; }>; plan?: Readonly<{ seq: number; updatedAt: string; explanation?: string; steps: readonly Readonly<{ id: string; title: string; status: "pending" | "in_progress" | "completed"; }>[]; }>; agentAwait?: Readonly<{ waitingToolCallId: ID; prompt: string; output?: JSONObject; }>; readOnlyActions?: readonly Readonly<{ name: string; label: string; description: string; payloadSchema: JSONObject; outputSchema: JSONObject; }>[]; continuation?: Readonly<{ expectedGateRevision: string; expectedWaitingTurn?: number; }>; state: Readonly<{ status: string; phase: string; closure: "open" | "settling" | "closed"; }>; control: Readonly<{ revision: Revision; desiredState: "running" | "paused"; phase: "applying" | "applied" | "blocked"; reasons: readonly JSONObject[]; inFlightToolCount: number; unknownToolCount: number; }>; wait?: WaitEnvelope; permissions: Readonly<{ canEditConfig: boolean; canEditDefinition: boolean; canPrepare: boolean; canExecute: boolean; canCommit: boolean; }>; panel: Readonly<{ revisionId: ID; renderMode: PanelRenderMode; frontendAdapter?: string; lowcode?: Readonly<{ rendererKey: string; config: JsonObject; }>; compiledHash?: string; programHash?: string; }>; settingsPanel: SettingsPanelReference; }> | null',
     parameters: [],
     example: "sdk.context.getSnapshot()"
   },

@@ -96,6 +96,11 @@ export type NodeActionQuery = Readonly<{
  * 这里实现一次，React 与 Lit 适配器只做订阅和暴露，不各自实现一套。
  */
 export interface MofangSDK {
+    /** 独立查询不改变原运行、会话或候选；受理未知时不得自动重新提交。 */
+    readOnlyActions: {
+        submit(body: import('./read-only-action-types').SubmitReadOnlyActionBody): Promise<import('./read-only-action-types').ReadOnlyActionAccepted>;
+        get(executionId: ID, options?: import('./transport').MofangRequestOptions): Promise<import('./read-only-action-types').ReadOnlyActionExecution>;
+    };
     http: import('./http').MofangHttp;
     toast: import('./toast').MofangToast;
     nodeFlow: NodeFlowAPI;

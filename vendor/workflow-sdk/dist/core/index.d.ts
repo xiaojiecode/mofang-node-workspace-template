@@ -2,6 +2,7 @@ export { createMofangSDK } from './create-sdk';
 export type { ExecutionControlReceipt } from './execution-control-types';
 export type { MofangHttp, MofangHttpMethod, MofangHttpPayload, MofangHttpQuery, MofangHttpQueryValue, MofangHttpRequest } from './http';
 export type * from './message-types';
+export type * from './read-only-action-types';
 export { matchesMessage } from './message-types';
 export type * from './node-flow-types';
 export { isTerminalNodeAction, nodeBusinessView } from './node-flow-types';

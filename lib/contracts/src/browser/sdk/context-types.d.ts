@@ -40,6 +40,8 @@ export type NodeContext = Readonly<{
         prompt: string;
         output?: JSONObject;
     }>;
+    /** 独立查询声明来自当前选中运行；旧冻结没有声明时不采用当前目录。 */
+    readOnlyActions?: readonly import('./read-only-action-types').ReadOnlyActionView[];
     continuation?: Readonly<{
         expectedGateRevision: string;
         expectedWaitingTurn?: number;

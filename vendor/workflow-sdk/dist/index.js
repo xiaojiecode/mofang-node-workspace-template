@@ -1,5 +1,5 @@
-import { i as isPlainObject, M as MofangSDKError } from "./create-sdk-BvGSuWE9.js";
-import { b, c, d, f, e, a, k, n, t } from "./create-sdk-BvGSuWE9.js";
+import { i as isPlainObject, M as MofangSDKError } from "./create-sdk-j9doBNe-.js";
+import { b, c, d, f, e, a, k, n, t } from "./create-sdk-j9doBNe-.js";
 function matchesMessage(event, filter) {
   const typeMatches = !filter.types?.length || filter.types.some(
     (type) => type === event.type || type.endsWith(".*") && event.type.startsWith(type.slice(0, -1))

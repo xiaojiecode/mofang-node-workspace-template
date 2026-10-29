@@ -837,7 +837,7 @@ function createMofangSDK(options) {
         if (Object.prototype.hasOwnProperty.call(
           WRITE_RESOURCE,
           operation
-        ) || NODE_FLOW_WRITE_OPERATIONS.has(operation) || requestOptions?.signal?.aborted || !failure.retryable || attempt >= transportRetries)
+        ) || NODE_FLOW_WRITE_OPERATIONS.has(operation) || operation === "readOnlyActions.submit" || requestOptions?.signal?.aborted || !failure.retryable || attempt >= transportRetries)
           throw failure;
         attempt += 1;
         await delay(retryDelayMs(attempt));
@@ -979,7 +979,27 @@ function createMofangSDK(options) {
     source: options.messageSource ?? transport.messages,
     context: () => contextOptions
   });
+  async function isolatedReadOnlyRequest(operation, payload, requestOptions) {
+    const source = options.messageSource ?? transport.messages;
+    const identity = source?.identity?.();
+    const result = await send(operation, payload, requestOptions);
+    if (source?.identity?.() !== identity)
+      throw new MofangSDKError("登录身份已变化，独立查询结果未应用", {
+        kind: "rejected",
+        code: "scope_changed",
+        retryable: false
+      });
+    return result;
+  }
   return {
+    readOnlyActions: {
+      submit: (body) => isolatedReadOnlyRequest("readOnlyActions.submit", body),
+      get: (executionId, requestOptions) => isolatedReadOnlyRequest(
+        "readOnlyActions.get",
+        { executionId },
+        requestOptions
+      )
+    },
     http: createHttpAPI(transport),
     toast: createToastAPI(
       (message) => transport.request("ui.toast", message)
