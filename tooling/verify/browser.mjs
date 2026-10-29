@@ -69,12 +69,12 @@ try {
                 },
             }
         })
-        await page.locator('#settings input').fill('abc ')
+        await page.locator('#settings input[name=note]').fill('abc ')
         await page.waitForFunction(
             () =>
                 document
                     .querySelector('#settings')
-                    .firstElementChild.shadowRoot.querySelector('input').value === 'abc',
+                    .firstElementChild.shadowRoot.querySelector('input[name=note]').value === 'abc',
         )
         await page.evaluate(() => {
             const element = window.preview.elements.find((e) => e.surface === 'settings')
@@ -86,23 +86,24 @@ try {
                 },
             }
         })
-        await page.locator('#settings input').fill('rejected')
+        await page.locator('#settings input[name=note]').fill('rejected')
         await page.waitForFunction(
             () =>
                 document
                     .querySelector('#settings')
-                    .firstElementChild.shadowRoot.querySelector('input').value === 'locked',
+                    .firstElementChild.shadowRoot.querySelector('input[name=note]').value ===
+                'locked',
         )
         await page.getByRole('button', { name: '有商品', exact: true }).click()
         await page.waitForFunction(() => Boolean(document.querySelector('#app').dataset.mounted))
-        await page.locator('#settings input').fill('草稿回写验证')
+        await page.locator('#settings input[name=note]').fill('草稿回写验证')
         await page.waitForFunction(() =>
             document.querySelector('#draft').textContent.includes('草稿回写验证'),
         )
         await page.locator('#readonly').click()
-        assert.equal(await page.locator('#settings input').isDisabled(), true)
+        assert.equal(await page.locator('#settings input[name=note]').isDisabled(), true)
         await page.locator('#readonly').click()
-        assert.equal(await page.locator('#settings input').isDisabled(), false)
+        assert.equal(await page.locator('#settings input[name=note]').isDisabled(), false)
         await page.locator('#open-business').click()
         // 共同 Mock 宿主区域仅渲染真实声明，不为骨架猜造 finish。
         assert.equal(await page.locator('#host-actions button').count(), 0)

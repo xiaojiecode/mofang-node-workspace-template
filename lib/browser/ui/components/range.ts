@@ -7,6 +7,8 @@ export type RangeValue = Readonly<{ min?: number; max?: number }>
 export type RangeFieldProps = Omit<NumberFieldProps, 'value' | 'onChange'> &
     Readonly<{
         value: RangeValue
+        minReadOnly?: boolean
+        maxReadOnly?: boolean
         minPlaceholder?: string
         maxPlaceholder?: string
         separator?: string
@@ -20,9 +22,12 @@ export function rangeError(value: RangeValue): string | undefined {
         : undefined
 }
 
+/** 分别保留区间两端的宿主锁定，未声明时沿用原行为。 */
 export function rangeField(p: RangeFieldProps) {
     const error = p.error ?? rangeError(p.value)
     const {
+        minReadOnly: _minReadOnly,
+        maxReadOnly: _maxReadOnly,
         value: _value,
         onChange: _onChange,
         hint: _hint,
@@ -32,6 +37,7 @@ export function rangeField(p: RangeFieldProps) {
         ...child
     } = p
     const change = (key: 'min' | 'max', value: number | undefined) => {
+        if (p.readOnly || (key === 'min' ? p.minReadOnly : p.maxReadOnly)) return
         const next = { ...p.value }
         if (value === undefined) delete next[key]
         else next[key] = value
@@ -46,7 +52,10 @@ export function rangeField(p: RangeFieldProps) {
                         ? html`<span class="mf-range-separator">${p.separator ?? '至'}</span>`
                         : nothing}${numberField({
                         ...child,
-                        readOnly: p.readOnly || !p.onChange,
+                        readOnly:
+                            p.readOnly ||
+                            !p.onChange ||
+                            (key === 'min' ? p.minReadOnly : p.maxReadOnly) === true,
                         name: `${p.name}-${key}`,
                         label: key === 'min' ? `${p.label}最低值` : `${p.label}最高值`,
                         value: p.value[key],
