@@ -236,10 +236,17 @@ export async function loadDefinition(directory) {
         target: 'es2022',
         logLevel: 'silent',
     })
-    return (
+    const definition = (
         await import(
             'data:text/javascript;base64,' +
                 Buffer.from(result.outputFiles[0].text).toString('base64')
         )
     ).default
+    if (
+        Object.hasOwn(definition, 'productIdentityMode') &&
+        definition.productIdentityMode !== 'inherit' &&
+        definition.productIdentityMode !== 'new'
+    )
+        throw new Error('productIdentityMode只接受inherit或new；省略表示沿用商品身份')
+    return definition
 }

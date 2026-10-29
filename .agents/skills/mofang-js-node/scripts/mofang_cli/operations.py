@@ -126,7 +126,7 @@ def prepare(op, args):
         if getattr(args, "file", None):
             raise CLIError("invalid_argument", "bundle 与 file 不能同时使用")
         bundle = read_object(str(Path(args.bundle) / "node.json"))
-        fields = ("code", "name", "description", "icon", "category", "inputSchema", "outputSchema", "timeoutSeconds", "source", "tools", "maxToolCalls")
+        fields = ("code", "name", "description", "icon", "category", "inputSchema", "outputSchema", "timeoutSeconds", "source", "tools", "maxToolCalls", "productIdentityMode")
         body = {key: bundle[key] for key in fields if key in bundle}
     for attr, field in (("source_file", "source"), ("view_source", "viewSource"), ("program_source", "programSource")):
         filename = getattr(args, attr, None)
@@ -150,6 +150,8 @@ def prepare(op, args):
         path = path.replace("{" + key + "}", quote(value, safe=""))
     if "actor" in body:
         raise CLIError("invalid_argument", "actor 由服务端绑定，不能在请求体指定")
+    if "productIdentityMode" in body and body["productIdentityMode"] not in ("inherit", "new"):
+        raise CLIError("invalid_argument", "productIdentityMode只接受inherit或new；省略表示inherit")
     for field in op.required:
         allow_empty = op.method == "PUT" and op.path == "/definitions/{workflow_id}" and field in ("description", "coverUrl")
         if field not in body or body[field] is None or (body[field] == "" and not allow_empty):

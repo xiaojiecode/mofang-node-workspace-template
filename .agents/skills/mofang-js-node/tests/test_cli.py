@@ -276,6 +276,41 @@ class CLITest(unittest.TestCase):
         self.assertIsNone(body["graph"]["nodes"][0]["configJson"]["keyword"])
         self.assertNotIn("region", body["graph"]["nodes"][0]["configJson"])
 
+    def test_node_bundle_preserves_optional_product_identity_mode_for_catalog_calls(self):
+        self.login()
+        folder = Path(self.bundle())
+        original = json.loads((folder / "node.json").read_text())
+        for action in ("validate", "create", "update"):
+            for mode in (None, "inherit", "new"):
+                with self.subTest(action=action, mode=mode):
+                    value = dict(original)
+                    if mode is not None:
+                        value["productIdentityMode"] = mode
+                    (folder / "node.json").write_text(json.dumps(value))
+                    arguments = ["nodes", action, "--bundle", str(folder)]
+                    if action == "update":
+                        arguments += ["--code", "fixture", "--expected-catalog-instance-id", "catalog", "--expected-catalog-revision", "1"]
+                    code, result = self.call(arguments)
+                    self.assertEqual(code, 0, result)
+                    body = self.server.requests[-1][2]
+                    self.assertEqual("productIdentityMode" in body, mode is not None)
+                    if mode is not None:
+                        self.assertEqual(body["productIdentityMode"], mode)
+                    self.assertEqual(body["source"], original["source"])
+
+    def test_node_identity_mode_rejects_explicit_invalid_values_before_network(self):
+        self.login()
+        folder = Path(self.bundle())
+        original = json.loads((folder / "node.json").read_text())
+        before = len(self.server.requests)
+        for mode in ("", "auto", None, False, 1):
+            value = {**original, "productIdentityMode": mode}
+            (folder / "node.json").write_text(json.dumps(value))
+            for body_args in (["--bundle", str(folder)], self.body(value)):
+                code, result = self.call(["nodes", "validate", *body_args])
+                self.assertEqual((code, result["error"]["code"]), (1, "invalid_argument"))
+        self.assertEqual(len(self.server.requests), before)
+
     def test_revision_conflict_is_not_retried(self):
         self.login("client")
         self.server.responses = [(409, {"code": 409, "msg": "revision conflict", "data": {"errorCode": "revision_conflict"}})]

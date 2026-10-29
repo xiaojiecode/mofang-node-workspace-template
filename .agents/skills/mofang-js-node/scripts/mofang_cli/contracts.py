@@ -20,6 +20,7 @@ FIELD_HELP = {
     "tools": "许可 tool_name 列表；从原子能力详情精确读取，声明许可不代表已执行或实际有额度。",
     "maxToolCalls": "每次子任务跨全部阶段累计的正整数工具预算；仅 publish_message/ctx.message 免计（须核对目标平台支持），其它内置工具仍计数；按分支、循环/轮询上限核算，没有调用也不能传非法值。",
     "timeoutSeconds": "非负整数；0使用平台默认600秒，不代表无限。",
+    "productIdentityMode": "可选目录字段inherit/new；省略按inherit处理且保留缺席，不进入mf.node/1运行模块manifest或命令。",
     "expectedCatalogInstanceId": "最近一次 nodes source / panels get 回读的真实目录身份。",
     "expectedCatalogRevision": "同次回读的正整数修订字符串；冲突时比较差异，不能只替换修订重提。",
     "surface": "settings 或 business，两份页面独立修订、保存和发布。",
@@ -58,7 +59,7 @@ def operation_contract(group, action, operation):
     conditions = []
     if group == "nodes" and action in ("validate", "create", "update"):
         fields.update({name: {"required": name in operation.required, "meaning": FIELD_HELP[name]}
-                       for name in ("code", "name", "inputSchema", "outputSchema", "source", "tools", "maxToolCalls", "timeoutSeconds", "expectedCatalogInstanceId", "expectedCatalogRevision")})
+                       for name in ("code", "name", "inputSchema", "outputSchema", "source", "tools", "maxToolCalls", "timeoutSeconds", "productIdentityMode", "expectedCatalogInstanceId", "expectedCatalogRevision")})
         conditions += ["校验 source 的 manifest、编码和双 Schema 一致；validate 不落库，不启动 Tool。",
                        "保存目录、实例采用、两份页面发布、新建运行是独立操作。"]
         response = (["valid", "programInterface", "scope", "toolAvailability"] if action == "validate"

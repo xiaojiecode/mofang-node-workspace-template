@@ -62,6 +62,8 @@ useNodeConfig只读取起跑固定设置，宿主排除item和所有已绑定字
 
 类型、辅助字段和业务内容由同节点契约统一；Product/媒体内部结构使用系统可信类型。生命周期候选是items恰好一项的完整输出对象，普通阶段空items不补造商品。
 
+目录作者元数据可选 `productIdentityMode: 'inherit' | 'new'`：缺省按 inherit 处理并保持字段缺席；显式空串或其它值拒绝。该字段放在 node.ts 和目录保存正文，由构建与 CLI 原样透传，不进入 mf.node/1 的 NodeSpec、manifest、命令或源码摘要。选择 new 会影响运行内商品身份，须按已确认业务范围填写，不能为消除类型错误猜模式。
+
 根tsconfig是工程发现入口，后台使用tsconfig.goja.json，浏览器和页面程序分别检查；统一运行npm run typecheck。IDE导入报红或类型变成any时先核对所属工程与别名，不添加any、忽略诊断或DOM全局绕过。Product.attributes是unknown扩展字段，使用前收窄；类型回归应同时证明上下文/输入/可信类型没有退化。
 
 ## 人工动作与结束

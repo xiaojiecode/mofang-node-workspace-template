@@ -11,7 +11,11 @@ import { HostPanel } from '@mofang/browser'
 import { productSummary, textField, selectField, card } from '@mofang/browser'
 import type { TemplateResult } from 'lit'
 import type { Product } from '@mofang/contracts/business'
-import type { JavaScriptValidation } from '@mofang/contracts/author'
+import type {
+    JavaScriptValidation,
+    JavaScriptNodeBody,
+    NodeDefinition,
+} from '@mofang/contracts/author'
 import type { WorkflowSummary as PublishedWorkflowSummary } from '@mofang/workflow-sdk'
 const moduleValidation: JavaScriptValidation = {
     programInterface: 'mf.node/1',
@@ -177,3 +181,19 @@ void missingNodeCount
 void missingNodeCodes
 void invalidNodeCodes
 void invalidNodeCount
+
+// 商品身份模式只进入目录作者元数据，缺省保持缺席。
+const inheritedProductMode: Pick<NodeDefinition, 'productIdentityMode'> = {}
+const newProductMode: Pick<JavaScriptNodeBody, 'productIdentityMode'> = {
+    productIdentityMode: 'new',
+}
+// @ts-expect-error 显式空串不等于缺省inherit。
+const emptyProductMode: Pick<NodeDefinition, 'productIdentityMode'> = { productIdentityMode: '' }
+const unknownProductMode: Pick<NodeDefinition, 'productIdentityMode'> = {
+    // @ts-expect-error 商品身份模式不接受其它名称。
+    productIdentityMode: 'auto',
+}
+void inheritedProductMode
+void newProductMode
+void emptyProductMode
+void unknownProductMode
