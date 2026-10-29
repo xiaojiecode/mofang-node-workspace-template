@@ -1,4 +1,10 @@
-import type { MofangSDK, PanelProps, PageProgramContext, NodeView } from '@mofang/contracts/browser'
+import type {
+    MofangSDK,
+    PanelProps,
+    PageProgramContext,
+    NodeView,
+    SchemaField,
+} from '@mofang/contracts/browser'
 import { HostPanel } from '@mofang/browser'
 import { productSummary, textField, selectField, card } from '@mofang/browser'
 import type { TemplateResult } from 'lit'
@@ -53,3 +59,25 @@ const selectionField: TemplateResult = selectField({
     options: [{ value: 'US', label: '美国' }],
 })
 void card({ title: '设置' }, selectionField)
+
+// 字段禁用和仅运行前配置由宿主提供，保留具体类型。
+const disabledFields: readonly string[] | undefined = props.settings?.disabledFields
+const beforeRunField: SchemaField = {
+    name: 'mode',
+    title: '模式',
+    description: '',
+    type: 'string',
+    required: false,
+    nullable: false,
+    ui: {},
+    schema: {},
+    configBeforeRun: true,
+}
+// @ts-expect-error 字段禁用列表只能包含字段名字符串。
+const invalidDisabledFields: NonNullable<PanelProps['settings']>['disabledFields'] = [1]
+// @ts-expect-error 仅运行前配置标记必须为布尔值。
+const invalidBeforeRun: SchemaField = { ...beforeRunField, configBeforeRun: 'true' }
+void disabledFields
+void beforeRunField
+void invalidDisabledFields
+void invalidBeforeRun

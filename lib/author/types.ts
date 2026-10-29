@@ -4,6 +4,7 @@ import type {
     StageProgram,
     StageContext,
     InputEvent,
+    EntryEvent,
     TaskResultEvent,
     InputClosedEvent,
     ControlEvent,
@@ -11,7 +12,7 @@ import type {
 } from '@mofang/contracts/goja'
 
 export type { Product } from '@mofang/contracts/business'
-export type { JSONObject, StageProgram, StageContext, InputEvent, TaskResultEvent }
+export type { JSONObject, StageProgram, StageContext, EntryEvent, InputEvent, TaskResultEvent }
 export type DeepReadonly<T> = TrustedDeepReadonly<T>
 /** 必须为可序列化 JSON Schema；$ref 只解析冻结可信目录，不执行远程请求。 */
 export type JsonSchema = Readonly<Record<string, unknown>>
@@ -116,12 +117,14 @@ export interface SpawnCommand {
     readonly id: string
     readonly handler: string
     readonly input: object
+    /** 关联的真实输入事件 ID；独立领域来源按可信能力校验。 */
     readonly inputRefs: readonly string[]
 }
 export interface AppendCommand {
     readonly kind: 'candidate.append'
     readonly id: string
     readonly value: object
+    /** 关联的真实输入事件 ID，不使用商品到达 ID。 */
     readonly inputRefs: readonly string[]
 }
 export interface UpdateCommand {

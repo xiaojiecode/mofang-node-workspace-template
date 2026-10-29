@@ -3,40 +3,14 @@ import { readFile, readdir, realpath } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { parse } from 'acorn'
+import { runInNewContext } from 'node:vm'
+import { inspectAuthorBundle } from '../build/page-authoring.mjs'
 import Ajv from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
 import { root, dist, nodeCodes, readJSON } from '../paths.mjs'
-import { forbiddenGoja } from '../build/bundle.mjs'
+import { bundle, forbiddenGoja } from '../build/bundle.mjs'
 import { readNodePanels, resolvePanelPath, containedPath } from '../panels/manifest.mjs'
 import { validateAuthoringPackage } from '@mofang/low-code-page/authoring'
-const forbiddenPage = new Set([
-    'require',
-    'eval',
-    'Function',
-    'fetch',
-    'XMLHttpRequest',
-    'WebSocket',
-    'Worker',
-    'SharedWorker',
-    'Date',
-    'performance',
-    'window',
-    'document',
-    'navigator',
-    'localStorage',
-    'sessionStorage',
-    'process',
-    'global',
-    'globalThis',
-    'Deno',
-    'Bun',
-    'setTimeout',
-    'setInterval',
-    'setImmediate',
-    'requestAnimationFrame',
-    'queueMicrotask',
-    'crypto',
-])
 /**
  * 解析最终单文件产物，检查模块形式、体积和运行环境禁止访问的全局。
  * 构建成功不代表宿主可执行，产物仍需浏览器或 Goja 的实际加载验证。
@@ -44,6 +18,7 @@ const forbiddenPage = new Set([
 export function inspect(source, kind, moduleFormat = 'esm') {
     if (!source || Buffer.byteLength(source) > 5 * 1024 * 1024 || source.includes('\0'))
         throw new Error('源码为空、超过 5 MiB 或含 NUL')
+    if (kind === 'page-program' && moduleFormat === 'esm') inspectAuthorBundle(source, kind)
     const ast = parse(source, {
         ecmaVersion: 'latest',
         sourceType: kind === 'executor' || moduleFormat !== 'esm' ? 'script' : 'module',
@@ -58,8 +33,8 @@ export function inspect(source, kind, moduleFormat = 'esm') {
             node.source
         )
             throw new Error('产物不能从外部 re-export')
-        const forbidden = kind === 'page-program' ? forbiddenPage : forbiddenGoja
-        if (kind !== 'panel' && node.type === 'Identifier' && forbidden.has(node.name)) {
+        const forbidden = forbiddenGoja
+        if (kind === 'executor' && node.type === 'Identifier' && forbidden.has(node.name)) {
             const property =
                 (parent?.type === 'MemberExpression' &&
                     parent.property === node &&
@@ -130,20 +105,25 @@ export function inspect(source, kind, moduleFormat = 'esm') {
               ))
     )
         throw new Error('面板缺少默认导出')
-    if (kind === 'page-program') {
-        if (moduleFormat !== 'esm') {
-            if (!/prepareInput/.test(source)) throw new Error('数据程序只允许导出 prepareInput')
-            return ast
-        }
-        const names = exports.flatMap((n) =>
-            n.declaration?.id
-                ? [n.declaration.id.name]
-                : (n.specifiers?.map((s) => s.exported.name) ?? []),
-        )
-        if (names.length !== 1 || names[0] !== 'prepareInput')
-            throw new Error('数据程序只允许导出 prepareInput')
-    }
+
     return ast
+}
+
+/** 在独立本地 VM 上下文装载最终数据程序，核对真实导出；不执行输入准备。 */
+export function inspectPageProgramRuntime(source) {
+    const result = runInNewContext(
+        `const module={exports:{}};const exports=module.exports;
+${source}
+;({names:Object.getOwnPropertyNames(module.exports).filter(name=>name!=="__esModule"),kind:typeof module.exports.prepareInput})`,
+        {},
+        { timeout: 1000 },
+    )
+    if (
+        result.names.length !== 1 ||
+        result.names[0] !== 'prepareInput' ||
+        result.kind !== 'function'
+    )
+        throw new Error('最终页面数据程序必须仅导出 prepareInput 函数')
 }
 /**
  * 检查原始 URL 的控制字符、百分号编码和完整协议/主机，随后再调用 URL 解析。
@@ -218,6 +198,15 @@ export async function verifyNodeArtifacts(code, { rootDir = root } = {}) {
             : !manifest.artifacts.pageProgram
     )
         throw new Error('pageProgram must exist only for Lit business')
+    if (manifest.artifacts.pageProgram) {
+        const artifact = manifest.artifacts.pageProgram
+        const entry = artifact.entry
+        if (entry !== 'page.ts' && entry !== '../../lib/browser/page.ts')
+            throw new Error('页面数据程序入口与模板声明不一致')
+        const source = await readFile(path.resolve(rootDir, 'nodes', code, entry), 'utf8')
+        if (artifact.sourceSha256 !== createHash('sha256').update(source).digest('hex'))
+            throw new Error('页面数据程序源码已改变，请重新构建')
+    }
     const sources = {}
     for (const [entry, artifact] of Object.entries(manifest.artifacts)) {
         if (
@@ -262,6 +251,24 @@ export async function verifyNodeArtifacts(code, { rootDir = root } = {}) {
             if (artifact.format !== 'javascript') throw new Error('invalid artifact format')
             if (artifact.file !== (entry === 'executor' ? 'program.js' : entry + '.js'))
                 throw new Error('invalid JavaScript artifact filename')
+            if (entry !== 'executor') {
+                const input =
+                    entry === 'pageProgram'
+                        ? path.resolve(rootDir, 'nodes', code, artifact.entry)
+                        : await resolvePanelPath(code, entry, { rootDir })
+                const rebuilt = await bundle(
+                    input,
+                    entry === 'pageProgram' ? 'page-program' : 'panel',
+                    {
+                        rootDir,
+                        minify: manifest.build?.minified === true,
+                        format: artifact.moduleFormat ?? 'esm',
+                        target: 'es2017',
+                    },
+                )
+                if (rebuilt.code !== source)
+                    throw new Error('页面源码、依赖或构建条件已变化，请重新构建：' + entry)
+            }
             inspect(
                 source,
                 entry === 'executor'
@@ -274,6 +281,7 @@ export async function verifyNodeArtifacts(code, { rootDir = root } = {}) {
         }
         sources[entry] = source
     }
+    if (sources.pageProgram) inspectPageProgramRuntime(sources.pageProgram)
     return { manifest, sources }
 }
 

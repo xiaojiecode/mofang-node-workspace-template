@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { build, transformSync } from 'esbuild'
 import { parse } from 'acorn'
 import { root } from '../paths.mjs'
+import { authorJavaScript, inspectAuthorModule, inspectAuthorBundle } from './page-authoring.mjs'
 // 两种构建仅在可读性和压缩上不同，指令始终匹配统一宿主 ABI。
 export const litMode = 'production'
 export const buildMode = process.argv.includes('--development') ? 'development' : 'production'
@@ -33,12 +34,14 @@ export const forbiddenGoja = new Set([
  * 只压缩能静态证明为 lit.css 的无插值模板。插值可能出现在选择器、属性值或
  * @规则内部，无法在不执行作者代码的情况下安全重写，因此保留原模板。
  */
-function compressStaticCss(source) {
-    let transformedSource = transformSync(source, {
-        loader: 'ts',
-        format: 'esm',
-        target: 'esnext',
-    }).code
+function compressStaticCss(source, preserveImports = false) {
+    let transformedSource = preserveImports
+        ? authorJavaScript(source)
+        : transformSync(source, {
+              loader: 'ts',
+              format: 'esm',
+              target: 'esnext',
+          }).code
     const ast = parse(transformedSource, {
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -103,8 +106,8 @@ export async function bundle(file, kind, options = {}) {
     const format = options.format ?? (kind === 'executor' ? 'iife' : 'esm')
     const target = options.target ?? (kind === 'executor' ? 'es2016' : 'es2022')
     // 平台清单接收普通函数，提交前将异步方法降级为普通函数。
-    const result = await build({
-        absWorkingDir: root,
+    const buildOptions = {
+        absWorkingDir: options.rootDir ?? root,
         entryPoints: [file],
         bundle: true,
         write: false,
@@ -125,13 +128,22 @@ export async function bundle(file, kind, options = {}) {
             {
                 name: 'runtime-boundary',
                 setup(api) {
-                    api.onLoad({ filter: /\.(?:ts|mts)$/ }, async (args) => ({
-                        contents:
+                    api.onLoad({ filter: /\.(?:ts|mts|js|mjs|cjs)$/ }, async (args) => {
+                        if (kind === 'executor' && !/\.(?:ts|mts)$/.test(args.path)) return
+                        const authored = await readFile(args.path, 'utf8')
+                        const contents =
                             options.optimizeCss === false
-                                ? await readFile(args.path, 'utf8')
-                                : compressStaticCss(await readFile(args.path, 'utf8')),
-                        loader: options.optimizeCss === false ? 'ts' : 'js',
-                    }))
+                                ? kind === 'executor'
+                                    ? authored
+                                    : authorJavaScript(authored)
+                                : compressStaticCss(authored, kind !== 'executor')
+                        if (kind !== 'executor') inspectAuthorModule(contents, kind)
+                        return {
+                            contents,
+                            loader:
+                                options.optimizeCss === false && kind === 'executor' ? 'ts' : 'js',
+                        }
+                    })
                     api.onResolve({ filter: /^(lit|lit-html|@lit\/reactive-element)$/ }, (args) =>
                         panel
                             ? { path: 'lit', external: true }
@@ -160,7 +172,20 @@ export async function bundle(file, kind, options = {}) {
                 },
             },
         ],
-    })
+    }
+    if (kind === 'panel' || kind === 'page-program') {
+        // 作者检查在压缩前进行；保留每个依赖模块的未使用导入和不可达分支。
+        const analysis = await build({
+            ...buildOptions,
+            format: 'esm',
+            target: 'esnext',
+            minify: false,
+            keepNames: false,
+            treeShaking: false,
+        })
+        inspectAuthorBundle(analysis.outputFiles[0].text, kind)
+    }
+    const result = await build(buildOptions)
     for (const input of Object.keys(result.metafile.inputs)) {
         if (
             kind === 'executor' &&

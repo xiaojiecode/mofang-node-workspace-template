@@ -23,6 +23,7 @@ import type {
     CoordinatorError,
     InputClosedEvent,
     InputEvent,
+    EntryEvent,
 } from '@mofang/contracts/goja'
 import type {
     HandleHost,
@@ -356,6 +357,12 @@ function register(type: NodeEvent['type'], handler: Callback): void {
 }
 export function useOnStart(handler: () => HookResult): void {
     register('start', handler)
+}
+/** 真实入口任务准备完成后处理该次输入，不把它当作商品到达。 */
+export function useOnEntry<I extends object>(
+    handler: (event: DeepReadonly<EntryEvent<I>>) => HookResult,
+): void {
+    register('entry', handler as Callback)
 }
 export function useOnInput<I extends object>(
     handler: (event: DeepReadonly<InputEvent<I>>) => HookResult,

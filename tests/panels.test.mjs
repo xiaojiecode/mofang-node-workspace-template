@@ -120,11 +120,14 @@ test('真实构建四种组合，离线保存严格检查当前源码、产物�
     for (const settingsRenderer of ['lit', 'puck'])
         for (const businessRenderer of ['lit', 'puck']) {
             const code = settingsRenderer + '-' + businessRenderer
-            await writeNode(
-                rootDir,
-                code,
-                skeletonFiles(code, { settingsRenderer, businessRenderer }),
-            )
+            const files = skeletonFiles(code, { settingsRenderer, businessRenderer })
+            if (code === 'lit-lit') {
+                files['page.ts'] =
+                    'import {helper} from "./page-helper";export {helper as prepareInput}'
+                files['page-helper.ts'] =
+                    'export function helper(){return {kind:"prepared",values:{},usedRefs:[],fieldSources:{}}}'
+            }
+            await writeNode(rootDir, code, files)
         }
     // 缺少 panels.json 的旧工程也必须在同一次真实构建中保留行为。
     const legacy = skeletonFiles('legacy')
@@ -219,4 +222,19 @@ test('真实构建四种组合，离线保存严格检查当前源码、产物�
     assert.ok(lit.programCompiled)
     assert.match(lit.programHash, /^[0-9a-f]{64}$/)
     assert.equal('config' in lit, false)
+    // 入口与其 hash 未变，只修改真实本地依赖，也不能提交旧产物。
+    await writeFile(
+        path.join(rootDir, 'nodes/lit-lit/page-helper.ts'),
+        'export function helper(){return {kind:"requires_input",fields:["item"],reason:"changed"}}',
+    )
+    await assert.rejects(
+        prepareSave({
+            code: 'lit-lit',
+            surface: 'business',
+            catalogFile,
+            rootDir,
+            supportedContextSchemas: ['fixture-explicit-context'],
+        }),
+        /依赖或构建条件已变化/,
+    )
 })

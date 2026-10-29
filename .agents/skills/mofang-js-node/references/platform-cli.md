@@ -97,79 +97,21 @@ bundle 读取工程模板的 `node.json`，只选取作者请求字段，不发�
 
 ## 双面板保存和发布
 
-Puck 上传先读下面的“Puck 页面的后台请求结构”；本节的源码编译和 `--view-source` 示例用于 Lit。
+Puck 上传先读下面的“Puck 页面的后台请求结构”；本节的本地构建和最终保存正文示例用于 Lit。
 
-settings/business 独立读取和保存；正文中的 surface 必须明确。`panels compile` 与 `panels save` 的正文不同：编译不接受 kind、renderMode、目录身份/修订或发布字段。business Lit 两种操作均须提供 programSource 和显式非空 supportedContextSchemas，遗漏上下文声明时远端可能只返回“页面或程序源码编译被拒绝”。先 get 当前目录身份与修订，再通过 describe 了解对应操作正文：
-
-```bash
-python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels get --code <编码> --surface settings
-python3 <技能目录>/scripts/mofang_node.py describe panels compile
-python3 <技能目录>/scripts/mofang_node.py describe panels save
-python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels compile \
-    --file <预览编译正文.json> --view-source <dist/编码/settings.js>
-python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels save \
-    --code <编码> --file <面板保存正文.json> --view-source <dist/编码/settings.js>
-```
-
-面板保存正文示例（替换读取到的身份与修订）：
-
-```json
-{
-    "kind": "save",
-    "surface": "settings",
-    "renderMode": "lit",
-    "expectedCatalogInstanceId": "<当前目录身份>",
-    "expectedCatalogRevision": "<当前目录修订>"
-}
-```
-
-business Lit 必须同时提供自身的 viewSource 与非空 programSource，用 `--program-source <dist/编码/pageProgram.js>` 原文填入。settings 不接受 programSource。supportedContextSchemas 按页面实际声明填写，CLI 不默认添加整抽屉能力或改变页面布局。保存后重新 get，下一 surface 使用新读取的修订；禁止把前一个请求的旧修订直接复用。
-
-下面是两份**编译**正文，源码由命令行参数填入。business 示例的 `mf.node-context/1` 来自当前模板的普通宿主验证契约；仍须核对目标宿主，不能将示例当成任意部署或 full-panel 的证明。
-
-```json
-{"surface":"settings"}
-```
-
-```json
-{"surface":"business","supportedContextSchemas":["mf.node-context/1"]}
-```
-
-声明必须是数组，business Lit 不能为空；每项是唯一、无首尾空白、不含 NUL、最多 256 个 UTF-8 字节的非空字符串。settings 可以省略或传空数组；如显式提供声明，CLI 同样检查格式，不自动填充或规范化内容。
+settings/business 独立读取和保存；surface 和目录双 CAS 必须明确。页面编译与作者静态分析只在模板本地进行，远程 `panels compile` 已删除。后台 Lit 仅支持最终产物接口写入或上传，不提供源码编辑和预览。
 
 ```bash
-python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels compile \
-    --file <business编译正文.json> --view-source <dist/编码/business.js> \
-    --program-source <dist/编码/pageProgram.js>
+npm run build
+npm run verify
+python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels get --code <编码> --surface settings > <目录快照.json>
+node tooling/cli.mjs panels:prepare --code <编码> --surface settings --catalog-file <目录快照.json> --out <保存正文.json>
+python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels save --code <编码> --file <保存正文.json>
 ```
 
-编译通过后使用独立的 business **保存**正文：
+Lit 保存正文包含 viewSource/viewCompiled/viewHash/compilerVersion；business 另外包含 programSource/programCompiled/programHash 和显式非空 supportedContextSchemas。`panels:prepare --supported-context-schemas '["真实契约身份"]'` 按真实宿主声明上下文；不猜默认声明。每个产物摘要来自最终字节。保存一个面板后回读新目录修订，再准备另一个面板，不改写旧文件的 revision 规避冲突。
 
-```json
-{
-    "kind": "save",
-    "surface": "business",
-    "renderMode": "lit",
-    "supportedContextSchemas": ["mf.node-context/1"],
-    "expectedCatalogInstanceId": "<刚读取的目录身份>",
-    "expectedCatalogRevision": "<刚读取的目录修订>"
-}
-```
-
-```bash
-python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels save \
-    --code <编码> --file <business保存正文.json> \
-    --view-source <dist/编码/business.js> --program-source <dist/编码/pageProgram.js>
-```
-
-
-```bash
-python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels instances --code <编码> --surface business
-python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels publish --code <编码> --file <发布正文.json>
-python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels release --release-id <releaseId>
-```
-
-发布正文必须包含 surface、scope；selected_instances 必须给出明确非空 targets，panelRevision 可固定已保存版本。new_only、all_instances 与 selected_instances 是不同授权范围，不能代替用户选择。get/revisions/instances 需显式 `--surface`。目录保存、实例页面发布和执行定义采用分别回读，历史冻结执行不因目录更新而改写。
+同一保存正文也可在后台相应节点与面板上传。后台核对当前身份、修订与摘要格式后提交同一接口，真实摘要由后端重算并核对，不重编译、不重写 CAS。发布仍使用已有 `panels publish --code <编码> --file <发布正文.json>`，正文携带 surface、已保存 panelRevision、显式 scope/targets；回执未知时只查询原资源，不自动重发。
 
 ### Puck 页面的后台请求结构
 
@@ -177,16 +119,16 @@ python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels releas
 
 ```js
 const body = {
-    kind: "save",
-    surface: "settings", // 展示页使用 business
-    renderMode: "lowcode",
+    kind: 'save',
+    surface: 'settings', // 展示页使用 business
+    renderMode: 'lowcode',
     lowcode: {
-        rendererKey: "puck",
+        rendererKey: 'puck',
         config: pagePackage, // 完整 PagePackage 对象，不能只传 data 或 JSON 字符串
     },
     expectedCatalogInstanceId: catalogInstanceId,
     expectedCatalogRevision: catalogRevision,
-};
+}
 ```
 
 页面包中的节点编码须与 URL 一致。settings 包的工作流 surface 为 settings；business 包内为 runtime。两份页面分别保存，每次使用新回读并核对的目录修订。
@@ -213,8 +155,8 @@ python3 <技能目录>/scripts/mofang_node.py --profile demo-user workflows conf
 ```json
 {
     "revision": "<当前draftRevision>",
-    "nodeConfigs": {"<nodeKey>": {"keyword": "yoga"}},
-    "resetFields": {"<nodeKey>": ["可选的恢复默认字段名"]}
+    "nodeConfigs": { "<nodeKey>": { "keyword": "yoga" } },
+    "resetFields": { "<nodeKey>": ["可选的恢复默认字段名"] }
 }
 ```
 

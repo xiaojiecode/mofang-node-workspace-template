@@ -9,6 +9,8 @@ export type SchemaField = {
     element?: SchemaField;
     required: boolean;
     nullable: boolean;
+    /** 仅允许在运行前固定配置，不接受上游绑定。 */
+    configBeforeRun?: boolean;
     defaultValue?: JsonValue;
     ui: JsonObject;
     schema: JsonObject;

@@ -1,4 +1,4 @@
-package pagecompiler_test
+package pageartifact_test
 
 import (
 	"context"
@@ -7,12 +7,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/dop251/goja"
 	"mofang/pkg/jsprogram"
 	"mofang/pkg/nodeabi"
-	"mofang/services/workflow/internal/pagecompiler"
+	"mofang/services/workflow/internal/pageartifact"
 )
 
-// TestEngineeringTemplate 使用真实 Goja 模块与页面编译器，不访问数据库或外部能力。
+// TestEngineeringTemplate 使用真实 Goja 模块与最终页面产物验证器，不访问数据库或外部能力。
 func TestEngineeringTemplate(t *testing.T) {
 	root := os.Getenv("MF_TEMPLATE_REPO")
 	if root == "" {
@@ -53,14 +54,29 @@ func TestEngineeringTemplate(t *testing.T) {
 			}
 			ctx := context.Background()
 			for _, surface := range []string{"settings", "business"} {
-				source := pagecompiler.Sources{Surface: surface, ViewSource: read(surface + ".js"), SDKVersion: "1"}
+				source := pageartifact.Sources{Surface: surface, ViewSource: read(surface + ".js"), ViewCompiled: read(surface + ".js"), SDKVersion: "1"}
 				if surface == "business" {
 					source.ProgramSource = read("pageProgram.js")
+					source.ProgramCompiled = source.ProgramSource
 					source.SupportedContextSchemas = []string{"mf.node-context/1"}
 				}
-				if _, err := pagecompiler.New().Compile(ctx, source); err != nil {
-					t.Fatalf("%s page compile: %v", surface, err)
+				if _, err := pageartifact.New().ValidateCompiled(ctx, source); err != nil {
+					t.Fatalf("%s final page artifact: %v", surface, err)
 				}
+			}
+			// 直接装载生产压缩 CommonJS 数据程序，不靠 helper 名称推断导出。
+			vm := goja.New()
+			if _, err := vm.RunString("var module={exports:{}};var exports=module.exports;\n" + read("pageProgram.js")); err != nil {
+				t.Fatalf("page program module load: %v", err)
+			}
+			exports := vm.Get("module").ToObject(vm).Get("exports").ToObject(vm)
+			for _, key := range exports.GetOwnPropertyNames() {
+				if key != "prepareInput" && key != "__esModule" {
+					t.Fatalf("unexpected page program export: %s", key)
+				}
+			}
+			if _, ok := goja.AssertFunction(exports.Get("prepareInput")); !ok {
+				t.Fatal("page program prepareInput is not a function")
 			}
 			var manifest struct {
 				Interface string `json:"interface"`

@@ -1,6 +1,7 @@
 import type {
     StageContext,
     StageProgram,
+    EntryEvent,
     InputEvent,
     TaskResultEvent,
 } from '@mofang/contracts/goja'
@@ -43,23 +44,44 @@ const typedTask: StageProgram<{ keyword: string }, { attempt: number }, { items:
     },
 }
 void typedTask
+const entry: EntryEvent<{ limit: number }> = {
+    inputEventId: 'event-1',
+    taskId: 'task-1',
+    generation: '1',
+    inputManifestId: 'manifest-1',
+    values: { limit: 2 },
+}
+const arrival: InputEvent<{ item: Product }> = {
+    ...entry,
+    deliveryId: 'delivery-1',
+    values: { item: product },
+}
+// @ts-expect-error 原始到达身份不能替代本次任务代次的输入事件身份。
+const oldArrival: InputEvent = { deliveryId: 'delivery-1', values: {} }
+// @ts-expect-error 代次必须保留为十进制字符串。
+const invalidGeneration: EntryEvent = { ...entry, generation: 1 }
+// @ts-expect-error 入口事件没有商品到达身份，不能伪造 deliveryId。
+void entry.deliveryId
+void arrival
+void oldArrival
+void invalidGeneration
 function invalid(ctx: StageContext, result: TaskResultEvent) {
-    // @ts-expect-error Goja has no DOM.
+    // @ts-expect-error Goja 不提供 DOM。
     document.createElement('div')
-    // @ts-expect-error Goja has no fetch.
+    // @ts-expect-error Goja 不提供 fetch。
     fetch('https://example.invalid')
-    // @ts-expect-error Node globals are isolated.
+    // @ts-expect-error Node 全局变量与 Goja 隔离。
     process.exit(0)
-    // @ts-expect-error No timer host.
+    // @ts-expect-error 宿主不提供定时器。
     setTimeout(() => {}, 1)
-    // @ts-expect-error Failed and unknown events do not contain successful output.
+    // @ts-expect-error 失败与未知事件不包含成功输出。
     result.output
-    // @ts-expect-error Goja source cannot import a browser SDK runtime.
+    // @ts-expect-error Goja 源码不能取得浏览器 SDK 配置。
     ctx.config
 }
 void invalid
-// @ts-expect-error Retired lifecycle object ABI has no author export.
+// @ts-expect-error 已退役的 lifecycle 对象 ABI 不再导出作者类型。
 import type { LifecycleProgram } from '@mofang/contracts/goja'
 
-// @ts-expect-error Standalone main API is retired; root programs require mf.node/1.
+// @ts-expect-error 独立 main API 已退役，根程序必须使用 mf.node/1。
 import type { MainProgram } from '@mofang/contracts/goja'

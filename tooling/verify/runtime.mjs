@@ -25,7 +25,6 @@ const reports = []
 for (const [name, file] of [
     ['client', 'mf-client/vite.config.ts'],
     ['admin', 'mofang-server/web/admin/vite.config.ts'],
-    ['lab', 'mf-client/vite.lab.config.ts'],
     ['template', path.join(root, 'playground/vite.config.mjs')],
 ])
     for (const command of ['serve', 'build']) {
@@ -122,7 +121,14 @@ for (const [name, file] of [
             await element.updateComplete
             assert.equal(changed, '更新 ')
             assert.equal(input.value, '更新')
-            element.settings = { ...element.settings, readOnly: true }
+            element.settings = { ...element.settings, disabledFields: ['note'] }
+            await element.updateComplete
+            assert.equal(input.disabled, true)
+            input.value = '禁止写回'
+            input.dispatchEvent(new dom.window.Event('input', { bubbles: true }))
+            await element.updateComplete
+            assert.equal(changed, '更新 ')
+            element.settings = { ...element.settings, disabledFields: [], readOnly: true }
             await element.updateComplete
             assert.equal(input.disabled, true)
             assert.deepEqual(errors, [])
@@ -134,10 +140,11 @@ for (const [name, file] of [
                 render: true,
                 controlledInput: true,
                 readOnly: true,
+                disabledFields: true,
             })
         }
     }
 await writeFile(task + '/matrix-results.json', JSON.stringify(reports, null, 2) + '\n')
 console.log(
-    `PASS: ${reports.length} host/resolve-condition combinations in JSDOM, browser runtime + render + live controlled input + readOnly`,
+    `PASS: ${reports.length} host/resolve-condition combinations in JSDOM, browser runtime + render + live controlled input + readOnly + disabledFields`,
 )

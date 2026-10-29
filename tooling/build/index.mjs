@@ -106,6 +106,12 @@ for (const code of await nodeCodes()) {
             sha256: createHash('sha256').update(source).digest('hex'),
             format: kind === 'puck' ? 'json' : 'javascript',
             ...(kind === 'puck' ? {} : { moduleFormat: kind === 'executor' ? 'iife' : 'cjs' }),
+            ...(kind === 'page-program'
+                ? {
+                      sourceSha256: createHash('sha256').update(input).digest('hex'),
+                      entry: pageSource,
+                  }
+                : {}),
             ...(['lit', 'puck'].includes(kind)
                 ? {
                       surface: entry,

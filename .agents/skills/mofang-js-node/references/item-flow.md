@@ -1,5 +1,7 @@
 # 逐项协调
 
-每次 useOnInput 只代表一个真实到达。任务派发传 [event.deliveryId]，结果候选继续 event.inputRefs；排序、任务关联使用真实taskId而非对象引用。成功output.items为空时不造候选；每个候选恰好一项，辅助report保留。
+每次 useOnInput 代表一条任务代次的真实输入事件。关联任务派发传 [event.inputEventId]，结果候选继续 event.inputRefs；event.deliveryId 只记录原始商品到达来源，同一到达重跑使用新 inputEventId。任务关联使用真实 taskId 而非对象引用。独立领域来源未关联输入事件时可用空引用，但需通过可信能力校验用户、工作区和领域记录。成功 output.items 为空时不造候选；每个候选恰好一项，辅助 report 保留。
+
+预初始化只采用默认 state 与用户填写的冻结输入，不制造上游到达。上游商品和附带数据随真实到达逐次处理；更新须保留当前已保存的 state 与用户设置，不能以首条输入覆盖整份状态。并发商品分别保留真实到达身份与引用，不依赖页面展示顺序。
 
 动作、setter、reducer只登记计划，真实Tool放任务阶段，每阶段最多一次业务能力调用。unknown沿原操作核对，普通失败不自动补派。单商品等待不阻断兄弟任务；关闭依据平台真实统计，不用页面phase推断。从[最小骨架](../../../../tooling/init/skeleton/run.ts)开始，按[作者规范](../../../../docs/authoring.md)补充任务与人工等待；骨架不预置这些业务行为。

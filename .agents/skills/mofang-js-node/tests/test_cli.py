@@ -5,6 +5,7 @@ import base64
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import io
 import json
+import hashlib
 import os
 from pathlib import Path
 import subprocess
@@ -333,11 +334,21 @@ class CLITest(unittest.TestCase):
             self.assertEqual((code, result["error"]["code"]), (1, expected))
         self.assertEqual(len(self.server.requests), before)
 
+    def compiled_panel_fields(self, business=False):
+        """保存测试使用模板最终字节，不再依赖服务端编译。"""
+        view = 'module.exports={default:class P{}}'
+        fields = {"viewCompiled": view, "viewHash": hashlib.sha256(view.encode()).hexdigest(), "compilerVersion": "local-esbuild@0.28.2/mf-page-v2"}
+        if business:
+            program = 'module.exports={prepareInput(){}}'
+            fields.update(programCompiled=program, programHash=hashlib.sha256(program.encode()).hexdigest())
+        return fields
+
     def test_panel_source_and_surface_are_independent(self):
         self.login()
         source = self.root / "settings.js"
         source.write_text("export default class Example {}")
         value = {"kind": "save", "surface": "settings", "renderMode": "lit", "expectedCatalogInstanceId": "catalog", "expectedCatalogRevision": "3"}
+        value.update(self.compiled_panel_fields())
         code, result = self.call(["panels", "save", "--code", "example", *self.body(value), "--view-source", str(source)])
         self.assertEqual(code, 0, result)
         self.assertEqual(self.server.requests[-1][2]["viewSource"], source.read_text())
@@ -355,6 +366,7 @@ class CLITest(unittest.TestCase):
         self.assertEqual(len(self.server.requests), before)
         body["programSource"] = "export function prepareInput() {}"
         body["supportedContextSchemas"] = ["mf.node-context/1"]
+        body.update(self.compiled_panel_fields(True))
         code, result = self.call(["panels", "save", "--code", "example", *self.body(body)])
         self.assertEqual(code, 0, result)
         before = len(self.server.requests)
@@ -365,11 +377,11 @@ class CLITest(unittest.TestCase):
 
     def test_business_context_schemas_are_explicit_and_validated_before_network(self):
         self.login()
-        for action in ("compile", "save"):
+        for action in ("save",):
             prefix = ["panels", action] + (["--code", "example"] if action == "save" else [])
             valid = {"surface": "business", "viewSource": "export default class P {}", "programSource": "export function prepareInput() {}"}
             if action == "save":
-                valid.update(kind="save", renderMode="lit", expectedCatalogInstanceId="catalog", expectedCatalogRevision="2")
+                valid.update(kind="save", renderMode="lit", expectedCatalogInstanceId="catalog", expectedCatalogRevision="2", **self.compiled_panel_fields(True))
             before = len(self.server.requests)
             code, result = self.call([*prefix, *self.body(valid)])
             self.assertEqual((code, result["error"]["code"]), (1, "missing_field"))
@@ -384,26 +396,27 @@ class CLITest(unittest.TestCase):
             self.assertEqual(code, 0, result)
             self.assertEqual(self.server.requests[-1][2]["supportedContextSchemas"], schemas)
 
-    def test_settings_context_is_optional_and_compile_rejects_save_only_mode(self):
+    def test_save_requires_final_artifacts_and_checks_hashes(self):
         self.login()
-        body = {"surface": "settings", "viewSource": "export default class P {}"}
-        for schema_patch in ({}, {"supportedContextSchemas": []}, {"supportedContextSchemas": ["mf.node-context/1"]}):
-            code, result = self.call(["panels", "compile", *self.body({**body, **schema_patch})])
-            self.assertEqual(code, 0, result)
-            self.assertEqual("supportedContextSchemas" in self.server.requests[-1][2], "supportedContextSchemas" in schema_patch)
+        body = {"kind": "save", "surface": "settings", "renderMode": "lit", "viewSource": "export default class P{}", "expectedCatalogInstanceId": "catalog", "expectedCatalogRevision": "1"}
         before = len(self.server.requests)
-        for patch in ({"supportedContextSchemas": [""]}, {"renderMode": "lit"}):
-            code, result = self.call(["panels", "compile", *self.body({**body, **patch})])
+        code, result = self.call(["panels", "save", "--code", "example", *self.body(body)])
+        self.assertEqual((code, result["error"]["code"]), (1, "missing_field"))
+        body.update(self.compiled_panel_fields())
+        for patch in ({"viewHash": "bad"}, {"programCompiled": "bad"}, {"compilerVersion": "x" * 65}, {"compilerVersion": "中" * 22}):
+            code, result = self.call(["panels", "save", "--code", "example", *self.body({**body, **patch})])
             self.assertEqual((code, result["error"]["code"]), (1, "invalid_argument"))
         self.assertEqual(len(self.server.requests), before)
+        code, result = self.call(["panels", "save", "--code", "example", *self.body(body)])
+        self.assertEqual(code, 0, result)
+        self.assertEqual(self.server.requests[-1][2]["viewCompiled"], body["viewCompiled"])
 
-    def test_describe_separates_panel_compile_save_and_publish_fields(self):
+    def test_describe_exposes_final_save_and_publish_without_remote_compile(self):
         code, result = self.call(["guide"])
         self.assertEqual(code, 0, result)
         interfaces = {row["command"]: row for row in result["data"]["interfaces"]}
-        compile_fields = interfaces["panels compile"]["contract"]["body_fields"]
-        self.assertEqual(set(compile_fields), {"surface", "viewSource", "programSource", "supportedContextSchemas"})
-        self.assertIn("required_when", compile_fields["supportedContextSchemas"])
+        self.assertNotIn("panels compile", interfaces)
+        self.assertIn("viewCompiled", interfaces["panels save"]["contract"]["body_fields"])
         self.assertIn("renderMode", interfaces["panels save"]["contract"]["body_fields"])
         self.assertEqual(set(interfaces["panels publish"]["contract"]["body_fields"]), {"surface", "scope", "panelRevision", "targets"})
         self.assertIn("supportedContextSchemas", result["data"]["panel_authoring"]["business_context"])

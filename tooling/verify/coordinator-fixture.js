@@ -1,5 +1,5 @@
-/** Local author-runtime fixture only: no Workflow ledger, Tool, permissions or persistence. */
-function fixtureHarness(program) {
+/** 仅用于本地作者库验证，不包含Workflow账本、Tool、权限或持久化。 */
+function fixtureHarness(program, config = {}) {
     const facts = {
         runId: 'fixture-run',
         nodeInstanceId: 'fixture-node',
@@ -18,7 +18,7 @@ function fixtureHarness(program) {
         configDigest: 'fixture-config',
         factsDigest: 'fixture-facts',
     }
-    let state = program.initialize({ sourceHash: basis.sourceHash, config: {}, facts })
+    let state = program.initialize({ sourceHash: basis.sourceHash, config, facts })
     let sequence = 0,
         allocated = 0
     const host = {
@@ -32,14 +32,14 @@ function fixtureHarness(program) {
             return state
         },
         project() {
-            return program.project({ basis, state, config: {}, facts })
+            return program.project({ basis, state, config, facts })
         },
         async send(type, payload) {
             const result = await program.handle(
                 {
                     basis,
                     state,
-                    config: {},
+                    config,
                     facts,
                     event: {
                         id: 'event-' + ++sequence,

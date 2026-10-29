@@ -165,7 +165,7 @@ def parser():
                     sub.add_argument("--source-file", help="以原文填入 source")
                     sub.add_argument("--expected-catalog-instance-id")
                     sub.add_argument("--expected-catalog-revision")
-                if group == "panels" and action in ("save", "compile"):
+                if group == "panels" and action == "save":
                     sub.add_argument("--view-source", help="以原文填入 viewSource")
                     sub.add_argument("--program-source", help="以原文填入 programSource，仅 business")
             if op.query:

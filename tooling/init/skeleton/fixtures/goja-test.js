@@ -1,6 +1,13 @@
 ;(async () => {
     const h = fixtureHarness(program)
-    const input = await h.send('input', { deliveryId: 'delivery-1', values: {} })
+    const input = await h.send('input', {
+        inputEventId: 'input-event-1',
+        taskId: 'task-1',
+        generation: '1',
+        inputManifestId: 'manifest-1',
+        deliveryId: 'delivery-1',
+        values: {},
+    })
     fixtureAssert(input.kind === 'apply', '骨架应接受输入事件')
     fixtureAssert(input.plan.commands.length === 0, '骨架不应虚构任务或候选')
     fixtureAssert(input.plan.production === 'unchanged', '骨架不应在收到输入时声明生产结束')

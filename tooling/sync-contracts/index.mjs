@@ -25,6 +25,7 @@ for (const [folder, accept] of [
     ],
     ['mofang-server/pkg/workflow/schemas', (n) => n.endsWith('.json')],
     ['mofang-server/pkg/jsprogram', (n) => n.endsWith('.go') && !n.endsWith('_test.go')],
+    ['mofang-server/pkg/nodeabi', (n) => n.endsWith('.go') && !n.endsWith('_test.go')],
 ])
     for (const name of (await readdir(path.join(sourceRoot, folder))).sort())
         if (accept(name)) await record(folder + '/' + name)
@@ -32,7 +33,7 @@ for (const file of [
     'mf-client/src/features/workflow/node-pages/dynamic-lit-panel.tsx',
     'mf-client/src/features/workflow/node-pages/node-panel-provider.tsx',
     'mofang-server/web/admin/src/api/workflowJavaScript.ts',
-    'mofang-server/services/workflow/internal/pagecompiler/compiler.go',
+    'mofang-server/services/workflow/internal/pageartifact/artifact.go',
     'mofang-server/go.mod',
 ])
     await record(file)
@@ -76,7 +77,7 @@ if (result.status !== 0) process.exit(result.status ?? 1)
 await mkdir(path.join(destination, 'src/browser'), { recursive: true })
 await rm(path.join(destination, 'src/browser/sdk'), { recursive: true, force: true })
 await cp(path.join(stage, 'sdk'), path.join(destination, 'src/browser/sdk'), { recursive: true })
-// Execution author types have a separate, runtime-verified entry point.
+// 执行作者声明使用单独入口，并通过真实运行时验证。
 const index = path.join(destination, 'src/browser/sdk/index.d.ts')
 await writeFile(
     index,
@@ -139,7 +140,7 @@ await writeFile(
             syncedAt: new Date().toISOString(),
             sources,
             authorTypes:
-                'src/goja/index.ts is maintained against pkg/jsprogram, not generated from Go. Browser declarations exclude execution author exports.',
+                'src/goja/index.ts is maintained against pkg/jsprogram and pkg/nodeabi, not generated from Go. Browser declarations exclude execution author exports.',
         },
         null,
         2,

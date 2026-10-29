@@ -7,6 +7,11 @@ ENVIRONMENTS = {
 }
 
 FIELD_HELP = {
+    "viewCompiled": "模板本地构建的最终 CommonJS 展示产物，原样上传。",
+    "viewHash": "展示产物原字节的 SHA-256。",
+    "programCompiled": "模板本地构建的最终页面数据程序，仅 business Lit 需要。",
+    "programHash": "页面数据程序产物原字节的 SHA-256。",
+    "compilerVersion": "构建工具标识，最多64个UTF-8字节；不作为服务端信任证明。",
     "code": "节点编码；必须等于编译产物 manifest.code，不按目录标题猜编码。",
     "name": "节点名称，最多128字符。",
     "inputSchema": "完整输入 JSON Schema；业务主流 item 由真实到达绑定，必须与 manifest 一致。",
@@ -73,24 +78,22 @@ def operation_contract(group, action, operation):
         conditions += ["async_execution是平台工具执行契约；业务响应pending/generation仍须按输出Schema处理，不能据此省略业务轮询。"]
     if group == "panels":
         panel_fields = {
-            "compile": ("surface", "viewSource", "programSource", "supportedContextSchemas"),
-            "save": ("kind", "surface", "renderMode", "rendererKey", "config", "viewSource", "programSource", "supportedContextSchemas", "expectedCatalogInstanceId", "expectedCatalogRevision"),
+            "save": ("kind", "surface", "renderMode", "rendererKey", "config", "viewSource", "viewCompiled", "viewHash", "programSource", "programCompiled", "programHash", "compilerVersion", "supportedContextSchemas", "expectedCatalogInstanceId", "expectedCatalogRevision"),
             "publish": ("surface", "scope", "targets", "panelRevision"),
         }
         for name in panel_fields.get(action, ()):
             fields[name] = {"required": name in operation.required, "meaning": FIELD_HELP[name]}
-        if action in ("compile", "save"):
-            condition = "surface=business" if action == "compile" else "surface=business 且 renderMode=lit"
+        if action == "save":
+            condition = "surface=business 且 renderMode=lit"
             fields["programSource"]["required_when"] = condition
             fields["supportedContextSchemas"]["required_when"] = condition
             conditions += ["business Lit 同时提供 viewSource/programSource 和显式非空 supportedContextSchemas；settings 禁止 programSource。",
                            "上下文声明不自动填充；字符串不能重复、含NUL或首尾空白，每项最多256个UTF-8字节。"]
-        if action == "compile":
-            conditions += ["编译正文不接受 kind/renderMode、目录身份/修订或发布字段；先编译通过再保存。"]
         if action == "save":
             fields["rendererKey"]["required_when"] = "renderMode=lowcode"
             fields["config"]["required_when"] = "renderMode=lowcode"
-            conditions += ["Puck 使用 lowcode/rendererKey=puck/config，先用本地 build/verify/panels:prepare 校验并组装；不调用 Lit compile、不附带 viewSource/programSource。"]
+            conditions += ["Puck 使用 lowcode/rendererKey=puck/config，先用本地 build/verify/panels:prepare 校验并组装；不调用后端编译、不附带 viewSource/programSource。"]
+            conditions += ["Lit 只接本地 build/verify/panels:prepare 的最终产物与摘要，后端不编译或静态分析。"]
             conditions += ["保存一个 surface 后回读新目录修订，再保存另一个；不复用旧修订。"]
         if action == "publish":
             conditions += ["发布只使用已保存 panelRevision、显式scope/targets；按releaseId查询原回执。"]

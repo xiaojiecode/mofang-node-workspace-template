@@ -25,6 +25,7 @@ export interface NodeEvent {
     readonly sequence: string
     readonly type:
         | 'start'
+        | 'entry'
         | 'input'
         | 'input-closed'
         | 'task-result'

@@ -10,9 +10,21 @@
 
 状态/命令按 JSON 值复制，禁止对象别名跨槽或跨事件存活。普通对象/数组/标量、有限数与安全整数合法；undefined/空洞/循环/getter/toJSON/Date/Map/Set/函数/Promise/能力对象不合法。JSON 与冻结 Schema 由真实宿主校验，TS 泛型不能代替它。缺槽/损坏不重新 initial 补默认值。
 
-`useOnStart` 只由首次激活触发；useOnInput 接收本次真实 deliveryId/values；useOnInputClosed 接收明确关闭原因。多个 handler 串行等待本次 Promise settle，无跨事件 Promise。useOnControl/useOnError 只读，即使已取得能力句柄也不能写入。
+`useOnStart` 只由首次激活触发；`useOnInput` 接收本次 `inputEventId`、`taskId`、`generation`、`inputManifestId`、`deliveryId` 和 `values`；`useOnInputClosed` 接收明确关闭原因。多个 handler 串行等待本次 Promise settle，无跨事件 Promise。useOnControl/useOnError 只读，即使已取得能力句柄也不能写入。
 
-任务常量显式标注 `TaskDefinition<Input,Output,Cursor>` 后在 spec.tasks 注册，useTask 只绑定。handler 的 spawn 暂存命令；reducer 的 env.commands.spawn 只构造命令并预留 id，id 可保存进下一状态。真实上游派发用 `[event.deliveryId]`，结果候选沿 event.inputRefs，只有无上游入口可用 []。
+`useOnEntry` 处理没有上游到达的真实入口任务：初始化与启动后，宿主在该任务输入准备成功时提供 `{inputEventId, taskId, generation, inputManifestId, values}`。`taskId` 是实际入口任务身份，不是商品或到达身份；入口事件不触发 `useOnInput`。入口未明确声明结果时，不能推断其处理成功。实际平台是否支持该事件须单独验证，历史冻结源码不会随模板更新。
+
+运行会先为冻结图中的节点初始化默认 state 和用户填写的冻结输入，全部初始化成功后才按本次运行范围触发 `useOnStart`；单节点试运行只启动目标节点，其余节点仅供查看。初始化不代表已收到上游商品，也不能凭空构造 deliveryId 或结果。节点应能用初始 state 和已有用户输入生成空态投影；动作是否可用仍由运行范围、权限和 guard 决定。
+
+上游商品及附带数据随后通过各次 `useOnInput` 逐条到达。处理启动、用户动作和到达时应基于当前已提交 state 更新相应字段，保留用户设置和先前已保存的选择；不要在首条到达时重新调用 initial 或用输入整体替换 state。固定设置与每商品输入分别使用，不以商品到达覆盖初始化 state 或先前动作；字段具体来源和运行时权限以宿主实际契约为准。
+
+`useNodeConfig` 读取起跑时采用的固定设置。宿主在初始化时排除 `item` 和所有显式绑定的辅助字段，包括这些字段的旧手动值和默认值；作者不能从 config 取得未来商品的绑定值。`useOnEntry` / `useOnInput` 的 `values` 是该任务代次已经准备成功的完整输入，绑定字段只能从该次 `values` 读取。主流 item 逐项投递，辅助绑定沿当前商品的真实来源链读取指定上游输出；辅助字段类型兼容数组时，可绑定该次完整 `output.items`。来源缺失或不唯一只让当前商品失败，不在作者端补值、挑全局最新结果或等待上游全部结束。
+
+普通设置可在暂停后修改：初始化 config 仍保留起跑固定快照，已受理商品的 manifest/values 保持冻结，后续受理商品按新设置准备 `values`。运行未结束（包括暂停）不能改字段绑定。需要随当前商品处理的普通参数从该次 `values` 读取，不把 `useNodeConfig` 当作运行中可变设置接口。
+
+顶层辅助输入属性可声明 `'x-mf-config-before-run': true`，例如 `properties: {enabled: {type:'boolean', 'x-mf-config-before-run':true}}`。它表示仅运行前固定配置：不接受上游绑定，运行开始后包括暂停均不可修改。`item`、输出 Schema 和嵌套属性不能声明该注解；未标记的普通输入维持现行规则。该注解由平台校验，客户端参数/SDK字段描述投影为 `configBeforeRun`，Lit 设置面板使用宿主 `disabledFields` 禁用对应输入并服从写回门禁。
+
+任务常量显式标注 `TaskDefinition<Input,Output,Cursor>` 后在 spec.tasks 注册，useTask 只绑定。handler 的 spawn 暂存命令；reducer 的 env.commands.spawn 只构造命令并预留 id，id 可保存进下一状态。与本次真实输入关联的子任务使用 `[event.inputEventId]`，结果候选沿 `event.inputRefs`；`deliveryId` 仅是原始商品到达来源，不能作为 inputRefs。`generation` 是正整数十进制字符串，同一到达的重跑会生成新 inputEventId。数据源节点独立选择领域记录时，即使同一节点也接收上游，未关联任何输入事件的独立任务仍可以使用 `[]`，但仍须通过可信能力按当前用户和工作区重读并校验领域记录，保留真实领域身份；空引用不证明领域归属。
 
 `node.ts.maxToolCalls` 是每次子任务执行跨全部阶段累计的正整数预算，不是每阶段额度，也不是工具许可列表长度。编写或审查节点的大模型须沿实际阶段和分支核算最大调用数，包含循环/轮询上限、结果查询、人工等待及允许的人工继续；互斥分支取最大路径，无法确定上限时先明确业务边界，不随意填 1 或任意放大。每阶段最多一次真实业务能力调用是另一条限制，不能代替总预算核算。
 
@@ -25,3 +37,9 @@ useNodeAction 绑定静态动作，guard 返回 enabled 或禁用原因。handle
 nodeView 只注册 Project getter，Handle 不求值。Project 失败不回滚已提交业务；公开业务页面显示错误和平台控制。useNodeFacts/config 是本次一致快照，不会因本次暂存命令即时变化。finish 为整个计划末尾声明，不关闭输入/取消任务/丢弃候选/完成审核；最终终态仍由平台所有真实义务结清决定。
 
 不提供 useEffect/watch/持久 useRef/跨事件 Promise，不引入 React DOM 或 Fiber。完整运行边界见 [ABI](abi.md)，常见错误见 [反例](antipatterns.md)，必验表见 [验证](verification.md)。作者库随源码内联冻结，升级模板不会替换历史执行。
+
+## 页面本地构建与保存
+
+页面编译与作者静态分析只由模板 tooling 完成。后台 Lit 不再提供源码编辑或预览；本地 build/verify 后用 panels:prepare 生成原有保存 JSON，由接口或后台上传提交。生产构建保持完整语法、标识符与空白压缩，作者规则在压缩前检查真实模块及其未使用导入和不可达分支，最终 CommonJS 数据程序另做真实导出装载校验。
+
+verify/panels:prepare 按 manifest 的原构建模式、当前工程根和实际入口在内存重构建页面，逐字节比较最终产物；仅修改本地导入依赖导致最终字节变化时也会阻止提交旧产物。出现差异需重新构建，不自动改写目录身份或修订。服务端仅核对格式、摘要、权限与目录双 CAS，运行宿主继续核对实际 ABI 和结果。

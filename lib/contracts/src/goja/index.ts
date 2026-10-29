@@ -1,4 +1,4 @@
-/** JSON values are validated by the host, including finite numbers and cycles. */
+/** JSON 值由宿主校验，包括有限数字和循环引用。 */
 export type JSONValue =
     | null
     | boolean
@@ -67,7 +67,17 @@ export type StageProgram<
     entry: string
     steps: Record<string, (ctx: StageContext<I, S, O>) => never | Promise<never>>
 }
-export type InputEvent<I extends object = JSONObject> = Readonly<{ deliveryId: string; values: I }>
+/** 本次输入任务代次和其已采用清单的真实身份；代次为正整数十进制字符串。 */
+export type EntryEvent<I extends object = JSONObject> = Readonly<{
+    inputEventId: string
+    taskId: string
+    generation: string
+    inputManifestId: string
+    values: I
+}>
+/** 商品输入额外保留实际到达来源；inputRefs 使用 inputEventId。 */
+export type InputEvent<I extends object = JSONObject> = EntryEvent<I> &
+    Readonly<{ deliveryId: string }>
 export type TaskError = Readonly<{ code: string; message: string }>
 export type UnknownResolution = Readonly<{
     conclusion: 'succeeded' | 'failed'
@@ -80,6 +90,7 @@ export type UnknownResolution = Readonly<{
 export type TaskResultEvent<O extends object = JSONObject> = Readonly<{
     taskId: string
     handler: string
+    /** 关联的真实输入事件 ID，沿任务结果传递。 */
     inputRefs: readonly string[]
 }> &
     (

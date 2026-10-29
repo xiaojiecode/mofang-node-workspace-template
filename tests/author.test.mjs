@@ -7,7 +7,7 @@ import { build } from 'esbuild'
 import { root } from '../tooling/paths.mjs'
 
 const helper = await readFile(path.join(root, 'tooling/verify/coordinator-fixture.js'), 'utf8')
-const header = `import {defineNode,defineStateSlot,useNodeState,useNodeReducer,useNodeAction,useNodeFacts,useOnStart,useOnInput,useOnControl,useTask,useOutputs,useProduction,nodeView} from '@mofang/node';
+const header = `import {defineNode,defineStateSlot,useNodeState,useNodeReducer,useNodeAction,useNodeConfig,useNodeFacts,useOnStart,useOnEntry,useOnInput,useOnControl,useTask,useOutputs,useProduction,nodeView} from '@mofang/node';
 const slot=defineStateSlot({key:'state',schema:{type:'object'},initial:()=>({count:0,seen:0})});
 const finish={name:'finish',label:'结束',description:'明确结束',presentation:'host',payloadSchema:{type:'object',properties:{},additionalProperties:false}};
 const task={name:'copy',program:{entry:'copy',steps:{copy(ctx){return ctx.complete({items:[]})}}}};
@@ -55,6 +55,90 @@ test('快照不变，异步 handler 按顺序运行，函数式 setter 累积 pe
     assert.deepEqual(result.view.nodeView, { count: 2, seen: 0 })
 })
 
+test('初始投影读取冻结设置，后续到达保留用户动作和配置', async () => {
+    const result = await run(
+        `spec.actions={finish};export default defineNode(spec,()=>{
+        const [state,set]=useNodeState(slot);const config=useNodeConfig();
+        useOnStart(()=>{});
+        useNodeAction(finish,{guard:()=>({enabled:true}),handler(){set(p=>({...p,count:5}))}});
+        useOnInput(event=>{set(p=>({...p,seen:event.values.item.price}))});
+        nodeView(()=>({...state,market:config.market}));
+    });`,
+        `const h=fixtureHarness(program,{market:'US'});const initial=h.project();
+        await h.send('start',{});await h.send('action',{name:'finish',payload:{},candidates:[]});
+        await h.send('input',{inputEventId:'input-1',taskId:'task-1',generation:'1',inputManifestId:'manifest-1',deliveryId:'delivery-1',values:{item:{price:12},market:'US'}});
+        return {initial,after:h.project()};`,
+    )
+    assert.deepEqual(result.initial.nodeView, { count: 0, seen: 0, market: 'US' })
+    assert.deepEqual(result.after.nodeView, { count: 5, seen: 12, market: 'US' })
+})
+
+test('固定设置与逐件绑定值分离，多次商品到达保留状态', async () => {
+    const result = await run(
+        `export default defineNode(spec,()=>{
+        const [state,set]=useNodeState(slot);const config=useNodeConfig();
+        useOnInput(event=>set(p=>({...p,count:p.count+1,note:event.values.note,price:event.values.item.price})));
+        nodeView(()=>({...state,market:config.market,configHasNote:Object.prototype.hasOwnProperty.call(config,'note')}));
+    });`,
+        `const h=fixtureHarness(program,{market:'US'});
+        await h.send('input',{inputEventId:'input-1',taskId:'task-1',generation:'1',inputManifestId:'manifest-1',deliveryId:'delivery-1',values:{item:{price:12},note:'第一件'}});
+        const first=h.project();
+        await h.send('input',{inputEventId:'input-2',taskId:'task-2',generation:'1',inputManifestId:'manifest-2',deliveryId:'delivery-2',values:{item:{price:25},note:'第二件'}});
+        return {first,next:h.project()};`,
+    )
+    assert.deepEqual(result.first.nodeView, {
+        count: 1,
+        seen: 0,
+        note: '第一件',
+        price: 12,
+        market: 'US',
+        configHasNote: false,
+    })
+    assert.deepEqual(result.next.nodeView, {
+        count: 2,
+        seen: 0,
+        note: '第二件',
+        price: 25,
+        market: 'US',
+        configHasNote: false,
+    })
+})
+
+test('入口事件传递真实任务和准备输入，不触发商品到达处理器', async () => {
+    const result = await run(
+        `export default defineNode(spec,()=>{
+        const [state,set]=useNodeState(slot);
+        useOnEntry(event=>set(p=>({...p,count:event.values.limit,entryTask:event.taskId})));
+        useOnInput(()=>set(p=>({...p,seen:99})));
+        nodeView(()=>state);
+    });`,
+        `const h=fixtureHarness(program);await h.send('start',{});
+        const event=await h.send('entry',{inputEventId:'input-1',taskId:'entry-task',generation:'1',inputManifestId:'manifest-1',values:{limit:3}});
+        return {event,view:h.project()};`,
+    )
+    assert.equal(result.event.kind, 'apply')
+    assert.deepEqual(result.view.nodeView, { count: 3, seen: 0, entryTask: 'entry-task' })
+})
+
+test('重跑保留相同到达来源但沿子任务与候选传递各自输入事件', async () => {
+    const result = await run(
+        `export default defineNode(spec,()=>{
+        const task=useTask(spec.tasks.copy);const outputs=useOutputs();
+        useOnInput(event=>{task.spawn(event.values,{inputRefs:[event.inputEventId]})});
+        task.onResult(event=>{if(event.status==='succeeded')outputs.append(event.output,{inputRefs:event.inputRefs})});
+        nodeView(()=>({}));
+    });`,
+        `const h=fixtureHarness(program);
+        const first=await h.send('input',{inputEventId:'input-1',taskId:'task-1',generation:'1',inputManifestId:'manifest-1',deliveryId:'delivery-1',values:{}});
+        const next=await h.send('input',{inputEventId:'input-2',taskId:'task-1',generation:'2',inputManifestId:'manifest-2',deliveryId:'delivery-1',values:{}});
+        const result=await h.send('task-result',{taskId:first.plan.commands[0].id,handler:'copy',inputRefs:first.plan.commands[0].inputRefs,status:'succeeded',output:{items:[{}]}});
+        return {first,next,result};`,
+    )
+    assert.deepEqual(result.first.plan.commands[0].inputRefs, ['input-1'])
+    assert.deepEqual(result.next.plan.commands[0].inputRefs, ['input-2'])
+    assert.deepEqual(result.result.plan.commands[0].inputRefs, ['input-1'])
+})
+
 test('结构化拒绝撤销整个动作日志，作者 catch 不能清除拒绝', async () => {
     const result = await run(
         `spec.actions={finish};export default defineNode(spec,()=>{
@@ -71,7 +155,7 @@ test('结构化拒绝撤销整个动作日志，作者 catch 不能清除拒绝'
 test('普通输入中的 reducer reject 是 fault', async () => {
     const result = await run(
         `export default defineNode(spec,()=>{const [state,dispatch]=useNodeReducer(slot,()=>({kind:'reject',code:'NO',message:'拒绝'}));useOnInput(()=>{dispatch({})});nodeView(()=>state)});`,
-        `const h=fixtureHarness(program);return h.send('input',{deliveryId:'d',values:{}});`,
+        `const h=fixtureHarness(program);return h.send('input',{inputEventId:'input-1',taskId:'task-1',generation:'1',inputManifestId:'manifest-1',deliveryId:'d',values:{}});`,
     )
     assert.equal(result.kind, 'fault')
 })

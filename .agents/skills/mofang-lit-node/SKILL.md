@@ -27,7 +27,7 @@ CLI复用相邻mofang-js-node脚本，两个技能一起安装。先运行`guide
 
 网关：`https://dev.api.mofang.com`是测试，`https://api.mofang.com`是正式，`https://pre.api.mofang.com`是预发，按用户指定环境选择独立profile。默认只读元数据/Schema和本地Mock；Tool可能计费，只有用户明确要求实际调用/试跑时才执行，不为取样自动调用Tool、模型或真实起跑；已有授权在同一范围内沿用。
 
-常用面板接口：`GET/PUT /v1/admin/workflow/nodes/{code}/page`（显式surface和目录身份/修订），`POST /v1/admin/workflow/nodes/page/compile`（不落库），`POST /v1/admin/workflow/nodes/{code}/page/releases`（显式scope/targets）和`GET /v1/admin/workflow/page-releases/{releaseId}`（查询原回执）。业务读取为`GET /v1/workflow/runs/{runId}/nodes/{nodeInstanceId}/view`，动作POST同资源`/actions`，结果GET`/actions/{eventId}`；面板运行时通过宿主SDK访问，不自建HTTP链路。
+页面编译与作者静态分析只在模板本地 build/verify 运行；后台不编译、不编辑或预览源码，只支持最终产物接口写入或上传。常用面板接口：`GET/PUT /v1/admin/workflow/nodes/{code}/page`（显式surface和目录身份/修订），`POST /v1/admin/workflow/nodes/{code}/page/releases`（显式scope/targets）和`GET /v1/admin/workflow/page-releases/{releaseId}`（查询原回执）。业务读取为`GET /v1/workflow/runs/{runId}/nodes/{nodeInstanceId}/view`，动作POST同资源`/actions`，结果GET`/actions/{eventId}`；面板运行时通过宿主SDK访问，不自建HTTP链路。
 
 node.ts保存目录元数据、contract.ts维护契约，settings.ts与view.ts独立构建；公共展示在lib/browser，后台不得引用它。保存发布每个surface后回读，实例发布有明确目标；页面发布不等于执行定义采用。
 
@@ -35,7 +35,7 @@ business Lit 编译与保存均须显式提供非空 `supportedContextSchemas`�
 
 ## 设置草稿
 
-使用宿主注入settings.values/readOnly/onFieldChange，编辑立即回调，最终保存由宿主负责。undefined删除显式字段，null按契约处理，数字空值不转成0。主流商品由真实到达绑定，设置不能替换。
+使用宿主注入settings.values/readOnly/disabledFields/onFieldChange，编辑立即回调，最终保存由宿主负责。disabledFields包含已绑定字段和运行期间的仅运行前配置字段，页面必须禁用对应手动控件；宿主同时拦截禁用字段写回，不能用本地副本或第二保存链路绕过。解除合法绑定后普通手动字段恢复，运行含暂停不能改绑定。undefined删除显式字段，null按契约处理，数字空值不转成0。主流商品由真实到达绑定，设置不能替换。
 
 ## 新 ABI 业务页面
 

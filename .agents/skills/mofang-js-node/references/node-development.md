@@ -35,7 +35,7 @@ Tool可能计费。默认只查询能力元数据和Schema、编写代码并做�
 1. 在 `contract.ts` 写配置、状态、动作payload、任务输入输出和投影类型及Schema；业务扩展属性保持unknown并按实际类型收窄。
 2. 在 `node.ts` 维护目录元数据、双Schema、许可tools与预算；编译源码manifest的code/双Schema必须与它一致。
 3. `run.ts` 使用 `defineNode(spec, Component)`；state/tasks/actions为静态声明。`defineStateSlot`定义稳定key与Schema，`useNodeState`或`useNodeReducer`绑定只读状态。
-4. `useOnStart/useOnInput/useOnInputClosed`与`useTask(...).onResult`处理事件；状态和命令耦合时用一次reducer transition。外部能力只在tasks的StageProgram中经ctx.call执行，每阶段最多一次调用。
+4. `useOnStart/useOnEntry/useOnInput/useOnInputClosed`与`useTask(...).onResult`处理事件；状态和命令耦合时用一次reducer transition。外部能力只在tasks的StageProgram中经ctx.call执行，每阶段最多一次调用。
 5. `useNodeAction`绑定真实guard/handler；`nodeView`绑定纯getter。Component、guard、Project、updater和reducer不调用真实Tool、不做网络。
 6. `settings.ts`经宿主values/readOnly/onFieldChange回写草稿；`view.ts`读取composition就绪投影，经宿主SDK提交参数动作并按eventId等待outcome。
 7. 可选`page.ts`是本节点页面准备入口，构建为pageProgram.js；未提供时沿用共享的item输入要求。骨架的page.ts配合空inputSchema返回空prepared；一旦业务Schema有必需输入，必须同步实现准备与校验，不伪造item或来源。
@@ -89,4 +89,4 @@ export async function prepareInput(_ctx: PageProgramContext): Promise<PagePrepar
 
 node.ts的interface='node'是本地构建分类（另有panels），不会作为发布请求发送；程序本身的abi和平台validate回执的programInterface才是mf.node/1，不要混用这三个字段。
 
-verify:platform验证真实平台页面编译、模块加载、初始化与投影响应契约，不按节点目录名猜业务事件或命令数。模板本身没有节点；先在独立工程中通过node:new创建骨架并build，再从该工程运行本命令，空dist会明确失败。用户业务由自己的完整Goja fixture验证，平台加载通过不等于真实Tool或工作流事务链路成功。
+verify:platform验证真实平台最终页面产物受理、模块加载、节点初始化与投影响应契约，不按节点目录名猜业务事件或命令数。模板本身没有节点；先在独立工程中通过node:new创建骨架并build，再从该工程运行本命令，空dist会明确失败。用户业务由自己的完整Goja fixture验证，平台加载通过不等于真实Tool或工作流事务链路成功。

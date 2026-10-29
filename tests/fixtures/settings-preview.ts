@@ -10,13 +10,20 @@ export default class SettingsPreviewFixture extends HostPanel {
      */
     override render() {
         const editor = this.settings
+        const noteDisabled =
+            !editor ||
+            editor.readOnly ||
+            editor.disabledFields?.includes('note') ||
+            !editor.onFieldChange
         return html`${sectionHeading('节点设置', '修改立即写入宿主草稿，由工作流统一保存。')}
         ${textField({
             name: 'note',
             label: '备注',
             value: typeof editor?.values.note === 'string' ? editor.values.note : '',
-            readOnly: !editor || editor.readOnly || !editor.onFieldChange,
-            onChange: (value) => editor?.onFieldChange?.('note', value),
+            readOnly: noteDisabled,
+            onChange: (value) => {
+                if (!noteDisabled) editor?.onFieldChange?.('note', value)
+            },
             hint: '仅用于验证宿主受控草稿，不随节点骨架生成。',
         })}
         ${statusNote(

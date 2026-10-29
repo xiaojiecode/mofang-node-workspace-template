@@ -2,7 +2,7 @@
 
 以下是函数作者 API 的教学片段，变量来自对应完整案例；并非各自可独立提交的节点。反例不得进入脚手架。类型能抓住一部分，运行时纯度、事务和来源仍须宿主验收。
 
-1. **在函数节点体启动业务。** 错误：`function Node() { task.spawn(input, {inputRefs: []}) }`。Component 会在 Project/恢复时重建，导致刷新或读操作触发业务。正确：函数体仅 `const task = useTask(spec.tasks.copy)`，在 `useOnInput(event => { task.spawn(event.values, {inputRefs:[event.deliveryId]}) })` 内派发。
+1. **在函数节点体启动业务。** 错误：`function Node() { task.spawn(input, {inputRefs: []}) }`。Component 会在 Project/恢复时重建，导致刷新或读操作触发业务。正确：函数体仅 `const task = useTask(spec.tasks.copy)`，在 `useOnInput(event => { task.spawn(event.values, {inputRefs:[event.inputEventId]}) })` 内派发。
 
 2. **依赖调用位置分配状态。** 错误：两个自定义 Hook 都临时创建同名 `key:'state'`，或按数组索引给键编号。重排源码会改变持久身份。正确：静态 spec.state.left/right 引用不同的 `left-state`/`right-state`，自定义 Hook 接收槽定义。
 
@@ -24,7 +24,7 @@
 
 11. **成功分支之外直接读取 output。** 错误：不判别 status 就 `outputs.append(event.output,...)`。failed/cancelled/unknown 没有成功输出。正确：仅 `event.status==='succeeded'` 分支读取；空/缺省 items 不追加空候选，其余状态分别记录。
 
-12. **丢失真实 inputRefs。** 错误：所有任务和候选都传 `inputRefs:[]`，或用商品 ID 替代 deliveryId。正确：上游输入派发用 `[event.deliveryId]`，结果候选沿用 `event.inputRefs`；只有真实无上游入口才用空数组。
+12. **丢失真实 inputRefs。** 错误：与输入关联的任务和候选都传 `inputRefs:[]`，或用商品 ID、deliveryId 冒充输入事件 ID。正确：上游输入派发用 `[event.inputEventId]`，结果候选沿用 `event.inputRefs`；独立领域来源可使用空引用，但仍需通过可信能力校验用户、工作区及领域记录。
 
 13. **用 view 变化判断动作成功。** 错误：提交后等 phase 变化就清空勾选；纯候选动作可能不改业务 view。正确：持久跟踪该 eventId 的 applied/rejected/failed/cancelled；applied 之后继续观察任务、候选和节点，刷新补读记录。
 

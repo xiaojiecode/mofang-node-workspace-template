@@ -52,7 +52,7 @@ vendor/          固定版本的低代码作者/运行库及工作流 SDK/适配
 
 状态槽必须提供冻结 Schema，snapshot 深只读。setter 不改变当前闭包；连续累加用 pending updater；状态与命令耦合时 reducer 一次返回 state/commands/production。Component/guard/Project 只计算，真正工作在事件 handler 和子任务阶段。完整说明见 [作者规范](docs/authoring.md)、[运行边界](docs/abi.md)和 [反例](docs/antipatterns.md)。
 
-输入/任务输出保留真实 deliveryId/inputRefs；Product 使用完整可信类型，不手写缩略业务 Schema。子任务继续当前 stages 与 ctx.input/state/answer，每阶段最多一次能力调用；unknown 不自动重发，人工回答沿真实等待身份。
+输入保留真实 inputEventId 和来源 deliveryId，子任务及候选的 inputRefs 使用 inputEventId；Product 使用完整可信类型，不手写缩略业务 Schema。子任务继续当前 stages 与 ctx.input/state/answer，每阶段最多一次能力调用；unknown 不自动重发，人工回答沿真实等待身份。
 
 finish 是事件计划末尾的生产声明，不直接完成节点，不放行/丢弃已有候选。无参必要动作由共同宿主入口提供；参数选择由业务面板提交。动作 accepted、applied、子任务成功和节点成功分别显示。骨架没有预设业务规则，节点作者须实现零输入、未选择、失败和未知结果的处理路径。
 
@@ -111,7 +111,7 @@ Puck 设置页保留 `main1` 宿主表单绑定，骨架不预置业务字段或
 
 ### 构建与离线保存准备
 
-`npm run build` 按清单生成宿主直接加载的 CommonJS/ES2017 `.js` 或完整 `.page.json`；构建期会对可静态识别的无插值 `lit.css` 做 CSS 空白压缩，源码保持可读。manifest 记录 surface、格式、renderer、模块格式、源码和产物 hash、包兼容版本。只有 Lit 业务页生成 `pageProgram.js`。`node.json` 继续只含原执行定义，不混入面板描述。`npm run verify` 同时核对源码修订、产物哈希、JS 限制和共享 JSON 校验。
+`npm run build` 按清单生成宿主直接加载的 CommonJS/ES2017 `.js` 或完整 `.page.json`；构建期会对可静态识别的无插值 `lit.css` 做 CSS 空白压缩，源码保持可读。manifest 记录 surface、格式、renderer、模块格式、源码和产物 hash、包兼容版本。只有 Lit 业务页生成 `pageProgram.js`。`node.json` 继续只含原执行定义，不混入面板描述。`npm run verify` 同时核对源码修订、产物哈希、JS 限制和共享 JSON 校验。作者静态分析在本地完整压缩前执行，保留未使用导入和不可达分支并检查真实本地依赖；最终页面程序另做真实模块装载，核对唯一 prepareInput 函数。后端只接收最终产物、核对格式和摘要，不编译或做作者静态分析。后台 Lit 不再提供预览和源码编辑，只支持接口写入或上传 panels:prepare 的保存正文。
 
 ```sh
 npm run build
@@ -135,7 +135,7 @@ npm run verify:goja
 npm run verify:platform -- --workspace /path/to/mofangv6
 ```
 
-`npm run check` 执行格式/类型/构建/产物/回归/CLI回环测试/浏览器/Goja。平台验证应从已创建并构建节点的独立工程运行，模板空目录会明确失败。它使用真实 Go 模块和页面编译器，不启动服务或写库；它不替代 Workflow 事务、权限、Tool 账本或完整业务。更完整的分层要求见 [验证表](docs/verification.md)。
+`npm run check` 执行格式/类型/构建/产物/回归/CLI回环测试/浏览器/Goja。平台验证应从已创建并构建节点的独立工程运行，模板空目录会明确失败。它使用真实 Go 模块、页面最终产物验证器与 Goja 模块装载，不启动服务或写库；它不替代 Workflow 事务、权限、Tool 账本或完整业务。更完整的分层要求见 [验证表](docs/verification.md)。
 
 fixtures/goja-test.js 使用普通 JavaScript 脚本语法，最后一个表达式提供验证结果。异步测试写成 `(async () => { /* 断言 */ return { passed: true } })()`，不写文件顶层 return。运行器分别加载程序与 fixture，检查异常、Promise 拒绝、未结清及缺少结果；函数内部 return 仍用于结果和分支控制。
 

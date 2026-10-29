@@ -2,6 +2,7 @@
 
 from dataclasses import asdict, dataclass
 import json
+import hashlib
 from pathlib import Path
 from urllib.parse import quote
 
@@ -36,7 +37,6 @@ OPERATIONS = {
     ("nodes", "validate"): Operation("POST", "/nodes/javascript/validate", True, ("code", "name", "inputSchema", "outputSchema", "source", "tools", "maxToolCalls", "timeoutSeconds")),
     ("nodes", "create"): Operation("POST", "/nodes/javascript", True, ("code", "name", "inputSchema", "outputSchema", "source", "tools", "maxToolCalls", "timeoutSeconds")),
     ("nodes", "update"): Operation("PUT", "/nodes/{code}/javascript", True, ("name", "inputSchema", "outputSchema", "source", "tools", "maxToolCalls", "timeoutSeconds", "expectedCatalogInstanceId", "expectedCatalogRevision")),
-    ("panels", "compile"): Operation("POST", "/nodes/page/compile", True, ("surface", "viewSource")),
     ("panels", "get"): Operation("GET", "/nodes/{code}/page", True, query=("surface", "revisionId")),
     ("panels", "save"): Operation("PUT", "/nodes/{code}/page", True, ("kind", "surface", "renderMode", "expectedCatalogInstanceId", "expectedCatalogRevision"), {"kind": "save", "surface": "settings", "renderMode": "lit", "expectedCatalogInstanceId": "<读取当前目录身份>", "expectedCatalogRevision": "<读取当前目录修订>"}),
     ("panels", "revisions"): Operation("GET", "/nodes/{code}/page/revisions", True, query=("surface", "offset", "limit")),
@@ -73,7 +73,7 @@ def read_object(filename):
 
 
 def validate_context_schemas(body):
-    """按页面编译契约校验显式上下文声明，不猜测 Schema 或自动提升为整抽屉模式。"""
+    """按页面保存契约校验显式上下文声明，不猜测 Schema 或自动提升为整抽屉模式。"""
     field = "supportedContextSchemas"
     if field not in body:
         if body["surface"] == "business":
@@ -105,7 +105,7 @@ def describe(group=None, action=None):
         roles = ["client"] if op.client_only else ["admin"] if op.admin else ["admin", "client"]
         if op.method == "GET":
             effect = "read"
-        elif (g, a) in (("nodes", "validate"), ("panels", "compile")):
+        elif (g, a) == ("nodes", "validate"):
             effect = "validate_without_persistence"
         elif (g, a) in (("workflows", "start"), ("runs", "action"), ("capabilities", "call")):
             effect = "execution_may_incur_cost"
@@ -173,9 +173,7 @@ def prepare(op, args):
         expected_surface = "settings" if body["surface"] == "settings" else "runtime"
         if not isinstance(binding, dict) or binding.get("nodeCode") != args.code or binding.get("surface") != expected_surface:
             raise CLIError("identity_mismatch", "config 工作流身份与节点或面板不一致")
-    if (op.path == "/nodes/page/compile" or (op.method == "PUT" and op.path.endswith("/page") and body.get("renderMode") == "lit")):
-        if op.path == "/nodes/page/compile" and "renderMode" in body:
-            raise CLIError("invalid_argument", "panels compile 不接受 renderMode；该字段仅用于 panels save")
+    if op.method == "PUT" and op.path.endswith("/page") and body.get("renderMode") == "lit":
         if body.get("surface") not in ("settings", "business"):
             raise CLIError("invalid_argument", "surface 必须明确为 settings 或 business")
         if not isinstance(body.get("viewSource"), str) or not body["viewSource"].strip():
@@ -184,6 +182,27 @@ def prepare(op, args):
             raise CLIError("missing_field", "business Lit 必须同时提供 programSource 或 --program-source")
         if body["surface"] == "settings" and body.get("programSource"):
             raise CLIError("invalid_argument", "settings 不接受 programSource")
+        for field in ("viewCompiled", "compilerVersion"):
+            if not isinstance(body.get(field), str) or not body[field].strip():
+                raise CLIError("missing_field", f"Lit 保存必须提供 {field}；先运行模板 build/verify/panels:prepare")
+        try:
+            version_bytes = body["compilerVersion"].encode("utf-8")
+        except UnicodeEncodeError as exc:
+            raise CLIError("invalid_argument", "compilerVersion 必须是有效 UTF-8") from exc
+        if len(version_bytes) > 64:
+            raise CLIError("invalid_argument", "compilerVersion 最多 64 个 UTF-8 字节")
+        if body["surface"] == "business" and (not isinstance(body.get("programCompiled"), str) or not body["programCompiled"].strip()):
+            raise CLIError("missing_field", "business Lit 必须提供 programCompiled；先运行模板 build/verify/panels:prepare")
+        if body["surface"] == "settings" and (body.get("programCompiled") or body.get("programHash")):
+            raise CLIError("invalid_argument", "settings 不接受页面数据程序产物")
+        for compiled_field, hash_field in (("viewCompiled", "viewHash"), ("programCompiled", "programHash")):
+            if body.get(compiled_field):
+                try:
+                    digest = hashlib.sha256(body[compiled_field].encode("utf-8")).hexdigest()
+                except UnicodeEncodeError as exc:
+                    raise CLIError("invalid_argument", "页面产物必须是有效 UTF-8") from exc
+                if body.get(hash_field) != digest:
+                    raise CLIError("invalid_argument", f"{hash_field} 与实际产物不一致；请重新构建并生成保存正文")
         validate_context_schemas(body)
     if op.method == "POST" and op.path.endswith("/page/releases"):
         scope = body["scope"]
