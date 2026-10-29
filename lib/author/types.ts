@@ -88,8 +88,19 @@ export interface ActionSpec<P extends object> {
     /** 只用于类型关联；不出现在提取后的 JSON manifest。声明时显式标注 ActionSpec<P>。 */
     readonly [actionPayloadType]?: P
 }
+/** 独立查询只引用本模块已声明阶段程序，不参与节点状态与候选推进。 */
+export interface ReadOnlyActionSpec {
+    readonly name: string
+    readonly label: string
+    readonly description: string
+    readonly handler: string
+    readonly payloadSchema: JsonSchema
+    readonly outputSchema: JsonSchema
+    readonly tools: readonly string[]
+}
 /** 这里只擦除异构注册表的泛型；use* 绑定仍保留各条目原始类型。 */
 export interface NodeSpec {
+    readonly readOnlyActions?: readonly ReadOnlyActionSpec[]
     readonly abi: 'mf.node/1'
     readonly code: string
     readonly inputSchema: JsonSchema

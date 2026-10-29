@@ -460,9 +460,14 @@ export function defineNode<T extends NodeSpec>(spec: T, Component: () => undefin
     const slots = Object.values(spec.state)
     const taskDefinitions = Object.values(spec.tasks)
     const actions = Object.values(spec.actions)
+    const readOnlyActions = spec.readOnlyActions
     unique(slots.map((slot) => slot.key))
     unique(taskDefinitions.map((task) => task.name))
     unique(actions.map((action) => action.name))
+    if (readOnlyActions !== undefined) {
+        if (!Array.isArray(readOnlyActions)) throw new Error('readOnlyActions必须为数组')
+        unique(readOnlyActions.map((action) => action.name))
+    }
     const tasks: Record<string, object> = Object.create(null) as Record<string, object>
     const taskManifest = taskDefinitions
         .map((task) => {
@@ -494,6 +499,44 @@ export function defineNode<T extends NodeSpec>(spec: T, Component: () => undefin
                 }
             })
             .sort((a, b) => a.name.localeCompare(b.name)),
+        ...(readOnlyActions === undefined
+            ? {}
+            : {
+                  readOnlyActions: readOnlyActions
+                      .map((action) => {
+                          validateName(action.name)
+                          if (
+                              typeof action.description !== 'string' ||
+                              !action.description ||
+                              action.description.length > 4096
+                          )
+                              throw new Error('只读动作description必须为非空且不超过4096字符的文本')
+                          if (
+                              Object.prototype.hasOwnProperty.call(action, 'payloadSchemaDigest') ||
+                              Object.prototype.hasOwnProperty.call(action, 'outputSchemaDigest')
+                          )
+                              throw new Error('只读动作Schema摘要由服务端冻结生成，作者不能指定')
+                          if (!taskDefinitions.some((task) => task.name === action.handler))
+                              throw new Error('只读动作handler必须引用本模块已声明task')
+                          if (!Array.isArray(action.tools))
+                              throw new Error('只读动作tools必须是工具名称数组')
+                          action.tools.forEach((tool: unknown) => identity(tool, '只读动作工具名'))
+                          unique(action.tools)
+                          return {
+                              name: action.name,
+                              label: identity(action.label, '只读动作标题'),
+                              description: action.description,
+                              handler: action.handler,
+                              payloadSchema: objectValue(
+                                  action.payloadSchema,
+                                  '只读动作输入Schema',
+                              ),
+                              outputSchema: objectValue(action.outputSchema, '只读动作输出Schema'),
+                              tools: [...action.tools],
+                          }
+                      })
+                      .sort((a, b) => a.name.localeCompare(b.name)),
+              }),
         inputSchema: spec.inputSchema,
         outputSchema: spec.outputSchema,
         hasProject: true as const,

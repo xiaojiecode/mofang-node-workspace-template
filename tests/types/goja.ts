@@ -44,6 +44,35 @@ const typedTask: StageProgram<{ keyword: string }, { attempt: number }, { items:
     },
 }
 void typedTask
+
+import type { ReadOnlyActionSpec, NodeSpec } from '@mofang/node'
+const readOnlyAction: ReadOnlyActionSpec = {
+    name: 'lookup',
+    label: '查询',
+    description: '查询当前保存资料',
+    handler: 'query',
+    payloadSchema: { type: 'object' },
+    outputSchema: { type: 'object' },
+    tools: ['collection.query'],
+}
+const optionalReadOnlyActions: Pick<NodeSpec, 'readOnlyActions'> = {}
+const declaredReadOnlyActions: Pick<NodeSpec, 'readOnlyActions'> = {
+    readOnlyActions: [readOnlyAction],
+}
+const invalidReadOnlyAction: ReadOnlyActionSpec = {
+    ...readOnlyAction,
+    // @ts-expect-error 工具许可必须为精确名称数组。
+    tools: [1],
+}
+const forgedReadOnlyDigest: ReadOnlyActionSpec = {
+    ...readOnlyAction,
+    // @ts-expect-error 摘要只由服务端冻结，作者不提供。
+    payloadSchemaDigest: 'forged',
+}
+void optionalReadOnlyActions
+void declaredReadOnlyActions
+void invalidReadOnlyAction
+void forgedReadOnlyDigest
 const entry: EntryEvent<{ limit: number }> = {
     inputEventId: 'event-1',
     taskId: 'task-1',

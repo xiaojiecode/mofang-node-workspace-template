@@ -64,6 +64,7 @@ export type ProjectionResult =
       }
     | { readonly kind: 'unavailable'; readonly code: string; readonly message: string }
 export interface NodeManifest {
+    readonly readOnlyActions?: readonly import('./types').ReadOnlyActionSpec[]
     readonly abi: 'mf.node/1'
     readonly code: string
     readonly state: readonly { readonly key: string; readonly schema: JsonObject }[]
