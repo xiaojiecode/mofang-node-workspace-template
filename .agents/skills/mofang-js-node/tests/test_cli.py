@@ -20,6 +20,13 @@ sys.path.insert(0, str(SCRIPTS))
 from mofang_cli.cli import main
 from mofang_cli.connection import CLIError, HTTPClient
 
+
+# 由模板 bundle 本地生成的最终 CommonJS 字节；冷目录回归另行验证加载合同。
+PANEL_SOURCE = "import { LitElement, html } from 'lit'\nexport default class FixturePanel extends LitElement {\n    render() { return html`<p>合同回归面板</p>` }\n}\n"
+PANEL_COMPILED = '"use strict";var p=Object.defineProperty;var n=Object.getOwnPropertyDescriptor;var a=Object.getOwnPropertyNames;var c=Object.prototype.hasOwnProperty;var l=(e,t)=>p(e,"name",{value:t,configurable:!0});var h=(e,t)=>{for(var m in t)p(e,m,{get:t[m],enumerable:!0})},E=(e,t,m,f)=>{if(t&&typeof t=="object"||typeof t=="function")for(let r of a(t))!c.call(e,r)&&r!==m&&p(e,r,{get:()=>t[r],enumerable:!(f=n(t,r))||f.enumerable});return e};var L=e=>E(p({},"__esModule",{value:!0}),e);var b={};h(b,{default:()=>d});module.exports=L(b);var s=require("lit");var o=class o extends s.LitElement{render(){return s.html`<p>合同回归面板</p>`}};l(o,"FixturePanel");var d=o;\n'
+PAGE_SOURCE = "export async function prepareInput() {\n    return { kind: 'requires_input', fields: ['item'], reason: '请提供真实商品' }\n}\n"
+PAGE_COMPILED = '"use strict";var i=Object.defineProperty;var s=Object.getOwnPropertyDescriptor;var a=Object.getOwnPropertyNames;var o=Object.prototype.hasOwnProperty;var p=(e,u)=>i(e,"name",{value:u,configurable:!0});var B=(e,u)=>{for(var r in u)i(e,r,{get:u[r],enumerable:!0})},F=(e,u,r,t)=>{if(u&&typeof u=="object"||typeof u=="function")for(let n of a(u))!o.call(e,n)&&n!==r&&i(e,n,{get:()=>u[n],enumerable:!(t=s(u,n))||t.enumerable});return e};var c=e=>F(i({},"__esModule",{value:!0}),e);var f={};B(f,{prepareInput:()=>d});module.exports=c(f);async function d(){return{kind:"requires_input",fields:["item"],reason:"请提供真实商品"}}p(d,"prepareInput");\n'
+
 class Server(BaseHTTPRequestHandler):
     def log_message(self, *_):
         pass
@@ -436,17 +443,17 @@ class CLITest(unittest.TestCase):
 
     def compiled_panel_fields(self, business=False):
         """保存测试使用模板最终字节，不再依赖服务端编译。"""
-        view = 'module.exports={default:class P{}}'
+        view = PANEL_COMPILED
         fields = {"viewCompiled": view, "viewHash": hashlib.sha256(view.encode()).hexdigest(), "compilerVersion": "local-esbuild@0.28.2/mf-page-v2"}
         if business:
-            program = 'module.exports={prepareInput(){}}'
+            program = PAGE_COMPILED
             fields.update(programCompiled=program, programHash=hashlib.sha256(program.encode()).hexdigest())
         return fields
 
     def test_panel_source_and_surface_are_independent(self):
         self.login()
         source = self.root / "settings.js"
-        source.write_text("export default class Example {}")
+        source.write_text(PANEL_SOURCE)
         value = {"kind": "save", "surface": "settings", "renderMode": "lit", "expectedCatalogInstanceId": "catalog", "expectedCatalogRevision": "3"}
         value.update(self.compiled_panel_fields())
         code, result = self.call(["panels", "save", "--code", "example", *self.body(value), "--view-source", str(source)])
@@ -460,16 +467,21 @@ class CLITest(unittest.TestCase):
     def test_business_panel_requires_program_and_settings_rejects_it(self):
         self.login()
         before = len(self.server.requests)
-        body = {"kind": "save", "surface": "business", "renderMode": "lit", "expectedCatalogInstanceId": "catalog", "expectedCatalogRevision": "2", "viewSource": "export default class P {}"}
+        body = {"kind": "save", "surface": "business", "renderMode": "lit", "expectedCatalogInstanceId": "catalog", "expectedCatalogRevision": "2", "viewSource": PANEL_SOURCE}
         code, result = self.call(["panels", "save", "--code", "example", *self.body(body)])
         self.assertEqual((code, result["error"]["code"]), (1, "missing_field"))
         self.assertEqual(len(self.server.requests), before)
-        body["programSource"] = "export function prepareInput() {}"
+        body["programSource"] = PAGE_SOURCE
         body["supportedContextSchemas"] = ["mf.node-context/1"]
         body.update(self.compiled_panel_fields(True))
         code, result = self.call(["panels", "save", "--code", "example", *self.body(body)])
         self.assertEqual(code, 0, result)
         before = len(self.server.requests)
+        self.assertEqual(self.server.requests[-1][:3], ("PUT", "/v1/admin/workflow/nodes/example/page", body))
+        self.assertEqual(body["viewSource"], PANEL_SOURCE)
+        self.assertEqual(body["programSource"], PAGE_SOURCE)
+        self.assertEqual(hashlib.sha256(body["viewCompiled"].encode()).hexdigest(), body["viewHash"])
+        self.assertEqual(hashlib.sha256(body["programCompiled"].encode()).hexdigest(), body["programHash"])
         body["surface"] = "settings"
         code, result = self.call(["panels", "save", "--code", "example", *self.body(body)])
         self.assertEqual((code, result["error"]["code"]), (1, "invalid_argument"))
@@ -479,7 +491,7 @@ class CLITest(unittest.TestCase):
         self.login()
         for action in ("save",):
             prefix = ["panels", action] + (["--code", "example"] if action == "save" else [])
-            valid = {"surface": "business", "viewSource": "export default class P {}", "programSource": "export function prepareInput() {}"}
+            valid = {"surface": "business", "viewSource": PANEL_SOURCE, "programSource": PAGE_SOURCE}
             if action == "save":
                 valid.update(kind="save", renderMode="lit", expectedCatalogInstanceId="catalog", expectedCatalogRevision="2", **self.compiled_panel_fields(True))
             before = len(self.server.requests)
@@ -498,7 +510,7 @@ class CLITest(unittest.TestCase):
 
     def test_save_requires_final_artifacts_and_checks_hashes(self):
         self.login()
-        body = {"kind": "save", "surface": "settings", "renderMode": "lit", "viewSource": "export default class P{}", "expectedCatalogInstanceId": "catalog", "expectedCatalogRevision": "1"}
+        body = {"kind": "save", "surface": "settings", "renderMode": "lit", "viewSource": PANEL_SOURCE, "expectedCatalogInstanceId": "catalog", "expectedCatalogRevision": "1"}
         before = len(self.server.requests)
         code, result = self.call(["panels", "save", "--code", "example", *self.body(body)])
         self.assertEqual((code, result["error"]["code"]), (1, "missing_field"))
@@ -731,6 +743,79 @@ class CLITest(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertEqual(result["data"]["checks"][0]["error"]["code"], "invalid_response")
 
+    def test_retired_compile_and_config_commands_fail_without_network(self):
+        """退役命令只拒绝，不探测端点或转换成另一种写入。"""
+        for group, action in (("panels", "compile"), ("workflows", "config"), ("runs", "config")):
+            with self.subTest(group=group, action=action):
+                with self.assertRaises(SystemExit) as raised:
+                    self.call([group, action])
+                self.assertEqual(raised.exception.code, 2)
+        self.assertEqual(self.server.requests, [])
+        self.assertFalse(self.state.exists())
+
+    def test_full_save_preserves_bindings_fixed_config_and_save_cas(self):
+        """CLI 原样传送完整图；运行前固定值策略仍由服务端判定。"""
+        self.login("client")
+        graph = {
+            "nodes": [
+                {"key": "source", "code": "fixture-source", "nodeInstanceId": "source-instance", "configJson": {}, "uiJson": {}},
+                {"key": "target", "code": "fixture-target", "nodeInstanceId": "target-instance",
+                 "configJson": {"capabilities": {"title": True}, "keyword": None},
+                 "inputBindings": {"region": {"sourceNodeKey": "source", "sourceField": "market"}}, "uiJson": {}},
+            ],
+            "edges": [{"fromKey": "source", "toKey": "target"}],
+            "globalsJson": {"language": "zh"}, "agentSnapshots": {},
+        }
+        body = self.workflow_body(graph=graph, pausedRun={"runId": "original-run", "expectedRunRevision": "12", "expectedPauseRequestId": "real-pause"})
+        receipt = {"receipt": {"requestId": "save-request", "status": "applied", "resourceId": "wf", "resourceRevision": "8"},
+                   "snapshot": {"summary": {"id": "wf", "name": body["name"], "description": "", "coverUrl": ""},
+                                "draftRevision": "8", "draftGraph": graph, "saveContext": body["pausedRun"]}}
+        self.server.responses = [(200, {"code": 0, "data": receipt})]
+        before = len(self.server.requests)
+        code, result = self.call(["workflows", "save", "--workflow-id", "wf", *self.body(body)], profile="client")
+        self.assertEqual(code, 0, result)
+        self.assertEqual(result["data"], receipt)
+        self.assertEqual(self.server.requests[-1][:3], ("PUT", "/v1/workflow/definitions/wf", body))
+        self.assertEqual(len(self.server.requests), before + 1)
+        self.assertEqual(body["expectedRevision"], "7")
+        self.assertNotIn("nodeInstanceDefinitions", body["graph"])
+        self.assertNotIn("item", body["graph"]["nodes"][1]["configJson"])
+        self.assertNotIn("region", body["graph"]["nodes"][1]["configJson"])
+        self.assertEqual(body["graph"]["nodes"][1]["configJson"]["capabilities"], {"title": True})
+
+    def test_catalog_bundle_preserves_config_before_run_schema(self):
+        """绑定禁用规则依赖真实 Schema 注解，CLI 不剥离或改名。"""
+        self.login()
+        folder = Path(self.bundle())
+        body = json.loads((folder / "node.json").read_text())
+        body["inputSchema"] = {"type": "object", "properties": {
+            "item": {"$ref": "urn:mofang:workflow:type:product:1"},
+            "capabilities": {"type": "object", "x-mf-config-before-run": True, "properties": {"title": {"type": "boolean"}}},
+            "keyword": {"type": "string"},
+        }}
+        (folder / "node.json").write_text(json.dumps(body))
+        code, result = self.call(["nodes", "validate", "--bundle", str(folder)])
+        self.assertEqual(code, 0, result)
+        self.assertEqual(self.server.requests[-1][2]["inputSchema"], body["inputSchema"])
+        self.assertEqual(self.server.requests[-1][:2], ("POST", "/v1/admin/workflow/nodes/javascript/validate"))
+
+    def test_panel_unknown_save_and_failed_publish_never_retry(self):
+        """丢失受理回执不重发，发布失败不能被 HTTP 200 掩盖。"""
+        self.login()
+        body = {"kind": "save", "surface": "settings", "renderMode": "lit", "viewSource": PANEL_SOURCE,
+                "expectedCatalogInstanceId": "catalog", "expectedCatalogRevision": "3", **self.compiled_panel_fields()}
+        before = len(self.server.requests)
+        self.server.responses = [(-1, None)]
+        code, result = self.call(["panels", "save", "--code", "example", *self.body(body)])
+        self.assertEqual((code, result["error"]["code"]), (1, "write_outcome_unknown"))
+        self.assertEqual(len(self.server.requests), before + 1)
+        self.server.responses = [(200, {"code": 0, "data": {"receipt": {"status": "failed", "errorCode": "stale_panel", "errorMessage": "面板修订不一致"}}})]
+        code, result = self.call(["panels", "publish", "--code", "example", *self.body({"surface": "business", "scope": "new_only", "panelRevision": "4"})])
+        self.assertEqual((code, result["error"]["code"]), (1, "stale_panel"))
+        self.assertEqual(len(self.server.requests), before + 2)
+        code, result = self.call(["panels", "get", "--code", "example", "--surface", "settings"])
+        self.assertEqual(code, 0, result)
+        self.assertEqual(self.server.requests[-1][:2], ("GET", "/v1/admin/workflow/nodes/example/page?surface=settings"))
 
 if __name__ == "__main__":
     unittest.main()
