@@ -233,3 +233,37 @@ test('guard 禁用含原因，动作处理器不执行', async () => {
     assert.equal(result.result.message, '先等待')
     assert.equal(result.state.slots.state.count, 0)
 })
+
+test('任务工具子集按静态声明冻结，缺席与显式空数组保持区别', async () => {
+    for (const tools of [undefined, [], ['title_optimize']]) {
+        const body =
+            (tools === undefined ? '' : `task.tools=${JSON.stringify(tools)};`) +
+            `export default defineNode(spec,()=>{nodeView(()=>({}))});`
+        const result = await run(body, `return program.manifest.tasks[0];`)
+        assert.equal(Object.hasOwn(result, 'tools'), tools !== undefined)
+        if (tools !== undefined) assert.deepEqual(result.tools, tools)
+    }
+    const result = await run(
+        `task.tools=['title_optimize'];const module=defineNode(spec,()=>{nodeView(()=>({}))});task.tools.push('gen_image');export default module;`,
+        `return program.manifest.tasks[0].tools;`,
+    )
+    assert.deepEqual(result, ['title_optimize'])
+})
+
+test('任务工具子集拒绝null、非数组、重复与非法名称', async () => {
+    for (const value of [
+        null,
+        'title_optimize',
+        [''],
+        [' title_optimize'],
+        ['title_optimize', 'title_optimize'],
+        [1],
+    ]) {
+        await assert.rejects(() =>
+            run(
+                `task.tools=${JSON.stringify(value)};export default defineNode(spec,()=>{nodeView(()=>({}))});`,
+                `return program.manifest;`,
+            ),
+        )
+    }
+})

@@ -75,6 +75,8 @@ export interface TaskDefinition<
     O extends object,
     S extends object = JSONObject,
 > extends TaskReference<I, O, S> {
+    /** 可选冻结工具子集；缺席沿用节点许可，空数组表示不许可原子工具，服务端校验节点许可范围。 */
+    readonly tools?: readonly string[]
     /** 子任务沿当前 stages；现有 main 单次入口独立保留，不新增 main 子任务协议。 */
     readonly program: StageProgram<I, S, O>
 }
@@ -106,7 +108,12 @@ export interface NodeSpec {
     readonly inputSchema: JsonSchema
     readonly outputSchema: JsonSchema
     readonly state: Readonly<Record<string, StateSlot<unknown>>>
-    readonly tasks: Readonly<Record<string, { readonly name: string; readonly program: object }>>
+    readonly tasks: Readonly<
+        Record<
+            string,
+            { readonly name: string; readonly tools?: readonly string[]; readonly program: object }
+        >
+    >
     readonly actions: Readonly<
         Record<
             string,
