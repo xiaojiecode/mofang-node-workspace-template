@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "syncedAt": "2026-10-29T04:25:20.381Z",
+  "syncedAt": "2026-10-29T05:01:17.911Z",
   "sources": {
     "mf-client/src/features/workflow/mofangsdk/core/catalog-types.ts": "43320d55d1fe12b53e4d3c598e5f240fe1f8dd82fc466a659433b3b8ff5a2e66",
     "mf-client/src/features/workflow/mofangsdk/core/context-types.ts": "bcbc72ecb60248b4189af5b76637124030634dfeb4db7309045b62aa2cd0d077",
@@ -64,7 +64,7 @@
     "mofang-server/pkg/jsprogram/json_check.go": "6bf063b91dda3b41f72741c67abbda9a7d76eeb70135e291b51f9452460d5ee9",
     "mofang-server/pkg/jsprogram/module.go": "9cff99be4c62bf73753395ae85bcbd1899381353ffe289320701233130f9c62e",
     "mofang-server/pkg/jsprogram/module_json.go": "4976a8d797570dfa9bf8012be0ecb27d86286c375a92c1f1664ef9c9a0bd6ad7",
-    "mofang-server/pkg/jsprogram/program.go": "58391320b5ffddea3e497a5ea2e0f9151260dcfbec0371b0bd708b77c754bf97",
+    "mofang-server/pkg/jsprogram/program.go": "7ed0ecb40e9606c0df83e1f08e62b004de1062e2c4bad1b3b9add3cd17e10e60",
     "mofang-server/pkg/nodeabi/clone.go": "cb6d6f576b9768e40c3614547c4ff16164020e1b4c17270b5f7fa9e9e13426ff",
     "mofang-server/pkg/nodeabi/json.go": "2e06f677efb4cc415aa00b9ec24a0686ce048386ce3879740ce5ed38116e4462",
     "mofang-server/pkg/nodeabi/manifest_json.go": "269296857c1d211f81e38796bff376f6aa32f6cec41634864f8a897ab7bfed90",
