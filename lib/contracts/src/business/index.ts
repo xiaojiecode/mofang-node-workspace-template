@@ -55,6 +55,14 @@ export interface Product1 {
     attributes?: {
       [k: string]: unknown
     }
+    specValues?: ProductAttribute[]
+    costPrice?: number
+    sourcePrice?: number
+    compareAtPrice?: number
+    sourceCurrency?: string
+    weight?: ProductWeight
+    presaleType?: 'none' | 'spot' | 'preorder'
+    productionDays?: number
   }[]
   attributes?: {
     [k: string]: unknown
@@ -64,6 +72,19 @@ export interface Product1 {
     draftProductId?: string
     shopProductId?: string
   }
+  productAttributes?: ProductAttribute1[]
+  packageWeight?: ProductWeight1
+  packageDimensions?: {
+    length: number
+    width: number
+    height: number
+    unit: 'cm' | 'mm' | 'm' | 'in'
+  }
+  sizeChart?: {
+    mode: 'image' | 'template'
+    imageUrl?: Url
+    template?: string
+  }
 }
 export interface Video {
   url: Url
@@ -71,4 +92,30 @@ export interface Video {
   width?: number
   height?: number
   durationSeconds?: number
+}
+export interface ProductAttribute {
+  attributeId?: string
+  canonicalKey?: string
+  attributeName: string
+  sourceName?: string
+  valueId?: string
+  valueName: string
+  unit?: string
+}
+export interface ProductWeight {
+  value: number
+  unit: 'kg' | 'g' | 'lb' | 'oz'
+}
+export interface ProductAttribute1 {
+  attributeId?: string
+  canonicalKey?: string
+  attributeName: string
+  sourceName?: string
+  valueId?: string
+  valueName: string
+  unit?: string
+}
+export interface ProductWeight1 {
+  value: number
+  unit: 'kg' | 'g' | 'lb' | 'oz'
 }

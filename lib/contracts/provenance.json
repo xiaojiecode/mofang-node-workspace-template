@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "syncedAt": "2026-10-29T10:16:53.435Z",
+  "syncedAt": "2026-10-29T12:17:02.535Z",
   "sources": {
     "mf-client/src/features/workflow/mofangsdk/core/catalog-types.ts": "43320d55d1fe12b53e4d3c598e5f240fe1f8dd82fc466a659433b3b8ff5a2e66",
     "mf-client/src/features/workflow/mofangsdk/core/context-types.ts": "605eb18f5021249790553e05d6b25582eeb05959a9bf1e0122f81af857df7fe1",
@@ -56,7 +56,7 @@
     "mofang-server/pkg/workflow/schemas/integer.json": "8b9ce7a01cdf481773b480e618c85a137f1f173d4ded159236101472b15b7773",
     "mofang-server/pkg/workflow/schemas/number.json": "a82dc255481bea3344d325ad3963ca8f02d8350c55c09a53bf91c06d10059d8b",
     "mofang-server/pkg/workflow/schemas/object.json": "19160f5a9d7402e948f6419c3c04138c96a7a7e14f10736bdc2bcacdc95a3ff8",
-    "mofang-server/pkg/workflow/schemas/product.json": "65f04d099d6206ab60c9d1d9f6b1d3358e940c4ac4582c9a930d088496efdb18",
+    "mofang-server/pkg/workflow/schemas/product.json": "ec752ae5f2b6bc0d032f432cd8a08de6ccd4cb9d99f1cae50b439bc2d0705567",
     "mofang-server/pkg/workflow/schemas/string.json": "a76df12d18623f3299d97348b869b7b7e0e2624a73bea4f14397a499371370f2",
     "mofang-server/pkg/workflow/schemas/url.json": "b8e67a3af9b872f7fc3582a4513118e0535d0a61ff3a6da9be6395ef508f157c",
     "mofang-server/pkg/workflow/schemas/video.json": "37f95a378b0960bb0383d6286b9c142a935504beb09cc7ca78853ca248658fc6",
