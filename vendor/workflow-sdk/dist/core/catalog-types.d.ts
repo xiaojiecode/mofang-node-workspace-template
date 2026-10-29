@@ -50,16 +50,23 @@ export type NodeSchedulingPolicy = {
     maxConcurrentExecutions: number;
     reviewPoint?: boolean;
 };
+/** 目标输入字段引用上游节点的顶层辅助输出。 */
+export type InputFieldBinding = {
+    sourceNodeKey: string;
+    sourceField: string;
+};
 export type GraphNode = {
     executionPolicy?: NodeSchedulingPolicy;
     key: string;
     code: string;
     /** 服务端实例身份；新建且尚未保存的节点没有此字段。 */
     nodeInstanceId?: string;
-    /** Read-only digest of the instance's frozen execution definition. */
+    /** 节点实例冻结执行定义的只读摘要。 */
     definitionHash?: string;
     /** 只保存用户编辑过的字段，不把默认值写进来。 */
     configJson: JsonValue;
+    /** 字段来源属于工作流图，运行时按当前到达的来源链解析。 */
+    inputBindings?: Record<string, InputFieldBinding>;
     uiJson: JsonValue;
 };
 export type GraphEdge = {

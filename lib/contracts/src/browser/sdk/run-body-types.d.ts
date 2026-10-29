@@ -13,16 +13,15 @@ export type ReusedOutput = Readonly<{
     nodeInstanceId: ID;
     nodeRunId: ID;
 }>;
+/** 仅启动当前已保存图；调用方必须显式声明试运行身份与保存修订。 */
 export type StartWorkflowRunBody = Readonly<{
     workflowId: ID;
-    source: 'published' | 'draft';
+    expectedRevision: Revision;
+    isTestRun: boolean;
     mode: 'auto' | 'manual';
-    scope: ExecutionScope;
-    initialDeliveries: readonly InitialDelivery[];
-    reuseOutputs: readonly ReusedOutput[];
-    sourceRunId?: ID;
-    /** Published starts may adopt only parameters from this saved draft revision. */
-    configurationDraftRevision?: Revision;
+    scope?: ExecutionScope;
+    initialDeliveries?: readonly InitialDelivery[];
+    reuseOutputs?: readonly ReusedOutput[];
 }>;
 export type RerunNodeBody = Readonly<{
     runId: ID;

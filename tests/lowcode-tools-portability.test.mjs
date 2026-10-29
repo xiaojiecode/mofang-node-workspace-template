@@ -40,8 +40,17 @@ async function fixture(t, manifest = true) {
 
 test('SDK catalog exposes all public methods and the applied-result helper', async () => {
     const catalog = await runLowcode(['catalog', '--category', 'sdk', '--limit', '100'])
-    assert.equal(catalog.total, 77)
-    assert.equal(catalog.items.filter((item) => !item.path.startsWith('workflow.')).length, 75)
+    const { WORKFLOW_SDK_METHODS } = await import('../vendor/workflow-sdk/dist/lowcode.js')
+    assert.equal(catalog.total, WORKFLOW_SDK_METHODS.length + 2)
+    assert.equal(
+        catalog.items.filter((item) => !item.path.startsWith('workflow.')).length,
+        WORKFLOW_SDK_METHODS.length,
+    )
+    assert.ok(catalog.items.some((item) => item.path === 'configuration.save'))
+    assert.equal(
+        catalog.items.some((item) => item.path === 'configuration.setAutoExecute'),
+        false,
+    )
     const helper = await runLowcode([
         'catalog',
         '--category',

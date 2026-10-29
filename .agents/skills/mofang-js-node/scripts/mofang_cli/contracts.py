@@ -33,12 +33,16 @@ FIELD_HELP = {
     "scope": "面板发布 new_only / all_instances / selected_instances，按用户明确授权选择。",
     "targets": "selected_instances 的非空 nodeInstanceId 列表；不能用 nodeCode 替代。",
     "panelRevision": "已保存页面的真实修订；不能用执行 definitionHash 替代。",
-    "revision": "当前草稿或运行配置修订，正整数字符串，按目标资源回读。",
-    "nodeConfigs": "以 nodeKey 为键的配置补丁；不替换上游主流输入。",
-    "resetFields": "以 nodeKey 为键的字段名数组，显式删除已设置值；null不是删除。",
+    "expectedRevision": "用户已读取并选中的当前工作流 draftRevision，正整数字符串；冲突不补读替换 CAS。",
+    "description": "完整工作流说明字符串，允许为空。",
+    "coverUrl": "完整工作流封面地址字符串，允许为空。",
     "graph": "保留全部未修改实例、边、配置、调度和页面引用的实际图。",
     "definitionUpdates": "显式采用：nodeInstanceId、targetCatalogInstanceId、targetDefinitionHash。",
-    "source_mode": "启动 source=published 时同时提供 versionId 和 configurationDraftRevision。",
+    "pausedRun": "真实 saveContext 原样提交 runId、expectedRunRevision、expectedPauseRequestId；不得猜测暂停窗口。",
+    "businessTag": "后台官方工作流可选业务分类，仍由服务端校验权限。",
+    "isTestRun": "显式布尔值；true 为试运行，false 为正式运行，不从 source 或历史版本推断。",
+    "initialDeliveries": "可选初始投递，遵循当前冻结输入合同，不是临时 Globals 或节点配置。",
+    "reuseOutputs": "可选显式历史输出引用，按真实运行和节点身份校验。",
     "mode": "启动模式 manual / auto；会影响候选审核和后继执行。",
     "expectedSessionRevision": "从当前 node view 读取的会话修订；不能使用 catalogRevision。",
     "candidates": "当前动作涉及的真实 id/expectedRevision 引用；无候选动作传空数组。",
@@ -98,10 +102,21 @@ def operation_contract(group, action, operation):
         if action == "publish":
             conditions += ["发布只使用已保存 panelRevision、显式scope/targets；按releaseId查询原回执。"]
     if group == "workflows":
-        conditions += ["图与配置修改使用真实 draftRevision；定义采用不等于页面发布。",
-                       "publish/start 仅按用户明确要求执行；start 会启动节点并可能产生 Tool/模型费用。"]
+        conditions += ["名称、说明、封面与完整图经一次 workflows save 提交；不再提供逐块配置、图、运行配置写入或工作流发布。节点页面包发布仍独立保留。",
+                       "start 仅按用户明确要求执行，会启动节点并可能产生 Tool/模型费用。"]
+        if action == "save":
+            for name in ("definitionUpdates", "pausedRun", "businessTag"):
+                fields[name] = {"required": False, "meaning": FIELD_HELP[name]}
+            fields["name"]["meaning"] = "完整工作流名称字符串。"
+            conditions += ["先读完整快照，保留其它实例、配置、身份、冻结引用和外观；删除配置字段使用完整图中省略该键，null 仍是显式值。",
+                           "成功核对 receipt 与 snapshot，后续 Start 使用保存回执 draftRevision；失败、冲突、未知不自动重发，也不只替换修订号。",
+                           "暂停普通配置与外观修改提交真实 pausedRun；未关闭运行含暂停仍锁定拓扑、绑定与策略。"]
+            response = ["receipt.status", "receipt.resourceId", "receipt.resourceRevision", "snapshot.summary", "snapshot.draftGraph", "snapshot.draftRevision", "snapshot.saveContext", "pausedRun"]
         if action == "start":
-            fields["source"] = {"required": True, "meaning": FIELD_HELP["source_mode"]}
+            for name in ("scope", "initialDeliveries", "reuseOutputs"):
+                fields[name] = {"required": False, "meaning": FIELD_HELP[name] if name != "scope" else "可选运行范围，遵循实际 Start 合同。"}
+            conditions += ["先手动完整保存，再以同次回执 expectedRevision 和明确 isTestRun 起跑；不隐式保存、不传 source/versionId 或临时 Globals/节点配置。"]
+            response = ["run.id", "run.source", "run.majorRevision", "run.isTestRun"]
     if group == "runs" and action in ("action", "action-result", "actions"):
         if action == "action":
             fields["name"] = {"required": True, "meaning": "就绪投影actions中的精确动作name，不是节点名称或按钮文案。"}

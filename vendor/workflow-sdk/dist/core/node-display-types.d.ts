@@ -30,21 +30,7 @@ export type ConfigurationSnapshot = Readonly<{
     graph: WorkflowGraph;
     autoExecute: boolean;
     official: boolean;
-}>;
-export type SaveConfigurationBody = Readonly<{
-    target: ConfigurationTarget;
-    revision: string;
-    previous: WorkflowGraph;
-    graph: WorkflowGraph;
-}>;
-export type CopyConfigurationBody = Readonly<{
-    workflowId: string;
-    graph: WorkflowGraph;
-}>;
-export type SetAutoExecuteBody = Readonly<{
-    target: ConfigurationTarget;
-    revision: string;
-    enabled: boolean;
+    usageKind?: 'user' | 'official_instance';
 }>;
 export type NodeActivity = Readonly<{
     seq: number;

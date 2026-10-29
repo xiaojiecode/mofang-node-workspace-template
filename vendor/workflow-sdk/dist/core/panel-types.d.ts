@@ -25,9 +25,8 @@ type PanelAsset = Readonly<{
     surface: PanelSurface;
 }>;
 /**
- * Lit panel metadata. The compiled module is not here: it can be megabytes, so
- * it is fetched once per revision through {@link PageBundleSourceQuery} and
- * cached by `viewHash`.
+ * Lit 页面元数据不包含体积较大的编译模块。
+ * 通过 {@link PageBundleSourceQuery} 按修订读取，并用 viewHash 缓存。
  */
 export type LitViewBundle = PanelAsset & Readonly<{
     renderMode: 'lit';
@@ -51,10 +50,10 @@ export type PageBundle = (PanelAsset & Readonly<{
     programHash: string;
 }>));
 export type PanelBundleQuery = ContextRequestOptions & Readonly<{
-    /** Omission keeps the existing business-panel resource. */
+    /** 省略时继续读取业务面板资源。 */
     surface?: PanelSurface;
 }>;
-/** A compiled-product read. The hashes state which revision the caller holds. */
+/** 读取编译产物，哈希表示调用方当前持有的修订。 */
 export type PageBundleSourceQuery = ContextRequestOptions & Readonly<{
     surface?: PanelSurface;
     viewHash?: string;
@@ -68,10 +67,28 @@ export type PageBundleSource = Readonly<{
     viewCompiled: string;
     programCompiled?: string;
 }>;
-/** Edits stay in the configuration host's draft until its normal save. */
+/** 编辑留在配置宿主持有的本地输入中，随宿主保存提交。 */
 export type SettingsPanelEditor = Readonly<{
     values: Readonly<Record<string, unknown>>;
     readOnly: boolean;
+    /** 绑定字段与运行期间的仅运行前字段禁用手动编辑，宿主同时拦截写回。 */
+    disabledFields?: readonly string[];
+    /** 运行期间只读的叶子路径，键为顶层字段名，值为相对 JSON Pointer；不禁用普通同级字段。 */
+    disabledFieldPaths?: Readonly<Record<string, readonly string[]>>;
     onFieldChange?: (name: string, value: unknown) => void;
+    inputBindings?: Readonly<{
+        fields: Readonly<Record<string, Readonly<{
+            label: string;
+            selectedId: string | null;
+            options: readonly Readonly<{
+                id: string;
+                nodeName: string;
+                fieldName: string;
+                typeName: string;
+            }>[];
+            readOnly: boolean;
+        }>>>;
+        onChange?: (fieldName: string, selectedId: string | null) => void;
+    }>;
 }>;
 export {};

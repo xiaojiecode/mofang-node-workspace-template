@@ -1,4 +1,15 @@
 import type { NodeFlowSummary } from './node-flow-types';
+export type RunInitialization = Readonly<{
+    status: 'pending' | 'ready' | 'failed';
+    nodes: readonly Readonly<{
+        nodeInstanceId: string;
+        status: 'pending' | 'ready' | 'failed';
+        error?: Readonly<{
+            code: string;
+            message: string;
+        }>;
+    }>[];
+}>;
 /** taskId 区分每次到达，nodeRunId 区分同一任务的执行代次。 */
 export type NodeTask = Readonly<{
     taskId: string;
@@ -25,6 +36,8 @@ export type NodeTaskPage = Readonly<{
     pageSize: number;
 }>;
 export type RunNodeStatistics = Readonly<{
+    /** 只读收口证据，不参与运行控制。 */
+    inputClosed?: boolean;
     coordinator?: Readonly<{
         sessionId: string;
         status: string;
@@ -50,4 +63,5 @@ export type WorkflowRunStatistics = Readonly<{
     runId: string;
     status: string;
     instances: readonly RunNodeStatistics[];
+    initialization: RunInitialization | null;
 }>;

@@ -98,3 +98,50 @@ const invalidFieldPaths: NonNullable<PanelProps['settings']>['disabledFieldPaths
 void fieldPaths
 void capabilities
 void invalidFieldPaths
+
+// 配置读取保留门面；写入使用完整工作流正文和唯一保存回执。
+import type {
+    SaveWorkflowBody,
+    SaveWorkflowResult,
+    StartWorkflowRunBody,
+} from '@mofang/contracts/browser'
+const workflowSave: SaveWorkflowBody = {
+    workflowId: 'workflow',
+    expectedRevision: '7',
+    name: '工作流',
+    description: '',
+    coverUrl: '',
+    graph: { nodes: [], edges: [], globalsJson: {}, agentSnapshots: {} },
+    pausedRun: { runId: 'run', expectedRunRevision: '12', expectedPauseRequestId: 'pause' },
+}
+const savedWorkflow: Promise<SaveWorkflowResult> = sdk.configuration.save(workflowSave)
+void savedWorkflow
+void sdk.configuration.copy({ workflowId: 'workflow', expectedRevision: '7' })
+// @ts-expect-error 不再提供独立自动化写接口，自动化随完整图手动保存。
+void sdk.configuration.setAutoExecute({
+    target: { workflowId: 'workflow' },
+    revision: '7',
+    enabled: true,
+})
+const retiredSaveBody = {
+    target: { workflowId: 'workflow' },
+    revision: '7',
+    previous: workflowSave.graph,
+    graph: workflowSave.graph,
+}
+// @ts-expect-error 旧逐节点保存正文缺少完整元信息与CAS，不允许作为新保存合同。
+void sdk.configuration.save(retiredSaveBody)
+const savedStart: StartWorkflowRunBody = {
+    workflowId: 'workflow',
+    expectedRevision: '8',
+    isTestRun: false,
+    mode: 'manual',
+}
+// @ts-expect-error 所有新运行必须明确试运行身份，不能由旧source推断。
+const missingTrialIdentity: StartWorkflowRunBody = {
+    workflowId: 'workflow',
+    expectedRevision: '8',
+    mode: 'auto',
+}
+void savedStart
+void missingTrialIdentity

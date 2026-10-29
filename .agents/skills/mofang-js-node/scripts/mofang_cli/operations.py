@@ -48,15 +48,12 @@ OPERATIONS = {
     ("workflows", "get"): Operation("GET", "/definitions/{workflow_id}"),
     ("workflows", "active-run"): Operation("GET", "/definitions/{workflow_id}/active-run"),
     ("workflows", "create"): Operation("POST", "/definitions", required=("name", "official"), example={"name": "<工作流名称>", "official": False}),
-    ("workflows", "graph"): Operation("PUT", "/definitions/{workflow_id}/graph", required=("graph", "revision")),
-    ("workflows", "config"): Operation("PATCH", "/definitions/{workflow_id}/config", required=("revision",), example={"revision": "<draftRevision>", "nodeConfigs": {"<nodeKey>": {"keyword": "<值>"}}, "resetFields": {}}),
-    ("workflows", "publish"): Operation("POST", "/definitions/{workflow_id}/versions", required=("revision",), example={"revision": "<draftRevision>"}),
-    ("workflows", "start"): Operation("POST", "/definitions/{workflow_id}/runs", required=("source", "mode"), example={"source": "published", "mode": "manual", "versionId": "<versionId>", "configurationDraftRevision": "<draftRevision>"}),
+    ("workflows", "save"): Operation("PUT", "/definitions/{workflow_id}", required=("expectedRevision", "name", "description", "coverUrl", "graph"), example={"expectedRevision": "<已读取的draftRevision>", "name": "<工作流名称>", "description": "", "coverUrl": "", "graph": {"nodes": [], "edges": [], "globalsJson": {}, "agentSnapshots": {}}}),
+    ("workflows", "start"): Operation("POST", "/definitions/{workflow_id}/runs", required=("expectedRevision", "isTestRun", "mode"), example={"expectedRevision": "<已保存的draftRevision>", "isTestRun": False, "mode": "manual"}),
     ("runs", "list"): Operation("GET", "/runs", query=("workflowId", "status", "page", "pageSize")),
     ("runs", "get"): Operation("GET", "/runs/{run_id}"),
     ("runs", "state"): Operation("GET", "/runs/{run_id}/state"),
     ("runs", "activities"): Operation("GET", "/runs/{run_id}/activities", query=("afterSeq", "limit")),
-    ("runs", "config"): Operation("PATCH", "/runs/{run_id}/config", required=("revision",)),
     ("runs", "view"): Operation("GET", "/runs/{run_id}/nodes/{instance_id}/view", query=("page", "pageSize", "view")),
 }
 
@@ -154,11 +151,24 @@ def prepare(op, args):
     if "actor" in body:
         raise CLIError("invalid_argument", "actor 由服务端绑定，不能在请求体指定")
     for field in op.required:
-        if field not in body or body[field] is None or body[field] == "":
+        allow_empty = op.method == "PUT" and op.path == "/definitions/{workflow_id}" and field in ("description", "coverUrl")
+        if field not in body or body[field] is None or (body[field] == "" and not allow_empty):
             raise CLIError("missing_field", f"请求体缺少 {field}；运行 describe 查看契约")
-    for field in ("revision", "expectedCatalogRevision", "configurationDraftRevision"):
+    for field in ("expectedRevision", "expectedCatalogRevision"):
         if field in body and (not isinstance(body[field], str) or not body[field].isdecimal() or int(body[field]) < 1):
             raise CLIError("invalid_revision", f"{field} 必须是正整数修订字符串")
+    if op.method == "PUT" and op.path == "/definitions/{workflow_id}":
+        allowed = {"expectedRevision", "name", "description", "coverUrl", "graph", "definitionUpdates", "businessTag", "pausedRun"}
+        if body.keys() - allowed:
+            raise CLIError("invalid_argument", "workflows save 只接受完整 SaveWorkflow 正文；不接受旧配置补丁或版本字段")
+        if not isinstance(body["graph"], dict) or any(not isinstance(body[field], str) for field in ("name", "description", "coverUrl")):
+            raise CLIError("invalid_argument", "保存需要 graph 对象和字符串名称、说明、封面")
+    if op.method == "POST" and op.path == "/definitions/{workflow_id}/runs":
+        allowed = {"expectedRevision", "isTestRun", "mode", "scope", "initialDeliveries", "reuseOutputs"}
+        if body.keys() - allowed:
+            raise CLIError("invalid_argument", "workflows start 只接受已保存修订与显式运行参数；不接受 source/version 或临时配置")
+        if not isinstance(body["isTestRun"], bool):
+            raise CLIError("invalid_argument", "isTestRun 必须显式为布尔值")
     if op.path.endswith("/page") and op.method == "PUT" and body.get("kind") != "save":
         raise CLIError("invalid_argument", "panels save 只接受 kind=save")
     if op.path.endswith("/page") and op.method == "PUT" and body.get("renderMode") == "lowcode":

@@ -92,6 +92,9 @@ export type NodeActionView = Readonly<{
     errorCode: string;
     errorMessage: string;
     /** 人工动作由动作 ID 读取。 */
+    coordinationPhase?: import('./output-types').NodeOperationPhase;
+    sequence?: string;
+    revision?: string;
     actorUserId: string;
     createdAt: string;
     finishedAt?: string;

@@ -146,28 +146,52 @@ const body = {
 ```bash
 python3 <技能目录>/scripts/mofang_node.py --profile demo-user workflows list --query scope=mine --query page=1 --query pageSize=20
 python3 <技能目录>/scripts/mofang_node.py --profile demo-user workflows get --workflow-id <workflowId>
-python3 <技能目录>/scripts/mofang_node.py describe workflows config
-python3 <技能目录>/scripts/mofang_node.py --profile demo-user workflows config --workflow-id <workflowId> --file <配置补丁.json>
+python3 <技能目录>/scripts/mofang_node.py describe workflows save
+python3 <技能目录>/scripts/mofang_node.py --profile demo-user workflows save --workflow-id <workflowId> --file <完整保存正文.json>
 ```
 
-配置正文使用当前 draftRevision，nodeConfigs 按 nodeKey 提供仅需修改的 JSON 对象；resetFields 明确删除显式值，null 是显式 null，不代表恢复默认。例：
+先读取完整快照，以用户选中的 draftRevision 作为 expectedRevision，同时提交名称、说明、封面和完整图。说明和封面允许空字符串但不能省略；graph 保留全部未修改节点、边、Globals、身份、冻结引用与外观。修改节点配置在 graph.nodes 的 configJson 完成，删除显式字段时省略该键，null 仍是显式 null。不要用当前目录重建旧图。
 
 ```json
 {
-    "revision": "<当前draftRevision>",
-    "nodeConfigs": { "<nodeKey>": { "keyword": "yoga" } },
-    "resetFields": { "<nodeKey>": ["可选的恢复默认字段名"] }
+    "expectedRevision": "<已读取的draftRevision>",
+    "name": "<工作流名称>",
+    "description": "",
+    "coverUrl": "",
+    "graph": {
+        "nodes": [],
+        "edges": [],
+        "globalsJson": {},
+        "agentSnapshots": {}
+    }
 }
 ```
 
-改变图或采用执行定义使用 `workflows graph`，请求为 graph、revision 和可选 definitionUpdates；采用条目包含 nodeInstanceId、targetCatalogInstanceId、targetDefinitionHash。保留其它实例、边、配置、调度和页面引用，不用当前目录覆盖整张旧图。只有用户要求才执行 workflows publish/start；start 明确 source/mode，published 起跑固定 versionId 与 configurationDraftRevision。运行读回用 runs get/state/activities/view；运行参数补丁用 runs config，不能当作当前草稿配置。
+上例只展示空图结构；编辑现有工作流时必须提交实际完整图。显式采用执行定义仍使用可选 definitionUpdates，条目包含 nodeInstanceId、targetCatalogInstanceId、targetDefinitionHash。暂停时普通配置与外观修改须原样附带读取到的 saveContext 作为 pausedRun，其字段为 runId、expectedRunRevision、expectedPauseRequestId；不能猜暂停身份或补读最新修订替换用户 CAS。未关闭运行含暂停锁定结构、绑定与审核／并发策略。
 
-身份参数通过命令选项提供；CLI 会消费相同的正文身份，若不一致则拒绝。actor 始终由服务端绑定。不会自动发布版本、采用定义、选择实例、执行上架或迁移数据。
+Save 返回 receipt 与 snapshot，成功核对 receipt.status=applied、资源身份和修订，使用 snapshot.draftRevision 作为后续起跑修订。失败、冲突或未知保留完整本地正文，不拆成多次写入或自动重试。退役的 workflows graph/config/publish 与 runs config 不再暴露；节点页面包 panels save/publish 保留。
+
+只有用户明确要求才执行 workflows start。先完成手动 Save，再提交同次保存修订、显式 isTestRun 与 mode；不隐式保存，不带 source、versionId、configurationDraftRevision、临时 Globals 或节点配置。
+
+```bash
+python3 <技能目录>/scripts/mofang_node.py describe workflows start
+python3 <技能目录>/scripts/mofang_node.py --profile demo-user workflows start --workflow-id <workflowId> --file <起跑正文.json>
+```
+
+```json
+{
+    "expectedRevision": "<Save回执的draftRevision>",
+    "isTestRun": false,
+    "mode": "manual"
+}
+```
+
+正式运行用 false，试运行用 true。运行读回保留 runs get/state/activities/view；历史 source/version 字段仅用于读取，不作为新起跑参数。身份通过命令选项提供；CLI 消费相同正文身份，身份不一致则拒绝。actor 始终由服务端绑定。CLI 不自动保存后起跑、采用定义、选择实例、执行上架或迁移数据。
 
 ## 失败与验证边界
 
 - HTTP 与业务错误均为非零退出，并保留服务端 errorCode；失败回执不当作成功。
-- 修订冲突需要重新读取并比较本地编辑，再决定是否重提；不能仅替换 revision。
+- 修订冲突需要重新读取并比较本地编辑，再决定是否重提；不能仅替换 expectedRevision。
 - 所有请求均不自动重试；写入断连返回 write_outcome_unknown，先用读取命令核对原目标。start 丢失响应时用 `workflows active-run --workflow-id <ID>` 及 `runs list --query workflowId=<ID>` 找候选运行；面板发布丢失响应时用 `panels releases --code <编码> --surface <位置>` 找发布记录，再逐条核对时间、版本、范围及目标。不能仅凭“最新一条”断言就是本次请求。已取得 runId/releaseId 后只查询原资源，不重新提交。
 - 不自动跟随重定向，不把令牌带到另一个地址；环境切换重新显式登录相应 profile。
 - 使用真实账号保存/发布必须处于用户授权的环境和目标范围。技能维护本身不授权写业务资源。

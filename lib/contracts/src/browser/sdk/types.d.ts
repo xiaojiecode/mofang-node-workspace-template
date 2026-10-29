@@ -1,4 +1,4 @@
-/** Shared workflow contract, including wait and action types. */
+/** 共享工作流契约，包含等待与动作类型。 */
 export type * from './context-types';
 export type * from './creation-body-types';
 export type * from './creation-result-types';
@@ -22,3 +22,4 @@ export type * from './wait-types';
 export type * from './catalog-types';
 export type * from './node-display-types';
 export type { ContextRequestOptions, IncomingListQuery, InputHistoryQuery, NodeActionQuery } from './runtime-types';
+export type * from './workflow-definition-types';

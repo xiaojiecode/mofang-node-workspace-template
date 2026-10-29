@@ -1,5 +1,5 @@
-import { i as isPlainObject, M as MofangSDKError } from "./create-sdk-CHzl7Ano.js";
-import { b, c, d, f, e, a, k, n, t } from "./create-sdk-CHzl7Ano.js";
+import { i as isPlainObject, M as MofangSDKError } from "./create-sdk-BvGSuWE9.js";
+import { b, c, d, f, e, a, k, n, t } from "./create-sdk-BvGSuWE9.js";
 function matchesMessage(event, filter) {
   const typeMatches = !filter.types?.length || filter.types.some(
     (type) => type === event.type || type.endsWith(".*") && event.type.startsWith(type.slice(0, -1))
@@ -221,6 +221,8 @@ function describe(root, name, value, required, depth = 0) {
     type,
     required,
     nullable,
+    configBeforeRun: depth === 0 && schema["x-mf-config-before-run"] === true,
+    capabilitySwitchPaths: depth === 0 && name !== "item" ? capabilitySwitchPaths(root, value) : [],
     ...Object.hasOwn(schema, "default") ? { defaultValue: schema.default } : {},
     ui: schemaObject(schema["x-mf-ui"]),
     schema,
@@ -228,6 +230,32 @@ function describe(root, name, value, required, depth = 0) {
       element: describe(root, "", schema.items, false, depth + 1)
     } : {}
   };
+}
+function capabilitySwitchPaths(root, value) {
+  const paths = [];
+  const visit = (value2, pointer, depth) => {
+    if (depth > 32) throw new Error("能力开关路径超过冻结 Schema 深度限制");
+    const schema = resolveSchema(root, value2);
+    const typeRef = schemaObject(schema["x-mf-type-ref"]);
+    if (businessParamTypes.includes(
+      typeRef.paramType
+    ))
+      return;
+    if (schema.type === "boolean" && schema["x-mf-capability-switch"] === true)
+      paths.push(pointer);
+    if (schema.type !== "object" || schema.additionalProperties !== false)
+      return;
+    for (const [name, child] of Object.entries(
+      schemaObject(schema.properties)
+    ))
+      visit(
+        child,
+        pointer + "/" + name.replace(/~/g, "~0").replace(/\//g, "~1"),
+        depth + 1
+      );
+  };
+  visit(value, "", 0);
+  return paths.sort();
 }
 function schemaFields(root) {
   const schema = resolveSchema(root, root);

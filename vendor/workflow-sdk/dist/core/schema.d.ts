@@ -9,6 +9,10 @@ export type SchemaField = {
     element?: SchemaField;
     required: boolean;
     nullable: boolean;
+    /** 仅允许在运行前固定配置，不接受上游绑定。 */
+    configBeforeRun?: boolean;
+    /** 能力开关相对本字段的 JSON Pointer；普通字段为空数组。 */
+    capabilitySwitchPaths: readonly string[];
     defaultValue?: JsonValue;
     ui: JsonObject;
     schema: JsonObject;

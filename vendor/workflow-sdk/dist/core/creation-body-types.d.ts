@@ -5,20 +5,13 @@ type CreateWorkflowFields = Readonly<{
 }>;
 export type CreateWorkflowBody = CreateWorkflowFields & (Readonly<{
     fromTemplateId?: never;
-    expectedTemplateVersionId?: never;
+    expectedTemplateRevision?: never;
 }> | Readonly<{
     fromTemplateId: ID;
-    expectedTemplateVersionId: ID;
+    expectedTemplateRevision: ID;
 }>);
 export type CopyWorkflowBody = Readonly<{
     workflowId: ID;
-}> & (Readonly<{
-    source: 'draft';
-    expectedDraftRevision: Revision;
-    expectedPublishedVersionId?: never;
-}> | Readonly<{
-    source: 'published';
-    expectedPublishedVersionId: ID;
-    expectedDraftRevision?: never;
-}>);
+    expectedRevision: Revision;
+}>;
 export {};

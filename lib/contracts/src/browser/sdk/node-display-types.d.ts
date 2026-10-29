@@ -32,21 +32,6 @@ export type ConfigurationSnapshot = Readonly<{
     official: boolean;
     usageKind?: 'user' | 'official_instance';
 }>;
-export type SaveConfigurationBody = Readonly<{
-    target: ConfigurationTarget;
-    revision: string;
-    previous: WorkflowGraph;
-    graph: WorkflowGraph;
-}>;
-export type CopyConfigurationBody = Readonly<{
-    workflowId: string;
-    graph: WorkflowGraph;
-}>;
-export type SetAutoExecuteBody = Readonly<{
-    target: ConfigurationTarget;
-    revision: string;
-    enabled: boolean;
-}>;
 export type NodeActivity = Readonly<{
     seq: number;
     nodeRunId: string;

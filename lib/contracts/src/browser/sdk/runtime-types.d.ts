@@ -1,3 +1,6 @@
+import type { CopyWorkflowBody } from './creation-body-types';
+import type { WorkflowCreatedResult } from './creation-result-types';
+import type { SaveWorkflowBody, SaveWorkflowResult } from './workflow-definition-types';
 import type { WorkflowNode } from './catalog-types';
 import type { NodeContext } from './context-types';
 import type { DataReadBody, DataReadResult } from './data-read-types';
@@ -8,7 +11,7 @@ import type { InputDelivery } from './input-types';
 import type { InputManifest } from './input-types';
 import type { ID, Revision } from './json-types';
 import type { InterruptBody } from './mutation-types';
-import type { ConfigurationSnapshot, ConfigurationTarget, CopyConfigurationBody, NodeActivityList, NodeActivityQuery, NodeExecutionInfo, NodeIdentity, NodeIdentityQuery, SaveConfigurationBody, SetAutoExecuteBody } from './node-display-types';
+import type { ConfigurationSnapshot, ConfigurationTarget, NodeActivityList, NodeActivityQuery, NodeExecutionInfo, NodeIdentity, NodeIdentityQuery } from './node-display-types';
 import type { NodeFlowAPI } from './node-flow-types';
 import type { NodeActionView, OperationSnapshot } from './node-tool-types';
 import type { NodeOutput, NodeOutputPage, NodeOutputPageQuery } from './output-types';
@@ -121,9 +124,8 @@ export interface MofangSDK {
     };
     configuration: {
         get(target: ConfigurationTarget): Promise<ConfigurationSnapshot>;
-        save(body: SaveConfigurationBody): Promise<ConfigurationSnapshot>;
-        copy(body: CopyConfigurationBody): Promise<ConfigurationSnapshot>;
-        setAutoExecute(body: SetAutoExecuteBody): Promise<ConfigurationSnapshot>;
+        save(body: SaveWorkflowBody): Promise<SaveWorkflowResult>;
+        copy(body: CopyWorkflowBody): Promise<WorkflowCreatedResult>;
     };
     panel: {
         getBundle(target: PanelBundleQuery): Promise<PageBundle | null>;

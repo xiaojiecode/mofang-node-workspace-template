@@ -6,6 +6,9 @@ type InlineSnapshotReceipt = Omit<MutationReceipt, 'snapshotRef'> & Readonly<{
 export type WorkflowSourceSnapshot = Readonly<{
     workflowId: ID;
 }> & (Readonly<{
+    source: 'saved';
+    revision: Revision;
+}> | Readonly<{
     source: 'draft';
     draftRevision: Revision;
     versionId?: never;
@@ -39,15 +42,11 @@ type StartRunSnapshotFields = Readonly<{
     gateRevision: Revision;
     configRevisionId?: ID;
 }>;
-export type StartRunSnapshot = StartRunSnapshotFields & (Readonly<{
-    source: 'draft';
-    versionId?: never;
-    configurationDraftRevision?: never;
-}> | Readonly<{
-    source: 'published';
-    versionId: ID;
-    configurationDraftRevision?: Revision;
-}>);
+export type StartRunSnapshot = StartRunSnapshotFields & Readonly<{
+    source: 'saved';
+    majorRevision: Revision;
+    isTestRun: boolean;
+}>;
 export type StartRunResult = Readonly<{
     receipt: InlineSnapshotReceipt;
     snapshot: StartRunSnapshot;

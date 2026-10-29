@@ -74,6 +74,93 @@ function isNodeAuthorizationError(error) {
     "token_expired"
   ].includes(error.code);
 }
+function invalid(message) {
+  throw new MofangSDKError(message, {
+    kind: "protocol",
+    code: "invalid_http_request",
+    retryable: false
+  });
+}
+function hasControl(value) {
+  return [...value].some((character) => {
+    const code = character.charCodeAt(0);
+    return code < 32 || code === 127;
+  });
+}
+function validateHttpPath(value) {
+  if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//") || /[\\?#\s]/.test(value) || hasControl(value))
+    invalid("HTTP 请求需要当前 backend 的相对路径，查询参数请放 query");
+  try {
+    if (new URL(value, "https://host.invalid").pathname !== value)
+      invalid("HTTP 路径必须使用规范形式");
+    for (const segment of value.split("/").slice(1)) {
+      const decoded = decodeURIComponent(segment);
+      if (decoded === "." || decoded === ".." || decoded.includes("/") || /[\\?#%\s]/.test(decoded) || hasControl(decoded))
+        invalid("HTTP 路径不能包含路径跳转或编码分隔符");
+    }
+  } catch {
+    invalid("HTTP 路径不是有效的规范相对路径");
+  }
+  return value;
+}
+function record(value) {
+  return value !== null && typeof value === "object" && [Object.prototype, null].includes(Object.getPrototypeOf(value));
+}
+function json(value, parents = /* @__PURE__ */ new Set()) {
+  if (value === null || typeof value === "string" || typeof value === "boolean")
+    return true;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (!Array.isArray(value) && !record(value)) return false;
+  if (parents.has(value)) return false;
+  parents.add(value);
+  const valid = Array.isArray(value) ? Array.from(value).every((item) => json(item, parents)) : Object.values(value).every((item) => json(item, parents));
+  parents.delete(value);
+  return valid;
+}
+function validateHttpPayload(value) {
+  if (!record(value) || Object.keys(value).some(
+    (key) => !["method", "path", "query", "body"].includes(key)
+  ) || typeof value.method !== "string" || !["GET", "POST", "PUT", "PATCH", "DELETE"].includes(
+    String(value.method)
+  ))
+    invalid("HTTP 请求只接受 method、path、query、body");
+  const path = validateHttpPath(value.path);
+  if (value.method === "GET" && value.body !== void 0)
+    invalid("GET 请求不能携带 body");
+  if (value.query !== void 0) {
+    const scalar = (item) => typeof item === "string" || typeof item === "boolean" || typeof item === "number" && Number.isFinite(item);
+    if (!record(value.query) || !Object.values(value.query).every(
+      (item) => Array.isArray(item) ? Array.from(item).every(scalar) : scalar(item)
+    ))
+      invalid("HTTP query 只接受字符串、有限数值、布尔值或它们的数组");
+  }
+  if (value.body !== void 0 && !json(value.body))
+    invalid("HTTP body 必须是可序列化 JSON 值");
+  return JSON.parse(JSON.stringify({ ...value, path }));
+}
+function createHttpAPI(transport) {
+  return {
+    async request(request) {
+      try {
+        if (!record(request)) invalid("HTTP 请求必须是参数对象");
+        const { signal, ...body } = request;
+        if (signal?.aborted)
+          throw new MofangSDKError("HTTP 请求已取消", {
+            kind: "transport",
+            code: "request_cancelled",
+            retryable: false
+          });
+        return await transport.request(
+          "http.request",
+          validateHttpPayload(body),
+          { signal }
+        );
+      } catch (error) {
+        throw toMofangSDKError(error);
+      }
+    }
+  };
+}
 function createMessages(source, context) {
   const entries = /* @__PURE__ */ new Set();
   function bind(filter) {
@@ -590,6 +677,14 @@ function createNodeFlowAPI(deps) {
     pause: (body) => write("nodeFlow.pause", body),
     resume: (body) => write("nodeFlow.resume", body),
     cancel: (body) => write("nodeFlow.cancel", body),
+    getTaskOperation: (query) => protectedRead(
+      "nodeFlow.getTaskOperation",
+      query
+    ),
+    listTaskOperations: (query) => protectedRead(
+      "nodeFlow.listTaskOperations",
+      query
+    ),
     replyTask: (body) => write("nodeFlow.replyTask", body),
     continueTask: (body) => write("nodeFlow.continueTask", body),
     resolveUnknownTask: (body) => write("nodeFlow.resolveUnknownTask", body)
@@ -642,7 +737,6 @@ const NODE_FLOW_WRITE_OPERATIONS = /* @__PURE__ */ new Set([
 const WRITE_RESOURCE = {
   "configuration.save": "context",
   "configuration.copy": "context",
-  "configuration.setAutoExecute": "context",
   "nodes.cancel": "context",
   "nodes.continue": "context",
   "nodes.rerun": "context",
@@ -651,6 +745,7 @@ const WRITE_RESOURCE = {
   "outputs.write": "context",
   "outputs.advance": "context",
   "actions.reply": "context",
+  "actions.invoke": "context",
   "actions.submit": "context",
   "control.interrupt": "context",
   "control.pause": "context",
@@ -885,6 +980,7 @@ function createMofangSDK(options) {
     context: () => contextOptions
   });
   return {
+    http: createHttpAPI(transport),
     toast: createToastAPI(
       (message) => transport.request("ui.toast", message)
     ),
@@ -896,9 +992,7 @@ function createMofangSDK(options) {
       cancel: (nodeRunId) => runResourceWrite("nodes.cancel", {
         nodeRunId
       }),
-      continue: (nodeRunId) => runResourceWrite("nodes.continue", {
-        nodeRunId
-      }),
+      continue: (body) => runResourceWrite("nodes.continue", body),
       list: () => send("nodes.list", {}),
       get: (code) => send("nodes.get", { code }),
       resolveIdentity: (query) => send(
@@ -924,10 +1018,6 @@ function createMofangSDK(options) {
       ),
       copy: (body) => runResourceWrite(
         "configuration.copy",
-        body
-      ),
-      setAutoExecute: (body) => runResourceWrite(
-        "configuration.setAutoExecute",
         body
       )
     },
@@ -995,6 +1085,8 @@ function createMofangSDK(options) {
       advance: (body) => runWrite("outputs.advance", body)
     },
     actions: {
+      invoke: (body) => runResourceWrite("actions.invoke", body),
+      history: (query) => send("actions.history", queryPayload(query)),
       reply: (body) => runResourceWrite("actions.reply", body),
       submit: (body) => runWrite("actions.submit", body),
       get: (query) => send(

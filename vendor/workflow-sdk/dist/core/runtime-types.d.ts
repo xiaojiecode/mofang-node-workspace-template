@@ -1,3 +1,6 @@
+import type { CopyWorkflowBody } from './creation-body-types';
+import type { WorkflowCreatedResult } from './creation-result-types';
+import type { SaveWorkflowBody, SaveWorkflowResult } from './workflow-definition-types';
 import type { WorkflowNode } from './catalog-types';
 import type { NodeContext } from './context-types';
 import type { DataReadBody, DataReadResult } from './data-read-types';
@@ -8,7 +11,7 @@ import type { InputDelivery } from './input-types';
 import type { InputManifest } from './input-types';
 import type { ID, Revision } from './json-types';
 import type { InterruptBody } from './mutation-types';
-import type { ConfigurationSnapshot, ConfigurationTarget, CopyConfigurationBody, NodeActivityList, NodeActivityQuery, NodeExecutionInfo, NodeIdentity, NodeIdentityQuery, SaveConfigurationBody, SetAutoExecuteBody } from './node-display-types';
+import type { ConfigurationSnapshot, ConfigurationTarget, NodeActivityList, NodeActivityQuery, NodeExecutionInfo, NodeIdentity, NodeIdentityQuery } from './node-display-types';
 import type { NodeFlowAPI } from './node-flow-types';
 import type { NodeActionView, OperationSnapshot } from './node-tool-types';
 import type { NodeOutput, NodeOutputPage, NodeOutputPageQuery } from './output-types';
@@ -93,6 +96,7 @@ export type NodeActionQuery = Readonly<{
  * 这里实现一次，React 与 Lit 适配器只做订阅和暴露，不各自实现一套。
  */
 export interface MofangSDK {
+    http: import('./http').MofangHttp;
     toast: import('./toast').MofangToast;
     nodeFlow: NodeFlowAPI;
     messages: import('./message-types').MofangMessages;
@@ -110,7 +114,7 @@ export interface MofangSDK {
     nodes: {
         getRun(nodeRunId: string): Promise<NodeExecutionInfo>;
         cancel(nodeRunId: string): Promise<NodeExecutionInfo>;
-        continue(nodeRunId: string): Promise<NodeExecutionInfo>;
+        continue(body: import('./output-types').ContinueNodeBody): Promise<import('./output-types').NodeOperationAccepted>;
         list(): Promise<WorkflowNode[]>;
         get(code: string): Promise<WorkflowNode>;
         resolveIdentity(query: NodeIdentityQuery): Promise<NodeIdentity>;
@@ -120,9 +124,8 @@ export interface MofangSDK {
     };
     configuration: {
         get(target: ConfigurationTarget): Promise<ConfigurationSnapshot>;
-        save(body: SaveConfigurationBody): Promise<ConfigurationSnapshot>;
-        copy(body: CopyConfigurationBody): Promise<ConfigurationSnapshot>;
-        setAutoExecute(body: SetAutoExecuteBody): Promise<ConfigurationSnapshot>;
+        save(body: SaveWorkflowBody): Promise<SaveWorkflowResult>;
+        copy(body: CopyWorkflowBody): Promise<WorkflowCreatedResult>;
     };
     panel: {
         getBundle(target: PanelBundleQuery): Promise<PageBundle | null>;
@@ -166,6 +169,8 @@ export interface MofangSDK {
         advance(body: import('./output-types').AdvanceNodeOutputBody): Promise<import('./output-types').AdvanceNodeOutputResult>;
     };
     actions: {
+        invoke(body: import('./output-types').InvokeNodeActionBody): Promise<import('./output-types').NodeOperationAccepted>;
+        history(query: import('./output-types').NodeOperationHistoryQuery): Promise<import('./output-types').NodeOperationHistoryPage>;
         reply(body: import('./output-types').ReplyNodeBody): Promise<import('./output-types').ReplyNodeResult>;
         submit(body: SubmitWaitActionBody): Promise<SubmitWaitActionResult>;
         /** 按动作 ID 或节点执行回读动作。 */

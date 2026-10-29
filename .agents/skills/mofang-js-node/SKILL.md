@@ -78,4 +78,6 @@ action返回受理后按eventId等待outcome；需要恢复时查询动作列表
 
 目录保存、实例显式采用、settings/business分别发布、新运行是不同操作；读取最新身份和修订并回查。历史源码、Schema和页面保持冻结，不直写数据库绕过门禁。
 
+工作流名称、说明、封面与完整图使用 `workflows save` 一次提交 expectedRevision；不再提供工作流发布或图／配置局部写入。明确要求起跑时，先手动 Save，再用回执修订、显式 isTestRun 和 mode 调用 `workflows start`，不传旧 source/version 或临时配置。节点页面包发布保持独立。
+
 按风险执行类型/Schema、产物、真实Goja/加载器、隔离DB、浏览器与实际链路，逐层报告。缺少真实环境不伪造成功。完整类型检查也不代表新ABI可运行。技能/模板维护需冷初始化、路径和可发现性检查，再向唯一模板远端提交推送并核对。

@@ -91,6 +91,11 @@ class CLITest(unittest.TestCase):
         file.write_text(json.dumps(value), encoding="utf-8")
         return ["--file", str(file)]
 
+    def workflow_body(self, **patch):
+        """完整保存正文来自已读取快照；空说明与封面仍显式提交。"""
+        return {"expectedRevision": "7", "name": "测试工作流", "description": "", "coverUrl": "",
+                "graph": {"nodes": [], "edges": [], "globalsJson": {}, "agentSnapshots": {}}, **patch}
+
     def test_admin_login_is_bare_and_secret_is_private(self):
         self.login()
         stored = json.loads((self.state / "admin.json").read_text())
@@ -255,18 +260,27 @@ class CLITest(unittest.TestCase):
         self.assertEqual(body["source"], value["source"])
         self.assertEqual(authorization, "Bearer test-admin-token")
 
-    def test_client_config_keeps_explicit_null_and_reset_fields(self):
+    def test_client_save_preserves_full_graph_null_removal_and_pause_window(self):
         self.login("client")
-        body = {"revision": "7", "nodeConfigs": {"select": {"keyword": None}}, "resetFields": {"select": ["region"]}}
-        code, result = self.call(["workflows", "config", "--workflow-id", "wf", *self.body(body)], profile="client")
+        graph = {"nodes": [{"key": "select", "code": "select", "nodeInstanceId": "instance-select",
+                            "configJson": {"keyword": None}, "uiJson": {"title": "选品"}}],
+                 "edges": [], "globalsJson": {"language": "zh"}, "agentSnapshots": {}}
+        paused = {"runId": "run", "expectedRunRevision": "5", "expectedPauseRequestId": "pause"}
+        updates = [{"nodeInstanceId": "instance-select", "targetCatalogInstanceId": "catalog", "targetDefinitionHash": "hash"}]
+        body = self.workflow_body(graph=graph, pausedRun=paused, definitionUpdates=updates)
+        before = len(self.server.requests)
+        code, result = self.call(["workflows", "save", "--workflow-id", "wf", *self.body(body)], profile="client")
         self.assertEqual(code, 0, result)
-        self.assertEqual(self.server.requests[-1][:3], ("PATCH", "/v1/workflow/definitions/wf/config", body))
+        self.assertEqual(self.server.requests[-1][:3], ("PUT", "/v1/workflow/definitions/wf", body))
+        self.assertEqual(len(self.server.requests), before + 1)
+        self.assertIsNone(body["graph"]["nodes"][0]["configJson"]["keyword"])
+        self.assertNotIn("region", body["graph"]["nodes"][0]["configJson"])
 
     def test_revision_conflict_is_not_retried(self):
         self.login("client")
         self.server.responses = [(409, {"code": 409, "msg": "revision conflict", "data": {"errorCode": "revision_conflict"}})]
         before = len(self.server.requests)
-        code, result = self.call(["workflows", "config", "--workflow-id", "wf", *self.body({"revision": "1"})], profile="client")
+        code, result = self.call(["workflows", "save", "--workflow-id", "wf", *self.body(self.workflow_body(expectedRevision="1"))], profile="client")
         self.assertEqual(code, 1)
         self.assertEqual(result["error"]["code"], "revision_conflict")
         self.assertEqual(result["error"]["status"], 409)
@@ -276,10 +290,61 @@ class CLITest(unittest.TestCase):
         self.login("client")
         self.server.responses = [(-1, {})]
         before = len(self.server.requests)
-        code, result = self.call(["workflows", "publish", "--workflow-id", "wf", *self.body({"revision": "1"})], profile="client")
+        code, result = self.call(["workflows", "save", "--workflow-id", "wf", *self.body(self.workflow_body())], profile="client")
         self.assertEqual(code, 1)
         self.assertEqual(result["error"]["code"], "write_outcome_unknown")
         self.assertEqual(len(self.server.requests), before + 1)
+
+    def test_start_requires_saved_revision_and_explicit_boolean_without_legacy_overrides(self):
+        self.login("client")
+        for test_run in (False, True):
+            body = {"expectedRevision": "8", "isTestRun": test_run, "mode": "manual"}
+            before = len(self.server.requests)
+            code, result = self.call(["workflows", "start", "--workflow-id", "wf", *self.body(body)], profile="client")
+            self.assertEqual(code, 0, result)
+            self.assertEqual(self.server.requests[-1][:3], ("POST", "/v1/workflow/definitions/wf/runs", body))
+            self.assertEqual(len(self.server.requests), before + 1)
+        before = len(self.server.requests)
+        invalid = [({"expectedRevision": "8", "mode": "manual"}, "missing_field"),
+                   ({"expectedRevision": "8", "isTestRun": "false", "mode": "manual"}, "invalid_argument"),
+                   ({"expectedRevision": "8", "isTestRun": False, "mode": "manual", "source": "saved"}, "invalid_argument"),
+                   ({"expectedRevision": "8", "isTestRun": False, "mode": "manual", "globalsJson": {}}, "invalid_argument")]
+        for body, expected in invalid:
+            code, result = self.call(["workflows", "start", "--workflow-id", "wf", *self.body(body)], profile="client")
+            self.assertEqual((code, result["error"]["code"]), (1, expected))
+        self.assertEqual(len(self.server.requests), before)
+
+    def test_save_requires_full_metadata_and_rejects_retired_patch_fields(self):
+        self.login("client")
+        before = len(self.server.requests)
+        missing = self.workflow_body()
+        del missing["coverUrl"]
+        for body, expected in [(missing, "missing_field"), (self.workflow_body(nodeConfigs={}), "invalid_argument")]:
+            code, result = self.call(["workflows", "save", "--workflow-id", "wf", *self.body(body)], profile="client")
+            self.assertEqual((code, result["error"]["code"]), (1, expected))
+        self.assertEqual(len(self.server.requests), before)
+
+    def test_offline_workflow_catalog_removes_retired_writes_but_keeps_page_releases(self):
+        code, result = self.call(["describe"])
+        self.assertEqual(code, 0, result)
+        operations = {row["command"]: row for row in result["data"]}
+        for command in ("workflows graph", "workflows config", "workflows publish", "runs config"):
+            self.assertNotIn(command, operations)
+        save = operations["workflows save"]
+        self.assertEqual((save["method"], save["path"]), ("PUT", "/definitions/{workflow_id}"))
+        self.assertEqual(set(save["required"]), {"expectedRevision", "name", "description", "coverUrl", "graph"})
+        self.assertIn("pausedRun", save["contract"]["body_fields"])
+        self.assertIn("snapshot.draftRevision", save["contract"]["response_fields_to_inspect"])
+        self.assertEqual(set(operations["workflows start"]["required"]), {"expectedRevision", "isTestRun", "mode"})
+        self.assertIn("panels publish", operations)
+        self.assertIn("runs get", operations)
+        self.assertEqual(self.server.requests, [])
+        for group, action in (("workflows", "graph"), ("workflows", "config"), ("workflows", "publish"), ("runs", "config")):
+            with self.subTest(group=group, action=action), contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    main([group, action])
+                self.assertEqual(raised.exception.code, 2)
+        self.assertEqual(self.server.requests, [])
 
     def test_redirect_does_not_forward_authorization(self):
         self.login()
@@ -329,8 +394,8 @@ class CLITest(unittest.TestCase):
     def test_invalid_identity_actor_and_revision_fail_before_network(self):
         self.login("client")
         before = len(self.server.requests)
-        for body, expected in [({"revision": "1", "workflowId": "another"}, "identity_mismatch"), ({"revision": "1", "actor": {}}, "invalid_argument"), ({"revision": 1}, "invalid_revision")]:
-            code, result = self.call(["workflows", "config", "--workflow-id", "wf", *self.body(body)], profile="client")
+        for body, expected in [(self.workflow_body(workflowId="another"), "identity_mismatch"), (self.workflow_body(actor={}), "invalid_argument"), (self.workflow_body(expectedRevision=1), "invalid_revision")]:
+            code, result = self.call(["workflows", "save", "--workflow-id", "wf", *self.body(body)], profile="client")
             self.assertEqual((code, result["error"]["code"]), (1, expected))
         self.assertEqual(len(self.server.requests), before)
 
@@ -426,7 +491,7 @@ class CLITest(unittest.TestCase):
     def test_failed_receipt_is_not_success(self):
         self.login("client")
         self.server.responses = [(200, {"code": 0, "data": {"receipt": {"status": "failed", "errorCode": "bad_schema", "errorMessage": "Rejected"}}})]
-        code, result = self.call(["workflows", "publish", "--workflow-id", "wf", *self.body({"revision": "1"})], profile="client")
+        code, result = self.call(["workflows", "save", "--workflow-id", "wf", *self.body(self.workflow_body())], profile="client")
         self.assertEqual((code, result["error"]["code"]), (1, "bad_schema"))
 
     def test_describe_and_lit_entry_work_without_server_sources(self):
