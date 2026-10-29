@@ -38,6 +38,8 @@ nodeView 只注册 Project getter，Handle 不求值。Project 失败不回滚�
 
 不提供 useEffect/watch/持久 useRef/跨事件 Promise，不引入 React DOM 或 Fiber。完整运行边界见 [ABI](abi.md)，常见错误见 [反例](antipatterns.md)，必验表见 [验证](verification.md)。作者库随源码内联冻结，升级模板不会替换历史执行。
 
+能力开关可在闭合辅助对象内用非空 boolean 叶子声明 `x-mf-capability-switch:true`；冻结 `SchemaField.capabilitySwitchPaths` 总是数组，普通字段 `[]`、根开关 `[""]`、对象相对指针例如 `['/title/enabled']`。含开关字段禁止整体上游绑定。运行含暂停时根开关在 `settings.disabledFields`，嵌套叶子在 `settings.disabledFieldPaths`（顶层字段名到相对 JSON Pointer 数组）；只禁叶子，普通同级 prompt 可改，显式 configBeforeRun 仍锁整字段。默认值选择整个顶层对象，不深合并或把缺失当 false；该元数据不决定工作流可运行状态。
+
 ## 页面本地构建与保存
 
 页面编译与作者静态分析只由模板 tooling 完成。后台 Lit 不再提供源码编辑或预览；本地 build/verify 后用 panels:prepare 生成原有保存 JSON，由接口或后台上传提交。生产构建保持完整语法、标识符与空白压缩，作者规则在压缩前检查真实模块及其未使用导入和不可达分支，最终 CommonJS 数据程序另做真实导出装载校验。

@@ -105,22 +105,47 @@ for (const [name, file] of [
             const element = dom.window.document.createElement('test-panel')
             let changed = ''
             element.settings = {
-                values: { note: '初始' },
+                values: {
+                    note: '初始',
+                    capabilities: { title: { enabled: true, prompt: '原提示' } },
+                },
+                disabledFieldPaths: { capabilities: ['/title/enabled'] },
                 readOnly: false,
                 onFieldChange: (_name, value) => {
                     changed = value
-                    element.settings = { ...element.settings, values: { note: value.trim() } }
+                    element.settings = {
+                        ...element.settings,
+                        values: {
+                            ...element.settings.values,
+                            [_name]: typeof value === 'string' ? value.trim() : value,
+                        },
+                    }
                 },
             }
             dom.window.document.querySelector('main').append(element)
             await element.updateComplete
-            const input = element.shadowRoot.querySelector('input')
+            const inputs = element.shadowRoot.querySelectorAll('input')
+            const input = inputs[0]
             assert.equal(input.value, '初始')
             input.value = '更新 '
             input.dispatchEvent(new dom.window.Event('input', { bubbles: true }))
             await element.updateComplete
             assert.equal(changed, '更新 ')
             assert.equal(input.value, '更新')
+            const toggle = element.shadowRoot.querySelector('[role="switch"]')
+            const prompt = inputs[1]
+            assert.equal(toggle.disabled, true)
+            toggle.dispatchEvent(new dom.window.Event('click', { bubbles: true }))
+            await element.updateComplete
+            assert.equal(element.settings.values.capabilities.title.enabled, true)
+            assert.equal(changed, '更新 ')
+            assert.equal(prompt.disabled, false)
+            prompt.value = '暂停时可改提示'
+            prompt.dispatchEvent(new dom.window.Event('input', { bubbles: true }))
+            await element.updateComplete
+            assert.equal(element.settings.values.capabilities.title.prompt, '暂停时可改提示')
+            assert.equal(element.settings.values.capabilities.title.enabled, true)
+            changed = '更新 '
             element.settings = { ...element.settings, disabledFields: ['note'] }
             await element.updateComplete
             assert.equal(input.disabled, true)
@@ -141,10 +166,11 @@ for (const [name, file] of [
                 controlledInput: true,
                 readOnly: true,
                 disabledFields: true,
+                disabledFieldPaths: true,
             })
         }
     }
 await writeFile(task + '/matrix-results.json', JSON.stringify(reports, null, 2) + '\n')
 console.log(
-    `PASS: ${reports.length} host/resolve-condition combinations in JSDOM, browser runtime + render + live controlled input + readOnly + disabledFields`,
+    `PASS: ${reports.length} host/resolve-condition combinations in JSDOM, browser runtime + render + live controlled input + readOnly + disabledFields + disabledFieldPaths`,
 )

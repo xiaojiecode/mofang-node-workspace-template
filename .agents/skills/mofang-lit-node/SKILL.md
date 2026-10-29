@@ -35,7 +35,7 @@ business Lit 编译与保存均须显式提供非空 `supportedContextSchemas`�
 
 ## 设置草稿
 
-使用宿主注入settings.values/readOnly/disabledFields/onFieldChange，编辑立即回调，最终保存由宿主负责。disabledFields包含已绑定字段和运行期间的仅运行前配置字段，页面必须禁用对应手动控件；宿主同时拦截禁用字段写回，不能用本地副本或第二保存链路绕过。解除合法绑定后普通手动字段恢复，运行含暂停不能改绑定。undefined删除显式字段，null按契约处理，数字空值不转成0。主流商品由真实到达绑定，设置不能替换。
+使用宿主注入settings.values/readOnly/disabledFields/disabledFieldPaths/onFieldChange，编辑立即回调，最终保存由宿主负责。disabledFields包含已绑定字段和运行期间的仅运行前配置字段，页面必须禁用对应手动控件；宿主同时拦截禁用字段写回，不能用本地副本或第二保存链路绕过。能力对象运行含暂停仅按disabledFieldPaths中的相对JSON Pointer禁用布尔开关叶子，普通同级参数可改，不能因有开关而禁整个对象；显式configBeforeRun仍优先锁整字段。含开关字段禁止整体绑定。解除合法绑定后普通手动字段恢复，运行含暂停不能改绑定。undefined删除显式字段，null按契约处理，数字空值不转成0。主流商品由真实到达绑定，设置不能替换。
 
 ## 新 ABI 业务页面
 

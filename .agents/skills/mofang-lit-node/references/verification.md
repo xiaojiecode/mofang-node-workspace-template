@@ -1,7 +1,7 @@
 # 面板必须校验
 
 - 宿主右侧设置内容与统一底栏、普通/较矮业务抽屉；不以全屏替代默认状态。
-- 参数修改立即回写，拒绝/归一化/空值/只读后正确恢复；绑定或仅运行前配置字段按disabledFields禁用且禁止写回，暂停普通设置仍可编辑；不出现第二保存链路。
+- 参数修改立即回写，拒绝/归一化/空值/只读后正确恢复；绑定或仅运行前配置字段按disabledFields禁用且禁止写回，嵌套能力叶子按disabledFieldPaths禁用、同级普通参数在暂停仍可编辑，缺失不补false；不出现第二保存链路。
 - ready/unavailable、加载/错误、真实零结果、历史及preview明确；没有模拟成功兜底。
 - host动作在标准/full-panel均可达，panel选择/提交路径有键盘和实际浏览器验证。
 - action accepted/processing/applied/rejected/failed/cancelled各自正确；候选等待与节点终态分开。

@@ -72,6 +72,7 @@ const beforeRunField: SchemaField = {
     ui: {},
     schema: {},
     configBeforeRun: true,
+    capabilitySwitchPaths: [],
 }
 // @ts-expect-error 字段禁用列表只能包含字段名字符串。
 const invalidDisabledFields: NonNullable<PanelProps['settings']>['disabledFields'] = [1]
@@ -81,3 +82,19 @@ void disabledFields
 void beforeRunField
 void invalidDisabledFields
 void invalidBeforeRun
+
+// 能力开关按相对 JSON Pointer 锁叶子，普通同级字段仍可编辑。
+const fieldPaths: Readonly<Record<string, readonly string[]>> | undefined =
+    props.settings?.disabledFieldPaths
+const capabilities: SchemaField = {
+    ...beforeRunField,
+    configBeforeRun: false,
+    capabilitySwitchPaths: ['/title/enabled'],
+}
+const invalidFieldPaths: NonNullable<PanelProps['settings']>['disabledFieldPaths'] = {
+    // @ts-expect-error 叶子锁路径必须为字符串数组。
+    caps: [false],
+}
+void fieldPaths
+void capabilities
+void invalidFieldPaths
