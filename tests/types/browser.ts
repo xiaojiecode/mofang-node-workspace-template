@@ -4,12 +4,15 @@ import type {
     PageProgramContext,
     NodeView,
     SchemaField,
+    WorkflowNodeSummary,
+    WorkflowSummary,
 } from '@mofang/contracts/browser'
 import { HostPanel } from '@mofang/browser'
 import { productSummary, textField, selectField, card } from '@mofang/browser'
 import type { TemplateResult } from 'lit'
 import type { Product } from '@mofang/contracts/business'
 import type { JavaScriptValidation } from '@mofang/contracts/author'
+import type { WorkflowSummary as PublishedWorkflowSummary } from '@mofang/workflow-sdk'
 const moduleValidation: JavaScriptValidation = {
     programInterface: 'mf.node/1',
     valid: true,
@@ -145,3 +148,32 @@ const missingTrialIdentity: StartWorkflowRunBody = {
 }
 void savedStart
 void missingTrialIdentity
+
+// 当前保存图的节点摘要始终存在，空图不需要补读详情或猜测字段。
+declare const workflowSummary: WorkflowSummary
+declare const publishedWorkflowSummary: PublishedWorkflowSummary
+const workflowNodeCount: number = workflowSummary.nodeCount
+const workflowNodeCodes: string[] = workflowSummary.nodeCodes
+const publishedNodeSummary: WorkflowNodeSummary = publishedWorkflowSummary
+const emptyWorkflowSummary: WorkflowNodeSummary = { nodeCount: 0, nodeCodes: [] }
+const orderedWorkflowSummary: WorkflowNodeSummary = {
+    nodeCount: 3,
+    nodeCodes: ['same', '', 'same'],
+}
+// @ts-expect-error 节点数量是必需字段，缺失不代表空图。
+const missingNodeCount: WorkflowNodeSummary = { nodeCodes: [] }
+// @ts-expect-error 节点编码数组是必需字段，缺失不通过类型检查。
+const missingNodeCodes: WorkflowNodeSummary = { nodeCount: 0 }
+// @ts-expect-error 节点编码只能是字符串，空位置由服务端明确返回空串。
+const invalidNodeCodes: WorkflowNodeSummary = { nodeCount: 1, nodeCodes: [1] }
+// @ts-expect-error 节点数量不能使用数字字符串。
+const invalidNodeCount: WorkflowNodeSummary = { nodeCount: '1', nodeCodes: ['a'] }
+void workflowNodeCount
+void workflowNodeCodes
+void publishedNodeSummary
+void emptyWorkflowSummary
+void orderedWorkflowSummary
+void missingNodeCount
+void missingNodeCodes
+void invalidNodeCodes
+void invalidNodeCount

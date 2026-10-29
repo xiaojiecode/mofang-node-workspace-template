@@ -1,4 +1,4 @@
-import type { WorkflowGraph } from './catalog-types';
+import type { WorkflowGraph, WorkflowNodeSummary } from './catalog-types';
 import type { MutationReceipt } from './mutation-types';
 export type WorkflowType = 'static';
 export type VersionSummary = {
@@ -6,7 +6,7 @@ export type VersionSummary = {
     versionNo: number;
     publishedAt: string;
 };
-export type WorkflowSummary = {
+export type WorkflowSummary = WorkflowNodeSummary & {
     id: string;
     type: WorkflowType;
     name: string;

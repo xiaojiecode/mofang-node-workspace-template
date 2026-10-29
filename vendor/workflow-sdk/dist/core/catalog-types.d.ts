@@ -81,3 +81,8 @@ export type WorkflowGraph = {
     /** 服务端冻结的实例定义副本；不作为客户端可编辑配置。 */
     readonly nodeInstanceDefinitions?: Readonly<Record<string, JsonObject>>;
 };
+/** 当前已保存图的只读节点摘要；顺序与重复项均按图中数组保留。 */
+export type WorkflowNodeSummary = {
+    nodeCount: number;
+    nodeCodes: string[];
+};
