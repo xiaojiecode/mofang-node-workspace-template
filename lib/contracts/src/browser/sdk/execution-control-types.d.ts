@@ -1,4 +1,4 @@
-import type { ID } from './json-types';
+import type { ID, JSONValue } from './json-types';
 /** 公开控制入口只接受运行或真实节点执行 ID，不接受画布节点 key。 */
 export type WorkflowExecutionTarget = Readonly<{
     kind: 'workflow_run' | 'node_run';
@@ -33,6 +33,10 @@ export type ResumeExecutionRequest = Readonly<{
 export type ExecutionControlSnapshot = Readonly<{
     target: ExecutionReference;
     requestId: string;
+    outstandingPauses?: readonly Readonly<{
+        pauseRequestId: string;
+        reason: string;
+    }>[];
     desiredState: 'running' | 'paused';
     phase: 'applying' | 'applied' | 'blocked';
     businessStatus: string;
@@ -44,4 +48,21 @@ export type ExecutionControlSnapshot = Readonly<{
         code: string;
         message: string;
     }>[];
+}>;
+/** 原请求事实与当前目标效果分别读取，不能用最近请求替代暂停身份。 */
+export type ExecutionControlRequest = Readonly<{
+    requestId: string;
+    target: ExecutionReference;
+    action: 'pause' | 'resume' | 'interrupt';
+    phase: 'applying' | 'applied' | 'blocked';
+    pauseRequestId?: string;
+    releasedAt?: string;
+    reason?: string;
+    reasonCode?: string;
+    message?: string;
+    relatedOperationId?: string;
+    requiredFields?: readonly JSONValue[];
+    allowedRecoveryActions?: readonly string[];
+    errorCode?: string;
+    errorMessage?: string;
 }>;

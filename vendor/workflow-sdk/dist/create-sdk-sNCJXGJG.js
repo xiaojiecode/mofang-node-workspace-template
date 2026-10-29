@@ -3,9 +3,17 @@ const CONFLICT_CODES = /* @__PURE__ */ new Set([
   "config_revision_conflict",
   "panel_revision_conflict",
   "domain_revision_conflict",
-  "input_context_stale"
+  "input_context_stale",
+  "run_state_conflict",
+  "node_state_conflict",
+  "pause_request_conflict",
+  "waiting_turn_conflict",
+  "gate_revision_conflict"
 ]);
 const REJECTED_CODES = /* @__PURE__ */ new Set([
+  "invalid_argument",
+  "permission_denied",
+  "action_not_supported",
   "domain_reference_denied",
   "result_evidence_invalid",
   "input_invalid",
@@ -824,6 +832,33 @@ function createMofangSDK(options) {
     });
   }
   async function send(operation, payload, requestOptions) {
+    const write = Object.prototype.hasOwnProperty.call(WRITE_RESOURCE, operation) || NODE_FLOW_WRITE_OPERATIONS.has(operation);
+    const binding = options.defaultContext;
+    if (write && binding) {
+      if (binding.view === "history" || binding.view === "preview")
+        throw new MofangSDKError("历史和预览视图不可写入", {
+          kind: "rejected",
+          code: "readonly_context",
+          retryable: false
+        });
+      if (binding.nodeInstanceId || binding.nodeRunId) {
+        if (operation.startsWith("control.")) {
+          const target = payload.target;
+          if (!binding.nodeRunId || target?.kind !== "node_run" || target.id !== binding.nodeRunId)
+            throw new MofangSDKError("节点页面只能控制绑定执行", {
+              kind: "rejected",
+              code: "target_mismatch",
+              retryable: false
+            });
+        }
+        if (["nodes.cancel", "nodes.continue"].includes(operation) && (!binding.nodeRunId || payload.nodeRunId !== binding.nodeRunId))
+          throw new MofangSDKError("节点执行与宿主绑定不一致", {
+            kind: "rejected",
+            code: "target_mismatch",
+            retryable: false
+          });
+      }
+    }
     let attempt = 0;
     for (; ; ) {
       try {
@@ -1120,7 +1155,12 @@ function createMofangSDK(options) {
       })
     },
     control: {
-      get: (target) => send("control.get", { target }),
+      getRequest: (target, requestId, options2) => send(
+        "control.getRequest",
+        { target, requestId },
+        options2
+      ),
+      get: (target, options2) => send("control.get", { target }, options2),
       pause: (body) => runResourceWrite("control.pause", body),
       resume: (body) => runResourceWrite("control.resume", body),
       interrupt: (body) => runWrite("control.interrupt", body)

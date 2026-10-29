@@ -186,7 +186,8 @@ export interface MofangSDK {
         get(operationId: ID): Promise<OperationSnapshot>;
     };
     control: {
-        get(target: import('./execution-control-types').WorkflowExecutionTarget): Promise<import('./execution-control-types').ExecutionControlSnapshot>;
+        get(target: import('./execution-control-types').WorkflowExecutionTarget, options?: import('./transport').MofangRequestOptions): Promise<import('./execution-control-types').ExecutionControlSnapshot>;
+        getRequest(target: import('./execution-control-types').WorkflowExecutionTarget, requestId: string, options?: import('./transport').MofangRequestOptions): Promise<import('./execution-control-types').ExecutionControlRequest>;
         pause(body: import('./execution-control-types').PauseExecutionRequest): Promise<ExecutionControlReceipt>;
         resume(body: import('./execution-control-types').ResumeExecutionRequest): Promise<ExecutionControlReceipt>;
         interrupt(body: InterruptBody): Promise<ExecutionControlReceipt>;

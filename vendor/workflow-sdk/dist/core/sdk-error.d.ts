@@ -2,7 +2,7 @@ import type { ID, Revision } from './json-types';
 import type { MutationReceipt } from './mutation-types';
 /**
  * 失败分类只影响调用方怎么处理，不改变服务端语义：
- * - transport：请求可能根本没到服务端，结果未知，可以用原键重发；
+ * - transport：请求可能根本没到服务端，结果未知，只能查询原身份，不能自动重发写请求；
  * - conflict：服务端已有更新的修订，重发没用，必须先重读；
  * - rejected：服务端明确拒绝，改数据才有意义；
  * - protocol：其他服务端错误；

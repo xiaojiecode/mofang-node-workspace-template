@@ -1,4 +1,4 @@
-import { M as MofangSDKError, c as createMofangSDK } from "./create-sdk-j9doBNe-.js";
+import { M as MofangSDKError, c as createMofangSDK } from "./create-sdk-sNCJXGJG.js";
 const WORKFLOW_SDK_VERSION = "1";
 const WORKFLOW_SDK_METHODS = [
   {
@@ -2336,7 +2336,7 @@ const WORKFLOW_SDK_METHODS = [
     effect: "read",
     label: "执行控制 · 读取",
     description: "执行控制 · 读取；参数与返回值遵循公开 SDK 合同。",
-    signature: "(target: WorkflowExecutionTarget): Promise<ExecutionControlSnapshot>",
+    signature: "(target: WorkflowExecutionTarget, options?: MofangRequestOptions): Promise<ExecutionControlSnapshot>",
     parameters: [
       {
         name: "target",
@@ -2351,9 +2351,48 @@ const WORKFLOW_SDK_METHODS = [
             type: "string"
           }
         ]
+      },
+      {
+        name: "options",
+        type: "Readonly<{ signal?: AbortSignal; fresh?: boolean; }> | undefined",
+        optional: true
       }
     ],
-    example: "await sdk.control.get(input.target)"
+    example: "await sdk.control.get(input.target, input.options)"
+  },
+  {
+    path: "control.getRequest",
+    kind: "async",
+    effect: "read",
+    label: "执行控制 · getRequest",
+    description: "执行控制 · getRequest；参数与返回值遵循公开 SDK 合同。",
+    signature: "(target: WorkflowExecutionTarget, requestId: string, options?: MofangRequestOptions): Promise<ExecutionControlRequest>",
+    parameters: [
+      {
+        name: "target",
+        type: 'Readonly<{ kind: "workflow_run" | "node_run"; id: string; }>',
+        fields: [
+          {
+            name: "kind",
+            type: '"workflow_run" | "node_run"'
+          },
+          {
+            name: "id",
+            type: "string"
+          }
+        ]
+      },
+      {
+        name: "requestId",
+        type: "string"
+      },
+      {
+        name: "options",
+        type: "Readonly<{ signal?: AbortSignal; fresh?: boolean; }> | undefined",
+        optional: true
+      }
+    ],
+    example: "await sdk.control.getRequest(input.target, input.requestId, input.options)"
   },
   {
     path: "control.pause",

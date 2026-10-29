@@ -197,3 +197,45 @@ void inheritedProductMode
 void newProductMode
 void emptyProductMode
 void unknownProductMode
+
+// 控制恢复只能引用真实暂停身份；原请求与当前目标快照分别查询。
+import type {
+    ExecutionControlReceipt,
+    ExecutionControlRequest,
+    ExecutionControlSnapshot,
+    ResumeExecutionRequest,
+} from '@mofang/contracts/browser'
+import type {
+    MofangSDK as PublishedControlSDK,
+    ResumeExecutionRequest as PublishedResumeExecutionRequest,
+} from '@mofang/workflow-sdk'
+declare const publishedControlSDK: PublishedControlSDK
+const controlTarget = { kind: 'node_run', id: 'node-run' } as const
+const controlReadOptions = { signal: new AbortController().signal, fresh: true }
+const controlSnapshot: Promise<ExecutionControlSnapshot> = sdk.control.get(
+    controlTarget,
+    controlReadOptions,
+)
+const originalControlRequest: Promise<ExecutionControlRequest> = sdk.control.getRequest(
+    controlTarget,
+    'pause-request',
+    controlReadOptions,
+)
+const resumeControl: ResumeExecutionRequest = {
+    target: controlTarget,
+    pauseRequestId: 'pause-request',
+}
+const publishedResumeControl: PublishedResumeExecutionRequest = resumeControl
+const controlReceipt: Promise<ExecutionControlReceipt> =
+    publishedControlSDK.control.resume(publishedResumeControl)
+void publishedControlSDK.control.getRequest(controlTarget, 'pause-request', controlReadOptions)
+// @ts-expect-error 恢复必须给出真实 pauseRequestId。
+void sdk.control.resume({ target: controlTarget })
+// @ts-expect-error 已退役的画布节点 key 不能作为控制目标。
+void sdk.control.get({ kind: 'node_instance', id: 'canvas-node' })
+declare const acceptedControl: ExecutionControlReceipt
+// @ts-expect-error accepted 仅表示受理，回执没有控制应用状态。
+void acceptedControl.phase
+void controlSnapshot
+void originalControlRequest
+void controlReceipt
