@@ -72,6 +72,12 @@ host无参数必要入口由宿主提供，panel参数动作需要实际面板�
 
 action返回受理后按eventId等待outcome；需要恢复时查询动作列表，不能比较view是否变化、按payload猜身份或自动再提交一次。applied只代表协调事务成功，仍需跟踪任务、候选和节点终态。
 
+## 独立只读动作
+
+需要从运行冻结源码独立查询时，在 `NodeSpec.readOnlyActions` 数组静态声明 `name`、`label`、`description`、`handler`、`payloadSchema`、`outputSchema`、`tools`。`handler` 引用同模块 `tasks` 中已有 StageProgram 的 name，不通过普通 action、Hook 或 Component 注册。两个 Schema 都是对象，工具名称唯一；Schema 摘要由服务端冻结生成，作者不能指定。旧节点不声明时保留 manifest 原形状，旧冻结运行不从当前目录补入声明。
+
+该动作在独立 `readonly_action` 队列执行，采用真实普通客户端查看者和冻结节点的并发、预算；不能修改原运行、会话、候选或调度投影。余额不足、登录失效、熔断和中断结束失败，不进入 waiting/continue。浏览器使用 `sdk.readOnlyActions.submit/get`，提交只发一次，拿到 executionId 后查询原执行；受理未知不自动重发。独立查询成功不改变历史业务失败。后台用户绑定、后台试运行与后台新查询入口仍暂停，不为验证该功能擅自执行 Tool 或真实查询。
+
 ## 编译、保存与验证
 
 构建作者库内联到单文件，保留ABI属性名与宿主方法，禁止引入DOM/Node/预览替身。静态spec可提取，不宣称保存时已证明任意JS分支的Hook注册；实际绑定仍校验，代表性分支需验证。
