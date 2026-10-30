@@ -41,9 +41,13 @@ for (const minify of [false, true])
             const flowListeners = new Set()
             const taskCalls = []
             const pageReads = []
+            const taskReads = []
+            const failedReads = []
             const edits = []
             let candidateRevision = '3'
             let candidateTotal = 21
+            let taskTotal = 21
+            let failedTotal = 21
             let messageListener = () => {}
             let released = 0
             let messageSubscriptions = 0
@@ -89,7 +93,12 @@ for (const minify of [false, true])
                         }
                     },
                 },
-                nodes: { tasks: async () => ({ items: [], total: 0, page: 1, pageSize: 20 }) },
+                nodes: {
+                    tasks: async (q) => {
+                        failedReads.push(q)
+                        return { items: [], total: failedTotal, page: q.page, pageSize: 20 }
+                    },
+                },
                 nodeFlow: {
                     watch: () => ({
                         subscribe: (fn) => {
@@ -118,27 +127,30 @@ for (const minify of [false, true])
                             pageSize: 20,
                         }
                     },
-                    tasks: async () => ({
-                        items: [
-                            {
-                                id: 'task',
-                                revision: '7',
-                                sessionId: 's',
-                                handler: '人工确认',
-                                status: 'waiting',
-                                inputRefs: [],
-                                waiting: {
-                                    turn: 1,
-                                    reason: 'question',
-                                    waitingToolCallId: 'wait',
-                                    prompt: '请回答',
+                    tasks: async (q) => {
+                        taskReads.push(q)
+                        return {
+                            items: [
+                                {
+                                    id: 'task',
+                                    revision: '7',
+                                    sessionId: 's',
+                                    handler: '人工确认',
+                                    status: 'waiting',
+                                    inputRefs: [],
+                                    waiting: {
+                                        turn: 1,
+                                        reason: 'question',
+                                        waitingToolCallId: 'wait',
+                                        prompt: '请回答',
+                                    },
                                 },
-                            },
-                        ],
-                        total: 1,
-                        page: 1,
-                        pageSize: 20,
-                    }),
+                            ],
+                            total: taskTotal,
+                            page: q.page,
+                            pageSize: 20,
+                        }
+                    },
                     listTaskOperations: async () => ({
                         items: [],
                         snapshotUpperSequence: '0',
@@ -219,11 +231,15 @@ for (const minify of [false, true])
                 },
                 shrink: () => {
                     candidateTotal = 1
+                    taskTotal = 1
+                    failedTotal = 1
                     messageListener()
                 },
                 taskCalls,
                 edits,
                 pageReads,
+                taskReads,
+                failedReads,
                 subscriptions: () => messageSubscriptions,
                 released: () => released,
             }
@@ -263,6 +279,15 @@ for (const minify of [false, true])
         await panel.getByRole('button', { name: '结束审核', exact: true }).click()
         const confirm = panel.getByRole('dialog', { name: '结束审核' })
         await confirm.waitFor()
+        assert.equal(
+            await confirm.evaluate((el) => el.contains(el.getRootNode().activeElement)),
+            true,
+        )
+        await page.keyboard.press('Escape')
+        await confirm.waitFor({ state: 'hidden' })
+        assert.equal(await page.evaluate(() => window.testRuntime.calls.length), 2)
+        await panel.getByRole('button', { name: '结束审核', exact: true }).click()
+        await confirm.waitFor()
         await page.evaluate(() => window.testRuntime.changeRevision('5'))
         await confirm.getByText('节点内容已更新').waitFor()
         assert.equal(
@@ -285,11 +310,28 @@ for (const minify of [false, true])
         )
         await panel.getByRole('button', { name: '候选下一页' }).click()
         await page.waitForFunction(() => window.testRuntime.pageReads.some((q) => q.page === 2))
+        await panel.getByRole('button', { name: '任务下一页', exact: true }).click()
+        await panel.getByRole('button', { name: '失败任务下一页', exact: true }).click()
+        await page.waitForFunction(
+            () =>
+                window.testRuntime.taskReads.some((q) => q.page === 2) &&
+                window.testRuntime.failedReads.some((q) => q.page === 2),
+        )
+        const taskBefore = await page.evaluate(() => window.testRuntime.taskReads.length)
+        const failedBefore = await page.evaluate(() => window.testRuntime.failedReads.length)
         const beforeShrink = await page.evaluate(() => window.testRuntime.pageReads.length)
         await page.evaluate(() => window.testRuntime.shrink())
         await page.waitForFunction(
             (n) => window.testRuntime.pageReads.slice(n).some((q) => q.page === 1),
             beforeShrink,
+        )
+        await page.waitForFunction(
+            (n) => window.testRuntime.taskReads.slice(n).some((q) => q.page === 1),
+            taskBefore,
+        )
+        await page.waitForFunction(
+            (n) => window.testRuntime.failedReads.slice(n).some((q) => q.page === 1),
+            failedBefore,
         )
         await page.evaluate(async () => {
             window.testRuntime.app.target = {
@@ -307,6 +349,11 @@ for (const minify of [false, true])
         )
         await panel.getByText('c pending').waitFor()
         assert.equal(await panel.getByRole('button', { name: '完成生产' }).isDisabled(), true)
+        assert.equal(
+            await panel.getByRole('button', { name: '结束审核', exact: true }).isDisabled(),
+            true,
+        )
+        assert.equal(await page.evaluate(() => window.testRuntime.calls.length), 3)
         assert.equal(await panel.getByRole('checkbox', { name: 'c pending' }).isDisabled(), true)
         await page.evaluate(() => window.testRuntime.app.remove())
         assert.ok((await page.evaluate(() => window.testRuntime.released())) >= 2)
