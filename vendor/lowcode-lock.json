@@ -6,7 +6,7 @@
     },
     "@mofang/workflow-sdk": {
         "version": "0.6.0",
-        "manifestSha256": "9c21371d589a363bbdb81d405a49d309a5ba34fb94bc4def2d712fda8c660ea3",
+        "manifestSha256": "5db004d762d3eee38808f95211fb28833b033d3533f0ff2e4f17271b288d6467",
         "outputCount": 55
     },
     "@mofang/workflow-lowcode": {

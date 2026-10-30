@@ -1,4 +1,4 @@
-import { M as MofangSDKError, c as createMofangSDK } from "./create-sdk-sNCJXGJG.js";
+import { M as MofangSDKError, c as createMofangSDK } from "./create-sdk-CAnna8Fn.js";
 const WORKFLOW_SDK_VERSION = "1";
 const WORKFLOW_SDK_METHODS = [
   {
@@ -2329,6 +2329,54 @@ const WORKFLOW_SDK_METHODS = [
       }
     ],
     example: "await sdk.operations.get(input.operationId)"
+  },
+  {
+    path: "control.start",
+    kind: "async",
+    effect: "read",
+    label: "执行控制 · 启动工作流",
+    description: "使用已保存修订启动工作流，结果未知时不得自动重发。",
+    signature: "(body: StartWorkflowRunBody): Promise<WorkflowRunLike>",
+    parameters: [
+      {
+        name: "body",
+        type: 'Readonly<{ workflowId: ID; expectedRevision: Revision; isTestRun: boolean; mode: "auto" | "manual"; scope?: ExecutionScope; initialDeliveries?: readonly InitialDelivery[]; reuseOutputs?: readonly ReusedOutput[]; }>',
+        fields: [
+          {
+            name: "workflowId",
+            type: "string"
+          },
+          {
+            name: "expectedRevision",
+            type: "string"
+          },
+          {
+            name: "isTestRun",
+            type: "boolean"
+          },
+          {
+            name: "mode",
+            type: '"auto" | "manual"'
+          },
+          {
+            name: "scope",
+            type: 'Readonly<{ kind: "all" | "selected"; nodeInstanceIds: readonly ID[]; includeDescendants: boolean; }> | undefined',
+            optional: true
+          },
+          {
+            name: "initialDeliveries",
+            type: "readonly Readonly<{ targetInstanceId: ID; channel: string; values: JSONObject; }>[] | undefined",
+            optional: true
+          },
+          {
+            name: "reuseOutputs",
+            type: "readonly Readonly<{ nodeInstanceId: ID; nodeRunId: ID; }>[] | undefined",
+            optional: true
+          }
+        ]
+      }
+    ],
+    example: "await sdk.control.start(input.body)"
   },
   {
     path: "control.get",

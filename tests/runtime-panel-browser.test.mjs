@@ -44,9 +44,13 @@ for (const minify of [false, true])
             const taskReads = []
             const failedReads = []
             const edits = []
+            let releaseReview = () => {}
             let candidateRevision = '3'
             let candidateTotal = 21
             let taskTotal = 21
+            let waitReason = 'user_confirmation'
+            let taskStatus = 'waiting'
+            let waitId = 'wait'
             let failedTotal = 21
             let messageListener = () => {}
             let released = 0
@@ -57,14 +61,15 @@ for (const minify of [false, true])
                 sessionId: 's',
                 revision: '4',
                 status: 'waiting',
+                summary: { pending: 2 },
                 permissions: {
                     canAct: true,
                     canEdit: true,
                     canRelease: true,
                     canDiscard: false,
                     canEndReview: true,
-                    canControl: false,
-                    canResolveUnknown: false,
+                    canControl: true,
+                    canResolveUnknown: true,
                 },
                 composition: {
                     projection: {
@@ -136,12 +141,12 @@ for (const minify of [false, true])
                                     revision: '7',
                                     sessionId: 's',
                                     handler: '人工确认',
-                                    status: 'waiting',
+                                    status: taskStatus,
                                     inputRefs: [],
                                     waiting: {
                                         turn: 1,
-                                        reason: 'question',
-                                        waitingToolCallId: 'wait',
+                                        reason: waitReason,
+                                        waitingToolCallId: waitId,
                                         prompt: '请回答',
                                     },
                                 },
@@ -197,6 +202,9 @@ for (const minify of [false, true])
                     },
                     endReview: async (body) => {
                         calls.push(body)
+                        await new Promise((resolve) => {
+                            releaseReview = resolve
+                        })
                     },
                     action: async (body) => {
                         calls.push(body)
@@ -225,6 +233,15 @@ for (const minify of [false, true])
                 app,
                 calls,
                 intervals: () => intervals,
+                setWait: (reason, status, nodeStatus, id = 'wait') => {
+                    waitReason = reason
+                    taskStatus = status
+                    waitId = id
+                    node.status = nodeStatus
+                    for (const fn of flowListeners) fn()
+                    messageListener()
+                },
+                releaseReview: () => releaseReview(),
                 changeRevision: (revision) => {
                     node.revision = revision
                     for (const fn of flowListeners) fn()
@@ -279,6 +296,7 @@ for (const minify of [false, true])
         await panel.getByRole('button', { name: '结束审核', exact: true }).click()
         const confirm = panel.getByRole('dialog', { name: '结束审核' })
         await confirm.waitFor()
+        assert.match(await confirm.locator('p').first().textContent(), /剩余\s*2\s*个待流转候选/)
         assert.equal(
             await confirm.evaluate((el) => el.contains(el.getRootNode().activeElement)),
             true,
@@ -300,6 +318,10 @@ for (const minify of [false, true])
         await confirm.getByRole('button', { name: '丢弃剩余候选并结束审核' }).click()
         await page.waitForFunction(() => window.testRuntime.calls.length === 3)
         assert.equal(await page.evaluate(() => window.testRuntime.calls[2].expectedRevision), '5')
+        await page.keyboard.press('Escape')
+        assert.equal(await confirm.isVisible(), true)
+        await page.evaluate(() => window.testRuntime.releaseReview())
+        await confirm.waitFor({ state: 'hidden' })
         await panel.getByLabel('任务回答').fill('确认')
         await panel.getByRole('button', { name: '提交回答' }).click()
         await page.waitForFunction(() => window.testRuntime.taskCalls.length === 1)
@@ -319,6 +341,35 @@ for (const minify of [false, true])
         assert.deepEqual(await page.evaluate(() => window.testRuntime.taskCalls[1].answer), {
             approved: true,
         })
+        await page.evaluate(() =>
+            window.testRuntime.setWait('user_requested', 'waiting', 'waiting'),
+        )
+        await panel.getByText('此执行有独立暂停，需通过原暂停入口恢复。').waitFor()
+        assert.equal(await panel.getByRole('button', { name: '继续任务' }).count(), 0)
+        assert.equal(await panel.getByRole('button', { name: '提交回答' }).count(), 0)
+        await page.evaluate(() =>
+            window.testRuntime.setWait('insufficient_balance', 'waiting', 'waiting'),
+        )
+        await panel.getByRole('button', { name: '继续任务' }).waitFor()
+        assert.equal(await panel.getByRole('button', { name: '提交回答' }).count(), 0)
+        await page.evaluate(() =>
+            window.testRuntime.setWait('user_confirmation', 'waiting', 'waiting', ''),
+        )
+        await panel.getByRole('button', { name: '继续任务' }).waitFor({ state: 'detached' })
+        assert.equal(await panel.getByRole('button', { name: '提交回答' }).count(), 0)
+        await page.evaluate(() =>
+            window.testRuntime.setWait('user_confirmation', 'unknown', 'cancelled'),
+        )
+        await panel.getByLabel('核对证据').waitFor()
+        assert.equal(await panel.getByRole('button', { name: '提交回答' }).count(), 0)
+        assert.equal(await panel.getByRole('button', { name: '继续任务' }).count(), 0)
+        assert.equal(await panel.getByRole('button', { name: '提交核对结论' }).isDisabled(), true)
+        await panel.getByRole('radio', { name: '已成功' }).check()
+        await panel.getByLabel('核对证据').fill('已核对原操作')
+        assert.equal(await panel.getByRole('button', { name: '提交核对结论' }).isDisabled(), false)
+        await page.evaluate(() =>
+            window.testRuntime.setWait('user_confirmation', 'waiting', 'waiting'),
+        )
         await panel.getByRole('button', { name: '候选下一页' }).click()
         await page.waitForFunction(() => window.testRuntime.pageReads.some((q) => q.page === 2))
         await panel.getByRole('button', { name: '任务下一页', exact: true }).click()
@@ -498,7 +549,7 @@ for (const minify of [false, true])
                     canRelease: false,
                     canDiscard: false,
                     canEndReview: false,
-                    canControl: false,
+                    canControl: true,
                     canResolveUnknown: false,
                 },
                 composition: { projection: { status: 'ready', nodeView: {}, actions: [] } },
@@ -524,7 +575,7 @@ for (const minify of [false, true])
                                 inputRefs: [],
                                 waiting: {
                                     turn: 1,
-                                    reason: 'question',
+                                    reason: 'user_confirmation',
                                     waitingToolCallId: 'w',
                                     prompt: '回答',
                                 },

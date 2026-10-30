@@ -756,6 +756,7 @@ const WRITE_RESOURCE = {
   "actions.invoke": "context",
   "actions.submit": "context",
   "control.interrupt": "context",
+  "control.start": "context",
   "control.pause": "context",
   "control.resume": "context",
   "resources.update": "context"
@@ -799,7 +800,8 @@ function createMofangSDK(options) {
   const contextRefreshes = /* @__PURE__ */ new Map();
   let activeContextKey = "";
   let contextKey = "";
-  let contextOptions = options.defaultContext ?? {};
+  const binding = options.defaultContext ? Object.freeze({ ...options.defaultContext }) : void 0;
+  let contextOptions = binding ?? {};
   const messages = createMessages(
     options.messageSource ?? transport.messages,
     () => ({
@@ -833,16 +835,26 @@ function createMofangSDK(options) {
   }
   async function send(operation, payload, requestOptions) {
     const write = Object.prototype.hasOwnProperty.call(WRITE_RESOURCE, operation) || NODE_FLOW_WRITE_OPERATIONS.has(operation);
-    const binding = options.defaultContext;
+    if (operation === "control.start" && (typeof payload.workflowId !== "string" || !payload.workflowId.trim() || typeof payload.expectedRevision !== "string" || !/^[1-9]\d*$/.test(payload.expectedRevision) || typeof payload.isTestRun !== "boolean" || !["auto", "manual"].includes(String(payload.mode))))
+      throw new MofangSDKError(
+        "启动必须指定工作流、已保存修订、试运行身份和有效模式",
+        { kind: "rejected", code: "invalid_start", retryable: false }
+      );
     if (write && binding) {
-      if (binding.view === "history" || binding.view === "preview")
+      if (binding.view === "history" || binding.view === "preview" || operation === "control.start" && binding.view !== "current")
         throw new MofangSDKError("历史和预览视图不可写入", {
           kind: "rejected",
           code: "readonly_context",
           retryable: false
         });
+      if (operation === "control.start" && (!binding.workflowId || payload.workflowId !== binding.workflowId))
+        throw new MofangSDKError("启动目标与宿主绑定不一致", {
+          kind: "rejected",
+          code: "target_mismatch",
+          retryable: false
+        });
       if (binding.nodeInstanceId || binding.nodeRunId) {
-        if (operation.startsWith("control.")) {
+        if (operation.startsWith("control.") && operation !== "control.start") {
           const target = payload.target;
           if (!binding.nodeRunId || target?.kind !== "node_run" || target.id !== binding.nodeRunId)
             throw new MofangSDKError("节点页面只能控制绑定执行", {
@@ -1155,6 +1167,7 @@ function createMofangSDK(options) {
       })
     },
     control: {
+      start: (body) => runWrite("control.start", body),
       getRequest: (target, requestId, options2) => send(
         "control.getRequest",
         { target, requestId },

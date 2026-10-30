@@ -10,9 +10,20 @@ import type {
     PanelTarget,
 } from '@mofang/contracts/browser'
 import { HostPanel, NodeFlowController } from './host'
-import { button, checkbox, textarea, statusNote, panelStyles, dialog } from './ui/index'
+import { button, checkbox, textarea, statusNote, panelStyles, dialog, radioGroup } from './ui/index'
 import { ActionController } from './actions'
 import { TaskOperationController } from './task-operation-controller'
+
+const continuableReasons = new Set([
+    'insufficient_balance',
+    'circuit_open',
+    'collector_login_required',
+    'script_paused',
+])
+const replyAllowed = (task: NodeFlowTaskView) =>
+    task.waiting?.reason === 'user_confirmation' && Boolean(task.waiting.waitingToolCallId)
+const continueAllowed = (task: NodeFlowTaskView) =>
+    Boolean(task.waiting && continuableReasons.has(task.waiting.reason))
 
 /** 在节点面板内部提供平台声明的动作、候选和任务处理入口。 */
 export class NodeRuntimePanel extends HostPanel {
@@ -42,6 +53,7 @@ export class NodeRuntimePanel extends HostPanel {
     private failedTotal = 0
     private refreshSeq = 0
     private reviewRevision: string | null = null
+    private reviewPending = 0
     private outcomeUnknown = false
     private readError = false
     private total = 0
@@ -53,6 +65,7 @@ export class NodeRuntimePanel extends HostPanel {
     private taskAnswers: Record<string, string> = {}
     private taskJSON: Record<string, boolean> = {}
     private conclusions: Record<string, string> = {}
+    private resolutionChoices: Record<string, string> = {}
     private readonly pageSize = 20
 
     override disconnectedCallback() {
@@ -78,6 +91,7 @@ export class NodeRuntimePanel extends HostPanel {
         this.failedTotal = 0
         this.refreshSeq++
         this.reviewRevision = null
+        this.reviewPending = 0
         this.outcomeUnknown = false
         this.readError = false
         this.selected.clear()
@@ -87,6 +101,7 @@ export class NodeRuntimePanel extends HostPanel {
         this.taskAnswers = {}
         this.taskJSON = {}
         this.conclusions = {}
+        this.resolutionChoices = {}
     }
     protected override updated() {
         const key = JSON.stringify([
@@ -464,6 +479,7 @@ export class NodeRuntimePanel extends HostPanel {
                 disabled: !this.writable || !node.permissions.canEndReview,
                 onClick: () => {
                     this.reviewRevision = node.revision
+                    this.reviewPending = node.summary.pending
                     this.requestUpdate()
                 },
             })}
@@ -472,11 +488,13 @@ export class NodeRuntimePanel extends HostPanel {
                     open: this.reviewRevision !== null,
                     title: '结束审核',
                     onClose: () => {
+                        if (this.busy) return
                         this.reviewRevision = null
                         this.requestUpdate()
                     },
                     footer: html` ${button({
                         label: '取消',
+                        disabled: this.busy,
                         onClick: () => {
                             this.reviewRevision = null
                             this.requestUpdate()
@@ -499,7 +517,10 @@ export class NodeRuntimePanel extends HostPanel {
                         },
                     })}`,
                 },
-                html`<p>确认丢弃剩余候选并结束审核？</p>
+                html`<p>
+                        剩余 ${this.reviewPending}
+                        个待流转候选将全部丢弃，包括其它页的候选。未保存的编辑不会流转，已流转内容保持原样。
+                    </p>
                     ${this.reviewRevision !== node.revision
                         ? statusNote('节点内容已更新', '请取消并重新审核。', 'warning')
                         : nothing}`,
@@ -547,70 +568,136 @@ export class NodeRuntimePanel extends HostPanel {
                               })
                             : nothing}
                         ${task.waiting
-                            ? html`<p>${task.waiting.prompt}</p>
-                                  ${textarea({
-                                      name: 'answer-' + task.id,
-                                      label: '任务回答',
-                                      value: this.taskAnswers[task.id] ?? '',
-                                      readOnly: !this.writable || !node.permissions.canAct,
-                                      onChange: (value) => {
-                                          this.taskAnswers[task.id] = value
-                                          this.requestUpdate()
-                                      },
-                                  })}
-                                  ${checkbox({
-                                      label: '按 JSON 提交',
-                                      checked: this.taskJSON[task.id] ?? false,
-                                      disabled: !this.writable || !node.permissions.canAct,
-                                      onChange: (checked) => {
-                                          this.taskJSON[task.id] = checked
-                                          this.requestUpdate()
-                                      },
-                                  })}
-                                  ${button({
-                                      label: '提交回答',
-                                      disabled:
-                                          !this.writable ||
-                                          !node.permissions.canAct ||
-                                          !this.taskAnswers[task.id]?.trim() ||
-                                          this.taskOperations.state(task.id).phase !== 'idle',
-                                      onClick: () => void this.replyTask(task),
-                                  })}
-                                  ${button({
-                                      label: '继续任务',
-                                      disabled:
-                                          !this.writable ||
-                                          !node.permissions.canAct ||
-                                          this.taskOperations.state(task.id).phase !== 'idle',
-                                      onClick: () => void this.continueTask(task),
-                                  })}`
+                            ? html`<p>${task.waiting.prompt || task.waiting.reason}</p>
+                                  ${task.waiting.output
+                                      ? html`<details>
+                                            <summary>待确认预览</summary>
+                                            <pre>
+${JSON.stringify(task.waiting.output, null, 2)}</pre
+                                            >
+                                        </details>`
+                                      : nothing}
+                                  ${node.status !== 'cancelled' && replyAllowed(task)
+                                      ? html`${textarea({
+                                            name: 'answer-' + task.id,
+                                            label: '任务回答',
+                                            value: this.taskAnswers[task.id] ?? '',
+                                            readOnly:
+                                                !this.writable || !node.permissions.canControl,
+                                            onChange: (value) => {
+                                                this.taskAnswers[task.id] = value
+                                                this.requestUpdate()
+                                            },
+                                        })}
+                                        ${checkbox({
+                                            label: '按 JSON 提交',
+                                            checked: this.taskJSON[task.id] ?? false,
+                                            disabled:
+                                                !this.writable || !node.permissions.canControl,
+                                            onChange: (checked) => {
+                                                this.taskJSON[task.id] = checked
+                                                this.requestUpdate()
+                                            },
+                                        })}
+                                        ${button({
+                                            label: '提交回答',
+                                            disabled:
+                                                !this.writable ||
+                                                !node.permissions.canControl ||
+                                                !this.taskAnswers[task.id]?.trim() ||
+                                                this.taskOperations.state(task.id).phase !== 'idle',
+                                            onClick: () => void this.replyTask(task),
+                                        })}`
+                                      : nothing}
+                                  ${node.status !== 'cancelled' && continueAllowed(task)
+                                      ? button({
+                                            label: '继续任务',
+                                            disabled:
+                                                !this.writable ||
+                                                !node.permissions.canControl ||
+                                                !node.permissions.canAct ||
+                                                this.taskOperations.state(task.id).phase !== 'idle',
+                                            onClick: () => void this.continueTask(task),
+                                        })
+                                      : nothing}
+                                  ${task.waiting.reason === 'user_requested'
+                                      ? html`<p>此执行有独立暂停，需通过原暂停入口恢复。</p>`
+                                      : nothing}
+                                  ${task.waiting.reason === 'parent_paused'
+                                      ? html`<p>节点已请求暂停，请使用节点的继续入口。</p>`
+                                      : nothing}`
                             : nothing}
-                        ${task.status === 'unknown' && node.permissions.canResolveUnknown
-                            ? html`${textarea({
-                                  name: 'evidence-' + task.id,
-                                  label: '核对证据',
-                                  value: this.conclusions[task.id] ?? '',
-                                  readOnly: !this.writable,
-                                  onChange: (value) => {
-                                      this.conclusions[task.id] = value
-                                  },
-                              })}
-                              ${(['succeeded', 'failed'] as const).map((conclusion) =>
-                                  button({
-                                      label: conclusion === 'succeeded' ? '确认成功' : '确认失败',
-                                      disabled: !this.writable,
-                                      onClick: () =>
-                                          void this.mutate(() =>
-                                              sdk.nodeFlow.resolveUnknownTask({
-                                                  ...q,
-                                                  taskId: task.id,
-                                                  expectedRevision: task.revision,
-                                                  conclusion,
-                                                  evidence: this.conclusions[task.id] ?? '',
-                                              }),
-                                          ),
-                                  }),
-                              )}`
+                        ${task.status === 'unknown' || task.resolution
+                            ? html`<div>
+                                  <p>
+                                      原操作
+                                      ID：${(
+                                          task.resolution?.operationRefs ??
+                                          task.operationRefs ??
+                                          []
+                                      ).join('、') || '未记录，请结合原始执行记录核对。'}
+                                  </p>
+                                  ${task.resolution
+                                      ? html`<p>
+                                            核对结论：${task.resolution.conclusion}；依据：${task
+                                                .resolution.evidence}；核对人：${task.resolution
+                                                .userId}；时间：${task.resolution.resolvedAt}
+                                        </p>`
+                                      : node.permissions.canResolveUnknown
+                                        ? html` ${radioGroup({
+                                              name: 'conclusion-' + task.id,
+                                              label: '核对结论',
+                                              value: this.resolutionChoices[task.id] ?? '',
+                                              options: [
+                                                  { value: 'succeeded', label: '已成功' },
+                                                  { value: 'failed', label: '未成功' },
+                                              ],
+                                              disabled: !this.writable,
+                                              onChange: (value) => {
+                                                  this.resolutionChoices[task.id] = value
+                                                  this.requestUpdate()
+                                              },
+                                          })}
+                                          ${textarea({
+                                              name: 'evidence-' + task.id,
+                                              label: '核对证据',
+                                              value: this.conclusions[task.id] ?? '',
+                                              readOnly: !this.writable,
+                                              onChange: (value) => {
+                                                  this.conclusions[task.id] = value
+                                                  this.requestUpdate()
+                                              },
+                                          })}
+                                          ${button({
+                                              label: '提交核对结论',
+                                              disabled:
+                                                  !this.writable ||
+                                                  !['succeeded', 'failed'].includes(
+                                                      this.resolutionChoices[task.id] ?? '',
+                                                  ) ||
+                                                  !this.conclusions[task.id]?.trim(),
+                                              onClick: () => {
+                                                  const conclusion = this.resolutionChoices[task.id]
+                                                  const evidence = this.conclusions[task.id]?.trim()
+                                                  if (
+                                                      (conclusion !== 'succeeded' &&
+                                                          conclusion !== 'failed') ||
+                                                      !evidence
+                                                  )
+                                                      return
+                                                  void this.mutate(() =>
+                                                      sdk.nodeFlow.resolveUnknownTask({
+                                                          ...q,
+                                                          taskId: task.id,
+                                                          expectedRevision: task.revision,
+                                                          conclusion,
+                                                          evidence,
+                                                      }),
+                                                  )
+                                              },
+                                          })}`
+                                        : nothing}
+                              </div>`
                             : nothing}
                     </div>`,
             )}
@@ -637,7 +724,14 @@ export class NodeRuntimePanel extends HostPanel {
         </section>`
     }
     private async replyTask(task: NodeFlowTaskView) {
-        if (!this.writable || !this.flow.state?.data?.permissions.canAct || !task.waiting) return
+        if (
+            !this.writable ||
+            !this.flow.state?.data?.permissions.canControl ||
+            this.flow.state.data.status === 'cancelled' ||
+            !task.waiting ||
+            !replyAllowed(task)
+        )
+            return
         const text = this.taskAnswers[task.id] ?? ''
         if (!text.trim()) return
         let answer: JSONValue = text
@@ -657,7 +751,15 @@ export class NodeRuntimePanel extends HostPanel {
         })
     }
     private async continueTask(task: NodeFlowTaskView) {
-        if (!this.writable || !this.flow.state?.data?.permissions.canAct || !task.waiting) return
+        if (
+            !this.writable ||
+            !this.flow.state?.data?.permissions.canControl ||
+            !this.flow.state.data.permissions.canAct ||
+            this.flow.state.data.status === 'cancelled' ||
+            !task.waiting ||
+            !continueAllowed(task)
+        )
+            return
         await this.taskOperations.continue({
             taskId: task.id,
             expectedWaitingTurn: task.waiting.turn,

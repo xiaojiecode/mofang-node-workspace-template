@@ -1,6 +1,6 @@
+import type { ContextRequestOptions, MofangSDK } from './runtime-types';
 import type { JsonObject } from './catalog-types';
 import type { ID } from './json-types';
-import type { ContextRequestOptions } from './runtime-types';
 export type PanelSurface = 'settings' | 'business';
 export type PanelRenderMode = 'frontend' | 'lowcode' | 'lit';
 export type LowcodePanelConfig = Readonly<{
@@ -71,6 +71,11 @@ export type PageBundleSource = Readonly<{
 export type SettingsPanelEditor = Readonly<{
     values: Readonly<Record<string, unknown>>;
     readOnly: boolean;
+    /** 宿主校验和只读原因，供面板在正文中呈现。 */
+    messages?: readonly Readonly<{
+        kind: 'status' | 'error';
+        message: string;
+    }>[];
     /** 绑定字段与运行期间的仅运行前字段禁用手动编辑，宿主同时拦截写回。 */
     disabledFields?: readonly string[];
     /** 运行期间只读的叶子路径，键为顶层字段名，值为相对 JSON Pointer；不禁用普通同级字段。 */
@@ -91,4 +96,17 @@ export type SettingsPanelEditor = Readonly<{
         onChange?: (fieldName: string, selectedId: string | null) => void;
     }>;
 }>;
+/** 用真实商品结果身份派生绑定 SDK；已采用结果始终只读。 */
+export type RecordSdkRequest = Readonly<{
+    page: number;
+    taskId: ID;
+    role: 'attempt' | 'adopted';
+}>;
+export type RecordSdkTarget = ContextRequestOptions & Readonly<{
+    nodeCode: string;
+}>;
+export type RecordSdkFactory = (request: RecordSdkRequest) => Promise<Readonly<{
+    sdk: MofangSDK;
+    target: RecordSdkTarget;
+}>>;
 export {};
