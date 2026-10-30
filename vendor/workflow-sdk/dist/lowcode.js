@@ -2340,7 +2340,7 @@ const WORKFLOW_SDK_METHODS = [
     parameters: [
       {
         name: "body",
-        type: 'Readonly<{ workflowId: ID; expectedRevision: Revision; isTestRun: boolean; mode: "auto" | "manual"; scope?: ExecutionScope; initialDeliveries?: readonly InitialDelivery[]; reuseOutputs?: readonly ReusedOutput[]; }>',
+        type: 'Readonly<{ workflowId: ID; expectedRevision: Revision; isTestRun: boolean; mode: "auto" | "manual"; scope?: ExecutionScope; initialDeliveries?: readonly InitialDelivery[]; reuseOutputs?: readonly ReusedOutput[]; sourceRunId?: ID; }>',
         fields: [
           {
             name: "workflowId",
@@ -2370,7 +2370,12 @@ const WORKFLOW_SDK_METHODS = [
           },
           {
             name: "reuseOutputs",
-            type: "readonly Readonly<{ nodeInstanceId: ID; nodeRunId: ID; }>[] | undefined",
+            type: "readonly Readonly<{ nodeInstanceId: ID; outputs: readonly ReusedOutputReference[]; }>[] | undefined",
+            optional: true
+          },
+          {
+            name: "sourceRunId",
+            type: "string | undefined",
             optional: true
           }
         ]

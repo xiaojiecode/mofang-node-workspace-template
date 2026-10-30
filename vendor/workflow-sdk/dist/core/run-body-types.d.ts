@@ -9,9 +9,18 @@ export type InitialDelivery = Readonly<{
     channel: string;
     values: JSONObject;
 }>;
+export type ReusedOutputReference = Readonly<{
+    kind: 'node_output';
+    nodeRunId: ID;
+    itemIndex: number;
+}> | Readonly<{
+    kind: 'candidate';
+    candidateId: ID;
+    revision: Revision;
+}>;
 export type ReusedOutput = Readonly<{
     nodeInstanceId: ID;
-    nodeRunId: ID;
+    outputs: readonly ReusedOutputReference[];
 }>;
 /** 仅启动当前已保存图；调用方必须显式声明试运行身份与保存修订。 */
 export type StartWorkflowRunBody = Readonly<{
@@ -22,6 +31,7 @@ export type StartWorkflowRunBody = Readonly<{
     scope?: ExecutionScope;
     initialDeliveries?: readonly InitialDelivery[];
     reuseOutputs?: readonly ReusedOutput[];
+    sourceRunId?: ID;
 }>;
 export type RerunNodeBody = Readonly<{
     runId: ID;
