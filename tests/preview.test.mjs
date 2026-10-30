@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import path from 'node:path'
 import { build } from 'esbuild'
+import { html as staticHtml } from 'lit/static-html.js'
 import { root } from '../tooling/paths.mjs'
 const source = await build({
     entryPoints: [path.join(root, 'playground/src/fixture.ts')],
@@ -40,6 +41,23 @@ const preview = {
         },
     },
 }
+test('预览 SDK 支持 Lit 静态模板和普通对象属性探测', async () => {
+    const { sdk } = createFixture({})
+    assert.doesNotThrow(() => staticHtml`<div .sdk=${sdk}></div>`)
+    assert.equal(Reflect.get(sdk, 'unrelatedProperty'), undefined)
+    assert.equal(Reflect.get(sdk, Symbol('inspect')), undefined)
+    assert.equal(Object.prototype.toString.call(sdk), '[object Object]')
+    assert.equal(await Promise.resolve(sdk), sdk)
+})
+
+test('预览 SDK 对尚未实现的真实 API 保留明确错误', () => {
+    const { sdk } = createFixture({})
+    for (const key of ['http', 'resources', 'readOnlyActions'])
+        assert.throws(() => Reflect.get(sdk, key), new RegExp('本地预览未实现 SDK 方法：' + key))
+    assert.equal(typeof sdk.context.getSnapshot, 'function')
+    assert.equal(typeof sdk.nodeFlow.watch, 'function')
+})
+
 test('无上游item的入口预览不构造undefined商品，覆盖仍保留原指标', () => {
     const empty = createFixture({ region: 'US' })
     assert.deepEqual(empty.context.output.values.items, [])

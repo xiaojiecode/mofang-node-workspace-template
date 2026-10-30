@@ -10,6 +10,12 @@ import type {
     NodeFlowActionQuery,
     NodeActionResult,
 } from '@mofang/contracts/browser'
+import { WORKFLOW_SDK_METHODS } from '@mofang/workflow-sdk/lowcode'
+
+// 复用生成的公开目录，区分未实现 API 与 Lit、Promise 等进行的普通属性探测。
+const sdkMembers = new Set(WORKFLOW_SDK_METHODS.map((method) => method.path.split('.')[0]))
+
+/** 创建仅在本地运行的节点预览，不访问真实业务接口。 */
 export function createFixture(
     input: JSONObject,
     empty = false,
@@ -168,7 +174,7 @@ export function createFixture(
             },
         }
     }
-    // This fixture implements only the preview methods. Unsupported calls fail explicitly.
+    // 只实现本地预览使用的方法，未支持的调用明确失败。
     const error = failed
         ? (Object.assign(new Error('本地模拟的读取错误'), {
               name: 'MofangSDKError',
@@ -236,7 +242,7 @@ export function createFixture(
             subscribe,
             refresh: async () => {},
         }),
-        /** Explicit UI-only fixture: never invokes Goja/Workflow/Tool or real business. */
+        /** 仅模拟页面动作，不调用 Goja、工作流、原子能力或真实业务。 */
         action: async (body: NodeFlowActionBody) => {
             if (
                 failed ||
@@ -376,7 +382,9 @@ export function createFixture(
     const sdk = new Proxy(partial, {
         get(target, key) {
             if (key in target) return Reflect.get(target, key)
-            throw new Error('本地预览未实现 SDK 方法：' + String(key))
+            if (typeof key === 'string' && sdkMembers.has(key))
+                throw new Error('本地预览未实现 SDK 方法：' + key)
+            return undefined
         },
     }) as unknown as MofangSDK
     return {
