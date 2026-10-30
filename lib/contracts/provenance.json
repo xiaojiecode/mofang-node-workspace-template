@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "syncedAt": "2026-10-30T05:09:16.203Z",
+  "syncedAt": "2026-10-30T05:18:05.455Z",
   "sources": {
     "mf-client/src/features/workflow/mofangsdk/core/catalog-types.ts": "43320d55d1fe12b53e4d3c598e5f240fe1f8dd82fc466a659433b3b8ff5a2e66",
     "mf-client/src/features/workflow/mofangsdk/core/context-types.ts": "605eb18f5021249790553e05d6b25582eeb05959a9bf1e0122f81af857df7fe1",
-    "mf-client/src/features/workflow/mofangsdk/core/create-sdk.ts": "2bbebef1e32ba013e22d6f6d917a91d1439e56042011e5171f1a5e62555a5bc4",
+    "mf-client/src/features/workflow/mofangsdk/core/create-sdk.ts": "d130bf83c53bcf93d4fbb9202ddefaf2556b6d2e053f2104bddb4c7e656d28d2",
     "mf-client/src/features/workflow/mofangsdk/core/creation-body-types.ts": "54c24b8b45a83139e210101582b7d49ab1b95820a5a3877d52518469ff102703",
     "mf-client/src/features/workflow/mofangsdk/core/creation-result-types.ts": "39c688c7f6b5594eae14d463e1845d39ef96512cd8d512db6dcc5d75a0405260",
     "mf-client/src/features/workflow/mofangsdk/core/data-read-types.ts": "b863eda9e44caed3cddc0526720e6dd0c5a2e2c918392ea4aaefb9377fb74dce",

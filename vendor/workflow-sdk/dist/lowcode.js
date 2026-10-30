@@ -1,4 +1,4 @@
-import { M as MofangSDKError, c as createMofangSDK } from "./create-sdk-CAnna8Fn.js";
+import { M as MofangSDKError, c as createMofangSDK } from "./create-sdk-C-0mzZYK.js";
 const WORKFLOW_SDK_VERSION = "1";
 const WORKFLOW_SDK_METHODS = [
   {

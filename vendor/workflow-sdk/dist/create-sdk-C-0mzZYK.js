@@ -841,7 +841,7 @@ function createMofangSDK(options) {
         { kind: "rejected", code: "invalid_start", retryable: false }
       );
     if (write && binding) {
-      if (binding.view === "history" || binding.view === "preview" || operation === "control.start" && binding.view !== "current")
+      if (binding.view === "history" || binding.view === "preview" || state.context.data?.view === "history" || state.context.data?.view === "preview" || operation === "control.start" && binding.view !== "current")
         throw new MofangSDKError("历史和预览视图不可写入", {
           kind: "rejected",
           code: "readonly_context",
