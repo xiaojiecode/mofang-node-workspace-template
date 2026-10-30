@@ -2,6 +2,7 @@ import { html, nothing } from 'lit'
 import { html as staticHtml, unsafeStatic } from 'lit/static-html.js'
 import type {
     JSONObject,
+    JSONValue,
     MofangSDK,
     NodeCandidate,
     NodeFlowTaskView,
@@ -50,6 +51,7 @@ export class NodeRuntimePanel extends HostPanel {
     private error = ''
     private busy = false
     private taskAnswers: Record<string, string> = {}
+    private taskJSON: Record<string, boolean> = {}
     private conclusions: Record<string, string> = {}
     private readonly pageSize = 20
 
@@ -83,6 +85,7 @@ export class NodeRuntimePanel extends HostPanel {
         this.error = ''
         this.busy = false
         this.taskAnswers = {}
+        this.taskJSON = {}
         this.conclusions = {}
     }
     protected override updated() {
@@ -552,6 +555,16 @@ export class NodeRuntimePanel extends HostPanel {
                                       readOnly: !this.writable || !node.permissions.canAct,
                                       onChange: (value) => {
                                           this.taskAnswers[task.id] = value
+                                          this.requestUpdate()
+                                      },
+                                  })}
+                                  ${checkbox({
+                                      label: '按 JSON 提交',
+                                      checked: this.taskJSON[task.id] ?? false,
+                                      disabled: !this.writable || !node.permissions.canAct,
+                                      onChange: (checked) => {
+                                          this.taskJSON[task.id] = checked
+                                          this.requestUpdate()
                                       },
                                   })}
                                   ${button({
@@ -559,6 +572,7 @@ export class NodeRuntimePanel extends HostPanel {
                                       disabled:
                                           !this.writable ||
                                           !node.permissions.canAct ||
+                                          !this.taskAnswers[task.id]?.trim() ||
                                           this.taskOperations.state(task.id).phase !== 'idle',
                                       onClick: () => void this.replyTask(task),
                                   })}
@@ -624,10 +638,22 @@ export class NodeRuntimePanel extends HostPanel {
     }
     private async replyTask(task: NodeFlowTaskView) {
         if (!this.writable || !this.flow.state?.data?.permissions.canAct || !task.waiting) return
+        const text = this.taskAnswers[task.id] ?? ''
+        if (!text.trim()) return
+        let answer: JSONValue = text
+        if (this.taskJSON[task.id]) {
+            try {
+                answer = JSON.parse(text) as JSONValue
+            } catch {
+                this.error = '回复不是有效 JSON，请修正后提交。'
+                this.requestUpdate()
+                return
+            }
+        }
         await this.taskOperations.reply({
             taskId: task.id,
             waitingToolCallId: task.waiting.waitingToolCallId,
-            answer: this.taskAnswers[task.id] ?? '',
+            answer,
         })
     }
     private async continueTask(task: NodeFlowTaskView) {

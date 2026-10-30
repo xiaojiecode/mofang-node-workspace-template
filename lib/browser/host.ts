@@ -12,6 +12,7 @@ import type {
     PanelHostContext,
     JSONObject,
     NodeCandidatePage,
+    RecordSdkFactory,
 } from '@mofang/contracts/browser'
 /** 订阅宿主的执行上下文；不另建 SDK、网络连接、刷新循环或业务存储。 */
 export class ContextController implements ReactiveController {
@@ -138,6 +139,7 @@ export class HostPanel extends LitElement implements PanelProps {
         settings: { attribute: false },
         panelContext: { attribute: false },
         panelError: { attribute: false },
+        createRecordSdk: { attribute: false },
         nodeView: { attribute: false },
         nodeOutput: { attribute: false },
     }
@@ -150,6 +152,7 @@ export class HostPanel extends LitElement implements PanelProps {
     declare settings: SettingsPanelEditor | undefined
     declare panelContext: PanelHostContext | undefined
     declare panelError: string | undefined
+    declare createRecordSdk: RecordSdkFactory | undefined
     declare nodeView: JSONObject | null | undefined
     declare nodeOutput: NodeCandidatePage | null | undefined
     protected readonly contextResource = new ContextController(this, () => this.sdk)

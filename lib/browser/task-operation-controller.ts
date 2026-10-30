@@ -247,6 +247,7 @@ export class TaskOperationController implements ReactiveController {
             this.update(entry)
         } finally {
             entry.reading = false
+            if (generation === this.generation) this.host.requestUpdate()
         }
     }
     reply(body: Reply) {

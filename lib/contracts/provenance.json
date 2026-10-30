@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "syncedAt": "2026-10-30T04:36:07.445Z",
+  "syncedAt": "2026-10-30T04:55:41.609Z",
   "sources": {
     "mf-client/src/features/workflow/mofangsdk/core/catalog-types.ts": "43320d55d1fe12b53e4d3c598e5f240fe1f8dd82fc466a659433b3b8ff5a2e66",
     "mf-client/src/features/workflow/mofangsdk/core/context-types.ts": "605eb18f5021249790553e05d6b25582eeb05959a9bf1e0122f81af857df7fe1",
@@ -32,7 +32,7 @@
     "mf-client/src/features/workflow/mofangsdk/core/output-types.ts": "57eb3c13470465ac3b4384fd682f1feda17b677065ca72c2e104123208fbd3f9",
     "mf-client/src/features/workflow/mofangsdk/core/page-program-types.ts": "054815cf3892b57235945485dfdc80460d951dc5f05ec35a23d08a1de6ccd57e",
     "mf-client/src/features/workflow/mofangsdk/core/page-program.ts": "04a491e981d73e75bf9ff1ce2e1061acbf6160b8461dc6cbd0452ee61312ca12",
-    "mf-client/src/features/workflow/mofangsdk/core/panel-types.ts": "60b84e93a20ed1927ff6423f7b65145dc6321d4559529302cac3df97a89051a4",
+    "mf-client/src/features/workflow/mofangsdk/core/panel-types.ts": "7d56ddd4bd2209e958171128392770600ff1df67864e939ed31caaf28a014afe",
     "mf-client/src/features/workflow/mofangsdk/core/read-only-action-types.ts": "c195589417dfab4f2e736736bbfa0d74cc2f6f23f14ab5752b5a04add3afd6d1",
     "mf-client/src/features/workflow/mofangsdk/core/report-body-types.ts": "24ecf89c703112746e369dc3c855143e6d23e7bd5d4a0f677f8a5e9dc94efa69",
     "mf-client/src/features/workflow/mofangsdk/core/resource-types.ts": "04cfe4568e19eb895c51c17172144c23153a87036c9799bc99cb985ce9535442",
@@ -75,8 +75,8 @@
     "mofang-server/pkg/nodeabi/task.go": "c035ed0d20567da4eeadae205981f59a83ce8b9b79a905115fc1e665df665c28",
     "mofang-server/pkg/nodeabi/types.go": "0d146d9215eaf54154ef8e758a42622d28a6cbfcce85dbaef10e66e796a79e92",
     "mofang-server/pkg/nodeabi/validate.go": "6b27683301e6ea93a437b6d48785a514ac551ef46eba6a1a472041eef1171593",
-    "mf-client/src/features/workflow/node-pages/dynamic-lit-panel.tsx": "d3a04e8af3a37346c6fb1a40bdf69194f699ecbb7318ffb96bc3b4af8aa3a010",
-    "mf-client/src/features/workflow/node-pages/node-panel-provider.tsx": "0bb70900160be356807adfd19b4cfada3ea63084ae0386ffa2a19756bb7ee195",
+    "mf-client/src/features/workflow/node-pages/dynamic-lit-panel.tsx": "a287146bef42a10b1f7538c3a8972a1d52e4286644eb3b9019c0d5710b132eae",
+    "mf-client/src/features/workflow/node-pages/node-panel-provider.tsx": "a4e3af16408b14f2b5b3ab81aa8e7e2ef81ba6062ead284e7f38eda08280553b",
     "mofang-server/web/admin/src/api/workflowJavaScript.ts": "6b6431d370f2af856aa5bcc136986cb178ea71fd38b7dcb0f640d726160e2c85",
     "mofang-server/services/workflow/internal/pageartifact/artifact.go": "a57b47abce3b519ef3563f3f531398a7dc5c41dfbc0279552d770ae9930214e1",
     "mofang-server/go.mod": "7ffb2dc58f53c7f55dd3cff894735cf83a3eecc723b47d211a161b9ed5b12f89"

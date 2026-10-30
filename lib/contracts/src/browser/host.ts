@@ -6,6 +6,7 @@ import type {
     JSONObject,
     PanelSurface,
     SettingsPanelEditor,
+    RecordSdkFactory,
 } from './sdk/index'
 export type PanelTarget = ContextRequestOptions & Readonly<{ nodeCode: string }>
 export type PanelUI = Readonly<{
@@ -21,6 +22,8 @@ export type PanelHostContext = Readonly<{
     settings?: SettingsPanelEditor
     nodeView?: JSONObject | null
     nodeOutput?: NodeCandidatePage | null
+    panelError?: string
+    createRecordSdk?: RecordSdkFactory
 }>
 export interface PanelProps {
     sdk?: MofangSDK | undefined
@@ -33,4 +36,6 @@ export interface PanelProps {
     panelContext?: PanelHostContext | undefined
     nodeView?: JSONObject | null | undefined
     nodeOutput?: NodeCandidatePage | null | undefined
+    panelError?: string | undefined
+    createRecordSdk?: RecordSdkFactory | undefined
 }

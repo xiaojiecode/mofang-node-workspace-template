@@ -1,6 +1,6 @@
+import type { ContextRequestOptions, MofangSDK } from './runtime-types';
 import type { JsonObject } from './catalog-types';
 import type { ID } from './json-types';
-import type { ContextRequestOptions } from './runtime-types';
 export type PanelSurface = 'settings' | 'business';
 export type PanelRenderMode = 'frontend' | 'lowcode' | 'lit';
 export type LowcodePanelConfig = Readonly<{
@@ -96,4 +96,17 @@ export type SettingsPanelEditor = Readonly<{
         onChange?: (fieldName: string, selectedId: string | null) => void;
     }>;
 }>;
+/** 用真实商品结果身份派生绑定 SDK；已采用结果始终只读。 */
+export type RecordSdkRequest = Readonly<{
+    page: number;
+    taskId: ID;
+    role: 'attempt' | 'adopted';
+}>;
+export type RecordSdkTarget = ContextRequestOptions & Readonly<{
+    nodeCode: string;
+}>;
+export type RecordSdkFactory = (request: RecordSdkRequest) => Promise<Readonly<{
+    sdk: MofangSDK;
+    target: RecordSdkTarget;
+}>>;
 export {};

@@ -308,6 +308,17 @@ for (const minify of [false, true])
             await page.evaluate(() => window.testRuntime.taskCalls[0].waitingToolCallId),
             'wait',
         )
+        await panel.getByRole('checkbox', { name: '按 JSON 提交' }).check()
+        await panel.getByLabel('任务回答').fill('{bad')
+        await panel.getByRole('button', { name: '提交回答' }).click()
+        await panel.getByText('回复不是有效 JSON，请修正后提交。').waitFor()
+        assert.equal(await page.evaluate(() => window.testRuntime.taskCalls.length), 1)
+        await panel.getByLabel('任务回答').fill('{"approved":true}')
+        await panel.getByRole('button', { name: '提交回答' }).click()
+        await page.waitForFunction(() => window.testRuntime.taskCalls.length === 2)
+        assert.deepEqual(await page.evaluate(() => window.testRuntime.taskCalls[1].answer), {
+            approved: true,
+        })
         await panel.getByRole('button', { name: '候选下一页' }).click()
         await page.waitForFunction(() => window.testRuntime.pageReads.some((q) => q.page === 2))
         await panel.getByRole('button', { name: '任务下一页', exact: true }).click()
@@ -426,13 +437,22 @@ test('正式面板打包产物使用宿主 Lit 并可挂载', async (t) => {
             const { default: Panel } = await import(url)
             customElements.define('official-test', Panel)
             const element = document.createElement('official-test')
+            const factory = async () => ({})
+            Object.assign(element, {
+                createRecordSdk: factory,
+                panelContext: { createRecordSdk: factory },
+            })
             document.body.append(element)
             await element.updateComplete
             const count = element.shadowRoot.querySelectorAll('*').length
+            const preserved =
+                element.createRecordSdk === factory &&
+                element.panelContext.createRecordSdk === factory
             element.remove()
-            return count
+            return { count, preserved }
         }, source)
-        assert.ok(mounted > 0)
+        assert.ok(mounted.count > 0)
+        assert.equal(mounted.preserved, true)
         await page.close()
     }
 })
@@ -552,6 +572,7 @@ for (const minify of [false, true])
             window.fixture = { mount, sdk, reads, writes: () => writes, app: mount() }
         })
         let panel = page.locator('retry-app section[aria-label="节点执行与审核"]')
+        await panel.getByLabel('任务回答').fill('确认')
         await panel.getByRole('button', { name: '提交回答' }).click()
         await page.waitForFunction(() => window.fixture.writes() === 1)
         const original = await page.evaluate(() =>
