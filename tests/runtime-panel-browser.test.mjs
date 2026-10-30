@@ -490,7 +490,44 @@ test('正式面板打包产物使用宿主 Lit 并可挂载', async (t) => {
             customElements.define('official-test', Panel)
             const element = document.createElement('official-test')
             const factory = async () => ({})
+            const node = {
+                runId: 'r',
+                nodeInstanceId: 'n',
+                sessionId: 's',
+                revision: '1',
+                status: 'waiting',
+                summary: { pending: 0 },
+                permissions: {
+                    canAct: false,
+                    canRelease: false,
+                    canDiscard: false,
+                    canEndReview: false,
+                    canControl: false,
+                    canResolveUnknown: false,
+                },
+                composition: { projection: { status: 'ready', nodeView: {}, actions: [] } },
+            }
+            const sdk = {
+                context: { subscribe: () => () => {}, getState: () => ({}) },
+                messages: { subscribe: () => () => {} },
+                nodes: { tasks: async () => ({ items: [], total: 0, page: 1, pageSize: 20 }) },
+                nodeFlow: {
+                    watch: () => ({
+                        subscribe: () => () => {},
+                        getSnapshot: () => ({ data: node, refreshing: false, stale: false }),
+                    }),
+                    listCandidates: async () => ({ items: [], total: 0, page: 1, pageSize: 20 }),
+                    tasks: async () => ({ items: [], total: 0, page: 1, pageSize: 20 }),
+                    listActions: async () => ({
+                        items: [],
+                        snapshotUpperSequence: '0',
+                        hasMore: false,
+                    }),
+                },
+            }
             Object.assign(element, {
+                sdk,
+                target: { runId: 'r', nodeInstanceId: 'n', view: 'current' },
                 createRecordSdk: factory,
                 panelContext: { createRecordSdk: factory },
             })
@@ -500,11 +537,11 @@ test('正式面板打包产物使用宿主 Lit 并可挂载', async (t) => {
             const preserved =
                 element.createRecordSdk === factory &&
                 element.panelContext.createRecordSdk === factory
-            element.remove()
             return { count, preserved }
         }, source)
         assert.ok(mounted.count > 0)
         assert.equal(mounted.preserved, true)
+        await page.locator('official-test').getByText('节点状态：waiting').waitFor()
         await page.close()
     }
 })
