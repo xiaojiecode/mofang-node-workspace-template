@@ -31,10 +31,21 @@ for (const minify of [false, true])
         await page.goto('http://127.0.0.1:39193/')
         await page.addScriptTag({ content: js.outputFiles[0].text })
         await page.evaluate(async () => {
+            const originalInterval = window.setInterval
+            let intervals = 0
+            window.setInterval = (...args) => {
+                intervals++
+                return originalInterval(...args)
+            }
             const calls = []
             const taskCalls = []
             const pageReads = []
+            const edits = []
+            let candidateRevision = '3'
+            let candidateTotal = 21
+            let messageListener = () => {}
             let released = 0
+            let messageSubscriptions = 0
             const node = {
                 runId: 'run',
                 nodeInstanceId: 'node',
@@ -43,6 +54,7 @@ for (const minify of [false, true])
                 status: 'waiting',
                 permissions: {
                     canAct: true,
+                    canEdit: true,
                     canRelease: true,
                     canDiscard: false,
                     canEndReview: true,
@@ -68,8 +80,12 @@ for (const minify of [false, true])
             const sdk = {
                 context: { subscribe: () => () => {}, getState: () => ({}) },
                 messages: {
-                    subscribe: () => () => {
-                        released++
+                    subscribe: (_filter, listener) => {
+                        messageListener = listener
+                        messageSubscriptions++
+                        return () => {
+                            released++
+                        }
                     },
                 },
                 nodes: { tasks: async () => ({ items: [], total: 0, page: 1, pageSize: 20 }) },
@@ -84,10 +100,15 @@ for (const minify of [false, true])
                         pageReads.push(q)
                         return {
                             items: [
-                                { id: 'c', revision: '3', state: 'pending', value: { items: [] } },
+                                {
+                                    id: 'c',
+                                    revision: candidateRevision,
+                                    state: 'pending',
+                                    value: { items: [] },
+                                },
                                 { id: 'd', revision: '5', state: 'pending', value: { items: [] } },
                             ],
-                            total: 21,
+                            total: candidateTotal,
                             page: q.page,
                             pageSize: 20,
                         }
@@ -140,6 +161,11 @@ for (const minify of [false, true])
                         snapshotUpperSequence: '0',
                         hasMore: false,
                     }),
+                    editCandidate: async (body) => {
+                        edits.push(body)
+                        candidateRevision = '4'
+                        throw Object.assign(Error('修订冲突'), { kind: 'conflict' })
+                    },
                     release: async (body) => {
                         calls.push(body)
                         return {
@@ -178,18 +204,42 @@ for (const minify of [false, true])
             app.sdk = sdk
             app.target = { runId: 'run', nodeInstanceId: 'node', view: 'current' }
             document.body.append(app)
-            window.testRuntime = { app, calls, taskCalls, pageReads, released: () => released }
+            window.testRuntime = {
+                app,
+                calls,
+                intervals: () => intervals,
+                shrink: () => {
+                    candidateTotal = 1
+                    messageListener()
+                },
+                taskCalls,
+                edits,
+                pageReads,
+                subscriptions: () => messageSubscriptions,
+                released: () => released,
+            }
             await app.updateComplete
         })
         const panel = page.locator('test-app').locator('section[aria-label="节点执行与审核"]')
         await panel.getByText('c pending').waitFor()
         assert.equal(await panel.getByRole('button', { name: '丢弃所选' }).isDisabled(), true)
         await panel.getByRole('checkbox', { name: 'c pending' }).check()
+        await panel.getByRole('button', { name: '编辑候选' }).first().click()
+        await panel.getByLabel('候选内容').fill('{"items":[{"title":"编辑值"}]}')
+        assert.equal(await panel.getByRole('button', { name: '放行所选' }).isDisabled(), true)
+        await panel.getByRole('button', { name: '保存候选' }).click()
+        await panel.getByText(/修订冲突/).waitFor()
+        assert.equal(await page.evaluate(() => window.testRuntime.edits[0].expectedRevision), '3')
+        assert.match(await panel.getByLabel('候选内容').inputValue(), /编辑值/)
+        await panel.getByRole('button', { name: '重载候选' }).click()
+        await page.waitForFunction(() => window.testRuntime.pageReads.length >= 2)
+        await panel.getByRole('button', { name: '取消编辑' }).click()
+        await panel.getByRole('checkbox', { name: 'c pending' }).check()
         await panel.getByRole('checkbox', { name: 'd pending' }).check()
         await panel.getByRole('button', { name: '放行所选' }).click()
         await page.waitForFunction(() => window.testRuntime.calls.length === 1)
         assert.deepEqual(await page.evaluate(() => window.testRuntime.calls[0].candidates), [
-            { id: 'c', expectedRevision: '3' },
+            { id: 'c', expectedRevision: '4' },
             { id: 'd', expectedRevision: '5' },
         ])
         await panel.getByText(/修订冲突/).waitFor()
@@ -211,6 +261,12 @@ for (const minify of [false, true])
         )
         await panel.getByRole('button', { name: '候选下一页' }).click()
         await page.waitForFunction(() => window.testRuntime.pageReads.some((q) => q.page === 2))
+        const beforeShrink = await page.evaluate(() => window.testRuntime.pageReads.length)
+        await page.evaluate(() => window.testRuntime.shrink())
+        await page.waitForFunction(
+            (n) => window.testRuntime.pageReads.slice(n).some((q) => q.page === 1),
+            beforeShrink,
+        )
         await page.evaluate(async () => {
             window.testRuntime.app.target = {
                 runId: 'run',
@@ -220,6 +276,8 @@ for (const minify of [false, true])
             await window.testRuntime.app.updateComplete
         })
         await page.waitForFunction(() => window.testRuntime.released() >= 1)
+        assert.equal(await page.evaluate(() => window.testRuntime.subscriptions()), 1)
+        assert.equal(await page.evaluate(() => window.testRuntime.intervals()), 1)
         await page.waitForFunction(() =>
             window.testRuntime.pageReads.some((q) => q.view === 'history' && q.page === 1),
         )

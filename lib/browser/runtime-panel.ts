@@ -45,6 +45,7 @@ export class NodeRuntimePanel extends HostPanel {
     private total = 0
     private page = 1
     private selected = new Map<string, string>()
+    private drafts = new Map<string, { value: string; revision: string }>()
     private error = ''
     private busy = false
     private taskAnswers: Record<string, string> = {}
@@ -76,6 +77,7 @@ export class NodeRuntimePanel extends HostPanel {
         this.outcomeUnknown = false
         this.readError = false
         this.selected.clear()
+        this.drafts.clear()
         this.error = ''
         this.busy = false
         this.taskAnswers = {}
@@ -100,8 +102,10 @@ export class NodeRuntimePanel extends HostPanel {
             return
         const sdk = this.sdk
         const runId = this.target.runId
-        this.stopMessages = sdk.messages.subscribe({ runId }, () => void this.refresh())
-        this.timer = setInterval(() => void this.refresh(), 15000)
+        if (this.target.view !== 'history') {
+            this.stopMessages = sdk.messages.subscribe({ runId }, () => void this.refresh())
+            this.timer = setInterval(() => void this.refresh(), 15000)
+        }
         void this.refresh()
     }
     private get query() {
@@ -143,6 +147,20 @@ export class NodeRuntimePanel extends HostPanel {
                 }),
             ])
             if (turn !== this.turn || sequence !== this.refreshSeq) return
+            const candidateLast = Math.max(1, Math.ceil(candidates.total / this.pageSize))
+            const taskLast = Math.max(1, Math.ceil(tasks.total / this.pageSize))
+            const failedLast = Math.max(1, Math.ceil(failed.total / this.pageSize))
+            if (
+                this.page > candidateLast ||
+                this.taskPage > taskLast ||
+                this.failedPage > failedLast
+            ) {
+                this.page = Math.min(this.page, candidateLast)
+                this.taskPage = Math.min(this.taskPage, taskLast)
+                this.failedPage = Math.min(this.failedPage, failedLast)
+                void this.refresh()
+                return
+            }
             this.readError = false
             this.failedTasks = failed.items
             this.failedTotal = failed.total
@@ -214,13 +232,75 @@ export class NodeRuntimePanel extends HostPanel {
             id,
             expectedRevision,
         }))
-        if (!candidates.length) return
+        if (!candidates.length || this.drafts.size) return
         await this.mutate(async () => {
             const result = await sdk.nodeFlow[kind]({ ...q, candidates })
             for (const item of result.items) {
                 if (item.status === 'applied') this.selected.delete(item.id)
                 else this.error += `${item.id}: ${item.error?.message ?? '未处理'}；`
             }
+        })
+    }
+    private async reloadCandidate(candidate: NodeCandidate) {
+        const sdk = this.sdk,
+            q = this.query,
+            turn = this.turn
+        if (!sdk || !q) return
+        try {
+            const page = await sdk.nodeFlow.listCandidates({
+                ...q,
+                page: this.page,
+                pageSize: this.pageSize,
+            })
+            if (turn !== this.turn) return
+            const current = page.items.find((item) => item.id === candidate.id)
+            if (!current) throw new Error('候选已不在当前页，请重新核对')
+            this.candidates = page.items
+            this.total = page.total
+            this.selected.delete(candidate.id)
+            this.drafts.set(candidate.id, {
+                value: JSON.stringify(current.value, null, 2),
+                revision: current.revision,
+            })
+            this.error = ''
+        } catch (error) {
+            if (turn === this.turn) this.error = '重载候选失败：' + String(error)
+        }
+        if (turn === this.turn) this.requestUpdate()
+    }
+    private async saveCandidate(candidate: NodeCandidate) {
+        const sdk = this.sdk,
+            q = this.query,
+            draft = this.drafts.get(candidate.id),
+            node = this.flow.state?.data
+        if (
+            !sdk ||
+            !q ||
+            !draft ||
+            !node?.permissions.canEdit ||
+            candidate.state !== 'pending' ||
+            !this.writable
+        )
+            return
+        let value: unknown
+        try {
+            value = JSON.parse(draft.value)
+            if (!value || typeof value !== 'object' || Array.isArray(value))
+                throw new Error('候选内容必须是 JSON 对象')
+        } catch (error) {
+            this.error = '候选格式错误：' + String(error)
+            this.requestUpdate()
+            return
+        }
+        await this.mutate(async () => {
+            await sdk.nodeFlow.editCandidate({
+                ...q,
+                candidateId: candidate.id,
+                expectedRevision: draft.revision,
+                value: value as JSONObject,
+            })
+            this.drafts.delete(candidate.id)
+            this.selected.delete(candidate.id)
         })
     }
     protected override render() {
@@ -300,30 +380,78 @@ export class NodeRuntimePanel extends HostPanel {
                   })}`
                 : nothing}
             <h4>候选（${this.total}）</h4>
-            ${this.candidates.map(
-                (candidate) =>
-                    html`<div>
-                        ${checkbox({
-                            label: `${candidate.id} ${candidate.state}`,
-                            checked: this.selected.has(candidate.id),
-                            disabled: !this.writable || candidate.state !== 'pending',
-                            onChange: (checked) => {
-                                if (checked) this.selected.set(candidate.id, candidate.revision)
-                                else this.selected.delete(candidate.id)
-                                this.requestUpdate()
-                            },
-                        })}
-                        <pre>${JSON.stringify(candidate.value, null, 2)}</pre>
-                    </div>`,
-            )}
+            ${this.candidates.map((candidate) => {
+                const draft = this.drafts.get(candidate.id)
+                return html`<div>
+                    ${checkbox({
+                        label: `${candidate.id} ${candidate.state}`,
+                        checked: this.selected.has(candidate.id),
+                        disabled: !this.writable || candidate.state !== 'pending',
+                        onChange: (checked) => {
+                            if (checked) this.selected.set(candidate.id, candidate.revision)
+                            else this.selected.delete(candidate.id)
+                            this.requestUpdate()
+                        },
+                    })}
+                    ${draft
+                        ? html`${textarea({
+                              name: 'candidate-' + candidate.id,
+                              label: '候选内容',
+                              value: draft.value,
+                              readOnly: !this.writable || !node.permissions.canEdit,
+                              onChange: (value) => {
+                                  this.drafts.set(candidate.id, { ...draft, value })
+                                  this.requestUpdate()
+                              },
+                          })}
+                          ${button({
+                              label: '保存候选',
+                              disabled: !this.writable || !node.permissions.canEdit,
+                              onClick: () => void this.saveCandidate(candidate),
+                          })}
+                          ${button({
+                              label: '取消编辑',
+                              onClick: () => {
+                                  this.drafts.delete(candidate.id)
+                                  this.requestUpdate()
+                              },
+                          })}
+                          ${button({
+                              label: '重载候选',
+                              onClick: () => void this.reloadCandidate(candidate),
+                          })}`
+                        : html`<pre>${JSON.stringify(candidate.value, null, 2)}</pre>
+                              ${candidate.state === 'pending' && node.permissions.canEdit
+                                  ? button({
+                                        label: '编辑候选',
+                                        disabled: !this.writable,
+                                        onClick: () => {
+                                            this.drafts.set(candidate.id, {
+                                                value: JSON.stringify(candidate.value, null, 2),
+                                                revision: candidate.revision,
+                                            })
+                                            this.requestUpdate()
+                                        },
+                                    })
+                                  : nothing}`}
+                </div>`
+            })}
             ${button({
                 label: '放行所选',
-                disabled: !this.writable || !node.permissions.canRelease || !this.selected.size,
+                disabled:
+                    !this.writable ||
+                    !node.permissions.canRelease ||
+                    !this.selected.size ||
+                    this.drafts.size > 0,
                 onClick: () => void this.batch('release'),
             })}
             ${button({
                 label: '丢弃所选',
-                disabled: !this.writable || !node.permissions.canDiscard || !this.selected.size,
+                disabled:
+                    !this.writable ||
+                    !node.permissions.canDiscard ||
+                    !this.selected.size ||
+                    this.drafts.size > 0,
                 onClick: () => void this.batch('discard'),
             })}
             ${button({

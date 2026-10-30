@@ -197,7 +197,8 @@ export class ActionController implements ReactiveController {
         } finally {
             if (current()) {
                 this.restoring = false
-                for (const eventId of this.pending) this.track(eventId, false)
+                if (target.view !== 'history')
+                    for (const eventId of this.pending) this.track(eventId, false)
                 this.updatePhase()
                 this.host.requestUpdate()
             }

@@ -312,3 +312,16 @@ test('恢复在途换目标不回填；同SDK权限失效清除旧记录并失�
     assert.equal(active.controller.result, null)
     assert.equal(active.applied, 0)
 })
+test('历史动作仅读取结果，不监听或重复轮询', async () => {
+    const h = setup()
+    h.setTarget({ runId: 'run', nodeInstanceId: 'node', nodeCode: 'test', view: 'history' })
+    h.sdk.nodeFlow.listActions = async () => actionPage([outcome('pending')])
+    h.sdk.nodeFlow.getActionResult = async ({ eventId }) => {
+        h.reads.push(eventId)
+        return outcome(eventId)
+    }
+    await h.controller.restore()
+    assert.deepEqual(h.reads, ['pending'])
+    assert.equal(h.listeners.size, 0)
+    assert.equal(h.stores.size, 0)
+})
