@@ -1,4 +1,5 @@
 import { html, nothing } from 'lit'
+import { ref } from 'lit/directives/ref.js'
 import { html as staticHtml, unsafeStatic } from 'lit/static-html.js'
 import type {
     JSONObject,
@@ -329,7 +330,7 @@ export class NodeRuntimePanel extends HostPanel {
             sdk = this.sdk
         if (!q || !sdk || !node) return nothing
         const declared =
-            node.composition.projection.status === 'ready'
+            node.permissions.canAct && node.composition.projection.status === 'ready'
                 ? node.composition.projection.actions.filter((a) => a.presentation === 'host')
                 : []
         const pageButtons = (
@@ -780,5 +781,12 @@ export function nodeRuntimePanel(props: {
     panelError?: string | undefined
 }) {
     const tag = unsafeStatic(runtimeTag)
-    return staticHtml`<${tag} .sdk=${props.sdk} .target=${props.target} .panelError=${props.panelError}></${tag}>`
+    // SDK 可能是严格 Proxy，通过元素属性注入，避免 Lit 对普通值的指令标记探测。
+    return staticHtml`<${tag}
+        ${ref((element) => {
+            if (element) (element as NodeRuntimePanel).sdk = props.sdk
+        })}
+        .target=${props.target}
+        .panelError=${props.panelError}
+    ></${tag}>`
 }

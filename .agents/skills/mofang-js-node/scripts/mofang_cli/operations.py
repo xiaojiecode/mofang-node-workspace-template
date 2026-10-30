@@ -69,7 +69,7 @@ def read_object(filename):
 
 
 def validate_context_schemas(body):
-    """按页面保存契约校验显式上下文声明，不猜测 Schema 或自动提升为整抽屉模式。"""
+    """按页面保存契约校验显式上下文声明，不猜测 Schema 或自动设置页面布局。"""
     field = "supportedContextSchemas"
     if field not in body:
         if body["surface"] == "business":

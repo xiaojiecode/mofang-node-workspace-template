@@ -239,3 +239,22 @@ void acceptedControl.phase
 void controlSnapshot
 void originalControlRequest
 void controlReceipt
+
+// 宿主标题信息、全屏接口和可复用表格选项保持具体类型。
+import type { PanelHostContext } from '@mofang/contracts/browser'
+import type { TableOptions } from '@mofang/browser'
+declare const injectedPanel: PanelProps
+declare const hostContext: PanelHostContext
+const nodeTitle: string | undefined = injectedPanel.node?.name
+const nodeKind: 'agent' | 'code' | undefined = hostContext.node?.kind
+const fullscreen: boolean | undefined = injectedPanel.ui?.fullscreen
+injectedPanel.ui?.onToggleFullscreen?.()
+const layout: TableOptions = {
+    fixedLayout: true,
+    fillColumn: 1,
+    freezeColumns: 2,
+    selectionWidth: '38px',
+}
+void [nodeTitle, nodeKind, fullscreen, layout]
+// @ts-expect-error node 是标题信息，不是节点执行快照
+injectedPanel.node?.status

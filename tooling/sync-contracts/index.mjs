@@ -5,6 +5,7 @@ import { readdir, readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises'
 import { compile } from 'json-schema-to-typescript'
 import { root, cache, readJSON, prepareCache } from '../paths.mjs'
 import { startWorkflowRunFields } from './start-fields.mjs'
+import { syncPanelProps } from './panel-props.mjs'
 const args = process.argv.slice(2)
 const workspaceIndex = args.indexOf('--workspace')
 const workspace = workspaceIndex < 0 ? process.env.MOFANG_WORKSPACE : args[workspaceIndex + 1]
@@ -13,6 +14,7 @@ if (!workspace)
         '维护者同步需要 --workspace <mofangv6> 或 MOFANG_WORKSPACE；普通开发使用仓库自带类型，不需要同步。',
     )
 const sourceRoot = path.resolve(workspace)
+await syncPanelProps(args.includes('--check'))
 const destination = path.join(root, 'lib/contracts')
 const hash = (value) => createHash('sha256').update(value).digest('hex')
 const sources = {}

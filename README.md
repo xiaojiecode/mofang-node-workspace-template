@@ -145,6 +145,8 @@ fixtures/goja-test.js 使用普通 JavaScript 脚本语法，最后一个表达�
 
 ## 官方基础组件
 
+Lit 组件选用与布局规则见 [mofang-lit-ui](.agents/skills/mofang-lit-ui/SKILL.md)，包含表格固定布局、冻结列与填充列选项。
+
 基础组件统一维护在 [lib/browser/ui](lib/browser/ui/README.md)，从 `@mofang/browser` 导入，包含白底主题、Card、表单、表格与分页、图片查看器、Tabs、骨架和过渡。保留既有调用方式；组件只处理展示与交互，业务执行和宿主草稿仍由节点负责。
 
 `npm run test:ui` 生成组件总览并验证交互，`npm run test:transitions` 验证过渡；两项均纳入 `npm run check`。可通过 `MF_CACHE_DIR` 指定预览与截图目录，通过 `MF_CHROME_PATH` 指定 Chrome。
@@ -159,6 +161,6 @@ fixtures/goja-test.js 使用普通 JavaScript 脚本语法，最后一个表达�
 
 设计阶段按需使用 [节点业务设计](.agents/skills/mofang-node-business-design/SKILL.md) 推导业务规则、输入输出、事件与人工交接，使用 [节点 UI 设计](.agents/skills/mofang-node-ui-design/SKILL.md) 组织有限空间内的表单、审核界面和状态反馈；实现仍遵守上述执行及面板契约。
 
-另提供第三方 [Impeccable](.agents/skills/impeccable/SKILL.md)（综合设计与评审）和 [frontend-design](.agents/skills/frontend-design/SKILL.md)（视觉方向与排版），各自 UPSTREAM.json 记录固定来源修订，保留 Apache-2.0 许可及相关归属。七个技能均随初始化分发；安装技能未安装项目 hook 或全局配置。Impeccable launcher 会按其规则定位或首次获取引擎，实际运行能力需另行核对；节点宿主约束及项目材料位置优先。
+另提供第三方 [Impeccable](.agents/skills/impeccable/SKILL.md)（综合设计与评审）和 [frontend-design](.agents/skills/frontend-design/SKILL.md)（视觉方向与排版），各自 UPSTREAM.json 记录固定来源修订，保留 Apache-2.0 许可及相关归属。九个技能均随初始化分发；安装技能未安装项目 hook 或全局配置。Impeccable launcher 会按其规则定位或首次获取引擎，实际运行能力需另行核对；节点宿主约束及项目材料位置优先。
 
 [Git 同步](docs/upstream.md)使用唯一官方源。新工程保留模板祖先并提交初始化内容，以后通过 fetch/merge 更新整个上游，不维护文件或技能白名单；非重叠改动自动合并，冲突按 Git 常规方式解决或撤销后执行 upstream recover。未提交修改不自动 stash/reset/rebase。未完成合并或 dependenciesPending 会阻止构建。旧无模板祖先的工程不自动迁移，后续逐个接入。技能源码已合入本模板；退役独立技能仓库由维护者另行处理，不是初始化或同步命令的副作用。

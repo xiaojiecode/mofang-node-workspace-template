@@ -17,7 +17,7 @@ export type { SkeletonProps } from './components/skeleton'
 export { fade, slide, scale, collapse } from './components/transition'
 export type { TransitionProps, SlideProps } from './components/transition'
 export { dataTable, pager, pageNumbers } from './components/table'
-export type { TableColumn, TableSelection, PagerProps } from './components/table'
+export type { TableColumn, TableSelection, TableOptions, PagerProps } from './components/table'
 export { selectField, numberField, button, checkbox } from './components/controls'
 export type {
     SelectFieldProps,

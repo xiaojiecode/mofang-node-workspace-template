@@ -26,6 +26,25 @@ export type TableSelection = Readonly<{
     onToggleAll: (keys: readonly string[], checked: boolean) => void
 }>
 
+/** 表格布局、选择与状态选项，不承载业务请求。 */
+export type TableOptions<Row = unknown> = {
+    /** 固定布局使用列的 CSS 宽度，未提供时为 160px；宽度包含内边距与边框。 */
+    fixedLayout?: boolean
+    /** 从左起冻结的物理列数，包含可选的勾选列；仅固定布局生效。 */
+    freezeColumns?: number
+    /** 指定吸收剩余宽度的业务列，保持原列宽作为最小宽度。 */
+    fillColumn?: number
+    /** 固定布局下勾选列的 CSS 宽度，默认 38px。 */
+    selectionWidth?: string
+    selection?: TableSelection
+    empty?: string
+    rowState?: (row: Row) => string
+    loading?: boolean
+    /** 失败展示与空数据分开；重试行为由宿主提供，不自动请求。 */
+    error?: Readonly<{ title: string; description?: string; onRetry?: () => void }>
+    label?: string
+}
+
 /**
  * 通用数据表格：列由调用方给出，可选勾选列、禁用行灰显并说明原因、空状态。
  * 只负责展示与回调，不读取 SDK、不推断业务状态；分页由 pager 单独渲染。
@@ -34,21 +53,7 @@ export function dataTable<Row>(
     rows: readonly Row[],
     key: (row: Row) => string,
     columns: readonly TableColumn<Row>[],
-    options: {
-        /** 固定布局使用列的 CSS 宽度，未提供时为 160px；宽度包含内边距与边框。 */
-        fixedLayout?: boolean
-        /** 从左起冻结的物理列数，包含可选的勾选列；仅固定布局生效。 */
-        freezeColumns?: number
-        /** 固定布局下勾选列的 CSS 宽度，默认 38px。 */
-        selectionWidth?: string
-        selection?: TableSelection
-        empty?: string
-        rowState?: (row: Row) => string
-        loading?: boolean
-        /** 失败展示与空数据分开；重试行为由宿主提供，不自动请求。 */
-        error?: Readonly<{ title: string; description?: string; onRetry?: () => void }>
-        label?: string
-    } = {},
+    options: TableOptions<Row> = {},
 ) {
     const selection = options.selection
     const fixed = Boolean(options.fixedLayout)
@@ -56,6 +61,20 @@ export function dataTable<Row>(
         ...(selection ? [options.selectionWidth ?? '38px'] : []),
         ...columns.map((column) => column.width ?? '160px'),
     ]
+    const fillIndex =
+        options.fillColumn === undefined ? -1 : options.fillColumn + (selection ? 1 : 0)
+    if (
+        fixed &&
+        Number.isInteger(fillIndex) &&
+        fillIndex >= (selection ? 1 : 0) &&
+        fillIndex < widths.length
+    ) {
+        const otherWidths = widths.filter((_, index) => index !== fillIndex)
+        const availableWidth = otherWidths.length
+            ? `calc(100cqw - ${otherWidths.join(' - ')})`
+            : '100cqw'
+        widths[fillIndex] = `max(${widths[fillIndex]}, ${availableWidth})`
+    }
     const frozen = fixed
         ? Math.min(widths.length, Math.max(0, Math.floor(options.freezeColumns ?? 0)))
         : 0

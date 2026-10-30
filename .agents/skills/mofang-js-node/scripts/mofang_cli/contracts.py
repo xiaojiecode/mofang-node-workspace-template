@@ -38,7 +38,7 @@ FIELD_HELP = {
     "config": "renderMode=lowcode 时提交经共享校验的完整 PagePackage JSON 对象，不提交 JS 字符串。",
     "viewSource": "settings.js 或 business.js 原文，必须与 surface 对应。",
     "programSource": "仅 business Lit 必须提供 pageProgram.js；settings 和 lowcode 不接受。",
-    "supportedContextSchemas": "business Lit 编译与保存必须显式提供非空数组，元素为唯一、无首尾空白、最多256个UTF-8字节的非空字符串；按真实宿主契约声明，不自动补默认值或整抽屉标记。",
+    "supportedContextSchemas": "business Lit 编译与保存必须显式提供非空数组，元素为唯一、无首尾空白、最多256个UTF-8字节的非空字符串；按真实宿主契约声明，不自动补默认值或布局标记。",
     "scope": "面板发布 new_only / all_instances / selected_instances，按用户明确授权选择。",
     "targets": "selected_instances 的非空 nodeInstanceId 列表；不能用 nodeCode 替代。",
     "panelRevision": "已保存页面的真实修订；不能用执行 definitionHash 替代。",

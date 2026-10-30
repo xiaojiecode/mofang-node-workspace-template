@@ -1,0 +1,15 @@
+[
+    "sdk",
+    "mofangsdk",
+    "context",
+    "node",
+    "target",
+    "ui",
+    "surface",
+    "settings",
+    "panelContext",
+    "nodeView",
+    "nodeOutput",
+    "panelError",
+    "createRecordSdk"
+]

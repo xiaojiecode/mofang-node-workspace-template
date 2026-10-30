@@ -4,7 +4,7 @@ import { build } from 'esbuild'
 import { chromium } from 'playwright'
 
 for (const minify of [false, true])
-    test(`运行面板真实 SDK 接口、权限与解绑（压缩=${minify}）`, async (t) => {
+    test(`运行面板严格 SDK Proxy、真实接口、权限与解绑（压缩=${minify}）`, async (t) => {
         const js = await build({
             stdin: {
                 contents: `import {LitElement,html} from 'lit'; import {nodeRuntimePanel} from './lib/browser/runtime-panel'; class App extends LitElement { static properties={sdk:{attribute:false},target:{attribute:false}}; render(){return html\`${'${nodeRuntimePanel({sdk:this.sdk,target:this.target})}'}\`} } customElements.define('test-app',App)`,
@@ -226,7 +226,13 @@ for (const minify of [false, true])
                 },
             }
             const app = document.createElement('test-app')
-            app.sdk = sdk
+            // SDK 未声明的属性一律报错，模板不能直接探测其静态标签标记。
+            app.sdk = new Proxy(sdk, {
+                get(target, key) {
+                    if (key in target) return Reflect.get(target, key)
+                    throw new Error('未声明的 SDK 属性：' + String(key))
+                },
+            })
             app.target = { runId: 'run', nodeInstanceId: 'node', view: 'current' }
             document.body.append(app)
             window.testRuntime = {
@@ -505,7 +511,20 @@ test('正式面板打包产物使用宿主 Lit 并可挂载', async (t) => {
                     canControl: false,
                     canResolveUnknown: false,
                 },
-                composition: { projection: { status: 'ready', nodeView: {}, actions: [] } },
+                composition: {
+                    projection: {
+                        status: 'ready',
+                        nodeView: {},
+                        actions: [
+                            {
+                                name: 'finish',
+                                label: '不应显示的动作',
+                                presentation: 'host',
+                                availability: { enabled: true },
+                            },
+                        ],
+                    },
+                },
             }
             const sdk = {
                 context: { subscribe: () => () => {}, getState: () => ({}) },
@@ -525,16 +544,28 @@ test('正式面板打包产物使用宿主 Lit 并可挂载', async (t) => {
                     }),
                 },
             }
+            const identity = {
+                name: '标题信息',
+                description: '仅用于识别',
+                iconUrl: '',
+                kind: 'code',
+            }
+            const ui = { fullscreen: true, onToggleFullscreen: () => {} }
             Object.assign(element, {
+                node: identity,
+                ui,
                 sdk,
                 target: { runId: 'r', nodeInstanceId: 'n', view: 'current' },
                 createRecordSdk: factory,
-                panelContext: { createRecordSdk: factory },
+                panelContext: { createRecordSdk: factory, node: identity, ui },
             })
             document.body.append(element)
             await element.updateComplete
             const count = element.shadowRoot.querySelectorAll('*').length
             const preserved =
+                element.node === identity &&
+                element.ui === ui &&
+                element.panelContext.node === identity &&
                 element.createRecordSdk === factory &&
                 element.panelContext.createRecordSdk === factory
             return { count, preserved }
@@ -542,6 +573,13 @@ test('正式面板打包产物使用宿主 Lit 并可挂载', async (t) => {
         assert.ok(mounted.count > 0)
         assert.equal(mounted.preserved, true)
         await page.locator('official-test').getByText('节点状态：waiting').waitFor()
+        assert.equal(
+            await page
+                .locator('official-test')
+                .getByRole('button', { name: '不应显示的动作' })
+                .count(),
+            0,
+        )
         await page.close()
     }
 })

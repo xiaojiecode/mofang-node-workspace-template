@@ -11,15 +11,15 @@ description: 为魔方节点编写、验证和发布独立 Lit 设置与业务�
 
 ## 先确定宿主与数据
 
-读取模板AGENTS并完成上游检查，按[模板说明](../../../README.md)核对现有节点、两个surface、模式和冻结引用。已有页面或输出先读取，不让用户重复提供可查字段；重要UI/契约取舍先讨论。
+读取模板AGENTS；日常开发不要求检查或同步上游，显式更新按模板手动同步流程执行。按[模板说明](../../../README.md)核对现有节点、两个surface、模式和冻结引用。已有页面或输出先读取，不让用户重复提供可查字段；重要UI/契约取舍先讨论。
 
 需要规划或改善信息层级、交互、排版和状态反馈时，按需读取 [节点 UI 设计](../mofang-node-ui-design/SKILL.md)；业务决定尚不清楚时先用 [节点业务设计](../mofang-node-business-design/SKILL.md)。本技能负责宿主与 SDK 接线，不用设计建议替代真实契约。
 
-settings位于设置正文内，Lit 工作流设置 shell 提供节点导航和策略，宿主负责统一草稿保存/取消；business位于有限高度上拉抽屉。业务默认用内置 `nodeCard({aside?,collapsed?},content)` 填满宿主剩余宽高，右侧组合内置 `cockpit`，统一受控折叠；正文只保留一个结果滚动层，具体见 [默认节点业务容器](../mofang-lit-ui/references/layout-and-runtime.md#默认节点业务容器)。标准与full-panel均在 Lit 正文提供平台必要操作、host动作与系统退路，宿主仅保留标题和真实渲染失败占位；业务内容利用剩余空间。
+settings位于设置正文内，Lit 工作流设置 shell 提供节点导航和策略，宿主负责统一草稿保存/取消；business位于有限高度上拉抽屉。业务默认用内置 `nodeCard({aside?,collapsed?},content)` 填满宿主剩余宽高，右侧组合内置 `cockpit`，统一受控折叠；正文只保留一个结果滚动层，具体见 [默认节点业务容器](../mofang-lit-ui/references/layout-and-runtime.md#默认节点业务容器)。Lit 正文提供必要动作、任务处理与候选操作；宿主保留标题栏、已有暂停/恢复、全屏/关闭和渲染失败或拒权占位。业务内容利用剩余空间。
 
 后台React风格语法与Lit展示分别维护。运行只导入宿主许可的lit，默认导出LitElement，不打第二份Lit核心。动态属性用declare/static properties，目标取this.target，不把整个panelContext当target。
 
-宿主通过 Object.assign 注入 sdk、mofangsdk、context、node、nodeView、nodeOutput、target、ui、panelContext、surface、settings。不要用这些名称声明只有 getter 的内部属性，尤其 `get node()`；业务快照可命名为 `flowNode`。浏览器验收须覆盖完整属性注入，编译通过不能证明挂载成功。
+宿主通过 Object.assign 注入属性，完整清单唯一维护于 [PanelProps](../../../lib/contracts/src/browser/host.ts)，CLI guide 的 mount_fields 由该声明生成。node 是节点名称、说明、图标等标题信息，不是执行快照；ui 的全屏状态和切换回调由宿主维护。不要用这些名称声明只有 getter 的内部属性，尤其 `get node()`；业务快照可命名为 `flowNode`。浏览器验收须覆盖完整属性注入，编译通过不能证明挂载成功。
 
 ## 连接与工程
 
@@ -31,7 +31,7 @@ CLI复用相邻mofang-js-node脚本，两个技能一起安装。先运行`guide
 
 node.ts保存目录元数据、contract.ts维护契约，settings.ts与view.ts独立构建；公共展示在lib/browser，后台不得引用它。保存发布每个surface后回读，实例发布有明确目标；页面发布不等于执行定义采用。
 
-business Lit 编译与保存均须显式提供非空 `supportedContextSchemas`；settings 不要求该字段且不接受 programSource。编译正文只放 surface、viewSource、business 的 programSource 和上下文声明，不混入保存用的 kind/renderMode 或目录修订。完整示例与编译拒绝排查见[平台 CLI](../mofang-js-node/references/platform-cli.md#双面板保存和发布)，CLI 不猜默认 Schema 或自动声明整抽屉模式。
+business Lit 编译与保存均须显式提供非空 `supportedContextSchemas`；settings 不要求该字段且不接受 programSource。编译正文只放 surface、viewSource、business 的 programSource 和上下文声明，不混入保存用的 kind/renderMode 或目录修订。完整示例与编译拒绝排查见[平台 CLI](../mofang-js-node/references/platform-cli.md#双面板保存和发布)，CLI 不猜默认 Schema 或新增页面布局模式。
 
 ## 设置草稿
 
@@ -49,6 +49,6 @@ business Lit 编译与保存均须显式提供非空 `supportedContextSchemas`�
 
 ## 验收与交付
 
-按[面板必验](references/verification.md)检查真实有限高度和键盘可达、状态/错误/只读、SDK重绑、修订冲突、断连恢复、全接管入口、投影失败。预览截图或编译通过不能证明平台链路成功。
+按[面板必验](references/verification.md)检查真实有限高度和键盘可达、状态/错误/只读、SDK重绑、修订冲突、断连恢复、必要动作入口、投影失败。预览截图或编译通过不能证明平台链路成功。
 
 保留原业务展示和操作，不因新投影删掉不理解的组件。真实保存/发布、目录采用和实际试跑分别报告身份与修订，未执行项写清；历史页面保持冻结。

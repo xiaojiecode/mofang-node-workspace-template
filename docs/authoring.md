@@ -24,7 +24,7 @@
 
 顶层辅助输入属性可声明 `'x-mf-config-before-run': true`，例如 `properties: {enabled: {type:'boolean', 'x-mf-config-before-run':true}}`。它表示仅运行前固定配置：不接受上游绑定，运行开始后包括暂停均不可修改。`item`、输出 Schema 和嵌套属性不能声明该注解；未标记的普通输入维持现行规则。该注解由平台校验，客户端参数/SDK字段描述投影为 `configBeforeRun`，Lit 设置面板使用宿主 `disabledFields` 禁用对应输入并服从写回门禁。
 
-任务常量显式标注 `TaskDefinition<Input,Output,Cursor>` 后在 spec.tasks 注册，useTask 只绑定。handler 的 spawn 暂存命令；reducer 的 env.commands.spawn 只构造命令并预留 id，id 可保存进下一状态。与本次真实输入关联的子任务使用 `[event.inputEventId]`，结果候选沿 `event.inputRefs`；`deliveryId` 仅是原始商品到达来源，不能作为 inputRefs。`generation` 是正整数十进制字符串，同一到达的重跑会生成新 inputEventId。数据源节点独立选择领域记录时，即使同一节点也接收上游，未关联任何输入事件的独立任务仍可以使用 `[]`，但仍须通过可信能力按当前用户和工作区重读并校验领域记录，保留真实领域身份；空引用不证明领域归属。
+任务常量显式标注 `TaskDefinition<Input,Output,State>` 后在 spec.tasks 注册，useTask 只绑定。handler 的 spawn 暂存命令；reducer 的 env.commands.spawn 只构造命令并预留 id，id 可保存进下一状态。与本次真实输入关联的子任务使用 `[event.inputEventId]`，结果候选沿 `event.inputRefs`；`deliveryId` 仅是原始商品到达来源，不能作为 inputRefs。`generation` 是正整数十进制字符串，同一到达的重跑会生成新 inputEventId。数据源节点独立选择领域记录时，即使同一节点也接收上游，未关联任何输入事件的独立任务仍可以使用 `[]`，但仍须通过可信能力按当前用户和工作区重读并校验领域记录，保留真实领域身份；空引用不证明领域归属。
 
 `TaskDefinition.tools?: readonly string[]` 可为每个静态子任务声明冻结的最小工具子集；服务端要求名称合法、无重复且均已列入 `node.ts.tools`。显式 `[]` 表示不许可任何原子工具，缺席时沿用本次冻结节点的完整许可，不能从当前目录补历史任务。任务进入 AgentCtl 前只预检该任务许可，实际 dispatch 继续按严格异步规则检查；不要为了让文案任务起跑而放宽图片工具。包含多种独立能力的节点应按实际能力或阶段注册静态任务，不能根据运行时输入动态扩权。
 
@@ -33,6 +33,10 @@
 平台仅对 `publish_message`（含 `ctx.message`）免计工具预算；采集、结果查询、`await_user` 等其它工具仍计数。消息仍受许可、身份、暂停和执行超时约束并保留调用记录。预算 1 可覆盖“一条进度消息 + 一次同步采集 + 一条完成消息”，若采集后还需查询结果或人工等待，必须加入相应次数；只统计实际使用的调用，不为示例虚增预算。免计规则依赖目标平台已部署支持，离线 guide/Mock 或模板更新不能证明远端已生效；冻结历史不自动更新或重跑。验证应覆盖预算刚好够用、耗尽后消息仍可发和其它工具被拒绝。
 
 任务使用当前 stages 与 ctx.input/state/answer，终结/人工等待/暂停/unknown 保持现有规则；不从父闭包拿实时设置。只有 succeeded 有 output；failed 保留错误/核对事实，cancelled 保留原因，unknown 保留原操作不重发。items 空或缺省不追加候选，每个候选恰好一件完整 Product。Product 引用可信 contracts/business，不重写缩略 Schema。
+
+`useOutputs<Output>()` 绑定输出句柄，事件处理器可通过 `append(value,{inputRefs})` 暂存追加输出；内容必须符合本节点冻结 outputSchema，主流 items 为空或缺省不补造商品。它不直接结束生产，也不代替候选审核和下游流转。
+
+`useOnTaskResult<Output>(handler)` 注册任务结果事件，遵守静态 Hook 注册与事件事务边界；通常优先用对应 `useTask(...).onResult` 将处理器与任务绑定。只有 succeeded 含 output，failed/cancelled/unknown 分别按错误、取消原因与原操作身份处理，不自动重发。
 
 useNodeAction 绑定静态动作，guard 返回 enabled 或禁用原因。handler 接收 payload 与 eventId/sequence/candidates，只读身份和候选修订由平台提供。guard 不替代权限/归属/来源/修订校验。无参必要动作用 host，参数选择用 panel；零结果/不选择/失败必须有结束路径，unknown 先核对。
 

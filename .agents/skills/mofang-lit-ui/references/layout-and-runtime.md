@@ -27,6 +27,8 @@ nodeCard({
 
 `dataTable(rows,key,columns,options)` 负责渲染和回调。列为 `TableColumn<Row>`：`title,cell,width?,align?`；稳定 `key(row)` 用于保留行、图片和输入 DOM。`options` 含 `selection,empty,rowState,loading,label,error`。`error:{title,description?,onRetry?}` 优先展示错误与可选重试回调，表格不执行请求。加载但已有数据时保留行，显示刷新提示并禁用行选择；调用方同时把分页设为 busy。空列表加载显示骨架，实际无数据使用空态。
 
+表格选项统一导出为 `TableOptions<Row>`。`fixedLayout:true` 使用列宽，未指定列宽时为 160px；`selectionWidth` 是勾选列宽，默认 38px。`freezeColumns` 是从左起冻结的物理列数，包含勾选列，仅固定布局生效。`fillColumn` 是从 0 开始的业务列索引，不包含勾选列：指定列吸收剩余宽度，原列宽作为最小值；空间不足保留横向滚动。未指定或索引非法时沿用原列宽，不改变默认布局。
+
 `TableSelection` 为 `selected:ReadonlySet<string>`、`disabledReason(key)`、`onToggle(key,checked)`、`onToggleAll(keys,checked)`。全选缺省仅针对本次传入的可选行。调用方确实持有完整结果时，可传 `allKeys` 和与范围一致的 `allLabel` 使表头选中/半选/禁用及回调统一基于全量可选键；不把服务端未知分页当作全量。跨页选择保留、筛选时是否清除仍由业务层明确决定，表格不推断。只读可保留选择列并返回禁用原因，避免状态切换挤动布局。
 
 商品表格复用 `productCell(product,secondary?)`、`image`、`text`、`url`、`money(value,currency)`、`percent(value)`，列仍由业务定义，不复制一套商品表格控件。缺失价格/指标显示占位，不补零；`percent` 接受 0–100，`money` 不猜币种。完整商品结构来自 `@mofang/contracts/business`，不要把第三方原始对象强转成 Product。

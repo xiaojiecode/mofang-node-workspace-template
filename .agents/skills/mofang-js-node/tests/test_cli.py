@@ -578,6 +578,9 @@ class CLITest(unittest.TestCase):
         self.assertIn("renderMode", interfaces["panels save"]["contract"]["body_fields"])
         self.assertEqual(set(interfaces["panels publish"]["contract"]["body_fields"]), {"surface", "scope", "panelRevision", "targets"})
         self.assertIn("supportedContextSchemas", result["data"]["panel_authoring"]["business_context"])
+        fields = result["data"]["panel_authoring"]["mount_fields"]
+        self.assertEqual(len(fields), 13)
+        self.assertTrue({"node", "panelError", "createRecordSdk"}.issubset(fields))
         self.assertFalse(self.state.exists())
         self.assertEqual(self.server.requests, [])
 

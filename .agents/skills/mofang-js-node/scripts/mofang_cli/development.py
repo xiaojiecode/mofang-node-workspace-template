@@ -1,6 +1,8 @@
 """离线开发指引与固定只读预检；没有 Tool 执行、目录写入或发布路径。"""
 
 import copy
+import json
+from pathlib import Path
 from urllib.parse import urlsplit
 
 from .connection import CLIError
@@ -28,7 +30,8 @@ def guide():
                             "lowcode": "读取 panels.json；renderer=puck 使用 lowcode guide/catalog/inspect/apply/validate/preview/restore，由AI配置、用户仅预览；build/verify后panels:prepare生成lowcode保存正文，沿用panels save/publish，不转Lit。",
                             "business_context": "business Lit 的 supportedContextSchemas 必须是非空唯一字符串数组，按真实宿主声明；CLI不自动补默认值。",
                             "settings_context": "settings不要求supportedContextSchemas且禁止programSource；如显式提供声明仍检查格式。",
-                            "mount": "宿主会Object.assign注入sdk、mofangsdk、context、node、nodeView、nodeOutput、target、ui、panelContext、surface、settings；内部getter不可占用这些名称，尤其node。",
+                            "mount": "宿主通过Object.assign注入mount_fields中的属性；清单从PanelProps生成，内部getter不可占用这些名称。node仅为节点标题信息，不是执行快照。",
+                            "mount_fields": json.loads((Path(__file__).parent / "panel-props.json").read_text(encoding="utf-8")),
                             "verification": "本地作者分析、最终产物装载和真实运行分别验证；后台仅支持接口写入或上传页面包，不提供源码编辑和预览。"},
         "files": {"nodes/<code>/node.ts": "目录元数据、双Schema、许可工具和预算",
                   "nodes/<code>/contract.ts": "配置/状态/动作/投影类型与冻结Schema",
@@ -49,7 +52,7 @@ def guide():
             "Component/guard/Project/updater/reducer不执行Tool；真正外部调用只在子任务stage的ctx.call。",
             "完整读取Tool双Schema、异步状态/代次、错误与结果字段，再映射完整Product；扩展属性用unknown并收窄。",
             "finish是事件计划末尾生产声明；输入、任务、事件、候选、unknown和控制义务未结清时节点不会成功。",
-            "零结果、不选择、失败都要有实际入口；无参数必要动作由宿主提供，full-panel也保留。",
+            "零结果、不选择、失败都要有实际入口；无参数必要动作由 Lit 正文提供，宿主保留既有控制入口。",
             "顶层辅助输入可声明x-mf-config-before-run:true；不能绑定且运行含暂停不可改，禁止在item、输出和嵌套属性声明。",
             "unknown不自动重发；普通业务失败不静默重试，不恢复业务去重、步骤回用或副作用回放。",
             "业务投影只取composition.projection.status=ready的nodeView，失败显示平台退路，不回退旧nodeView。",

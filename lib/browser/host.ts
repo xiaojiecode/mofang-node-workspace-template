@@ -2,6 +2,7 @@ import { LitElement } from 'lit'
 import type { ReactiveController, ReactiveControllerHost, PropertyDeclarations } from 'lit'
 import type {
     PanelProps,
+    PanelNodeIdentity,
     MofangSDK,
     NodeContext,
     NodeFlowState,
@@ -133,6 +134,7 @@ export class HostPanel extends LitElement implements PanelProps {
         sdk: { attribute: false },
         mofangsdk: { attribute: false },
         context: { attribute: false },
+        node: { attribute: false },
         target: { attribute: false },
         ui: { attribute: false },
         surface: { attribute: false },
@@ -146,6 +148,7 @@ export class HostPanel extends LitElement implements PanelProps {
     declare sdk: MofangSDK | undefined
     declare mofangsdk: MofangSDK | undefined
     declare context: NodeContext | null | undefined
+    declare node: PanelNodeIdentity | undefined
     declare target: PanelTarget | undefined
     declare ui: PanelUI | undefined
     declare surface: PanelSurface | undefined

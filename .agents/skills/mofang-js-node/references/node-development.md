@@ -45,7 +45,7 @@ Tool可能计费。默认只查询能力元数据和Schema、编写代码并做�
 
 ## 结束、人工事件与故障
 
-`useProduction().finish()`暂存事件计划末尾的生产结束声明，不直接让节点成功，也不替候选流转或丢弃。输入、任务、事件、候选、unknown和控制义务需要实际结清。无参数必要动作由 Lit 正文提供，full-panel也保留；参数动作必须有真实页面入口。
+`useProduction().finish()`暂存事件计划末尾的生产结束声明，不直接让节点成功，也不替候选流转或丢弃。输入、任务、事件、候选、unknown和控制义务需要实际结清。无参数必要动作由 Lit 正文提供；参数动作必须有真实页面入口。
 
 普通业务失败不自动重发，unknown先查询同一操作身份并核对结果。动作accepted、applied与节点成功分别显示；action受理后查询getActionResult/watchActionResult，刷新用listActions恢复，不按payload猜身份或自动重提。设置保存、目录采用、页面发布、工作流起跑是独立步骤。
 
