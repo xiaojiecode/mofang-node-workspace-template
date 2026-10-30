@@ -56,6 +56,20 @@ test('预览 SDK 对尚未实现的真实 API 保留明确错误', () => {
         assert.throws(() => Reflect.get(sdk, key), new RegExp('本地预览未实现 SDK 方法：' + key))
     assert.equal(typeof sdk.context.getSnapshot, 'function')
     assert.equal(typeof sdk.nodeFlow.watch, 'function')
+    assert.throws(() => sdk.messages.onStage(() => {}), /本地预览未实现 SDK 方法：messages/)
+})
+
+test('预览消息订阅可取消，不生成消息或连接真实消息流', () => {
+    const fixture = createFixture({})
+    let events = 0
+    const stop = fixture.sdk.messages.subscribe({ runId: 'preview-run' }, () => events++)
+    assert.equal(typeof stop, 'function')
+    fixture.notify()
+    assert.equal(events, 0)
+    stop()
+    stop()
+    fixture.notify()
+    assert.equal(events, 0)
 })
 
 test('无上游item的入口预览不构造undefined商品，覆盖仍保留原指标', () => {

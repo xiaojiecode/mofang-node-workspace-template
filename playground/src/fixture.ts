@@ -378,7 +378,20 @@ export function createFixture(
             refresh: async () => {},
         }),
     }
-    const partial = { context: contextAPI, nodeFlow: nodeFlowAPI }
+    const unsupportedMessage = () => {
+        throw new Error('本地预览未实现 SDK 方法：messages')
+    }
+    const messages: MofangSDK['messages'] = {
+        // 预览没有远端消息流；节点本地更新仍由已有资源订阅通知，不伪造消息事件。
+        subscribe: () => () => {},
+        onStage: unsupportedMessage,
+        onPlan: unsupportedMessage,
+        onMessage: unsupportedMessage,
+        onReasoning: unsupportedMessage,
+        onTool: unsupportedMessage,
+        onConnectionChange: unsupportedMessage,
+    }
+    const partial = { context: contextAPI, nodeFlow: nodeFlowAPI, messages }
     const sdk = new Proxy(partial, {
         get(target, key) {
             if (key in target) return Reflect.get(target, key)
