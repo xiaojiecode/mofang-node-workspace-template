@@ -137,6 +137,7 @@ export class HostPanel extends LitElement implements PanelProps {
         surface: { attribute: false },
         settings: { attribute: false },
         panelContext: { attribute: false },
+        panelError: { attribute: false },
         nodeView: { attribute: false },
         nodeOutput: { attribute: false },
     }
@@ -148,6 +149,7 @@ export class HostPanel extends LitElement implements PanelProps {
     declare surface: PanelSurface | undefined
     declare settings: SettingsPanelEditor | undefined
     declare panelContext: PanelHostContext | undefined
+    declare panelError: string | undefined
     declare nodeView: JSONObject | null | undefined
     declare nodeOutput: NodeCandidatePage | null | undefined
     protected readonly contextResource = new ContextController(this, () => this.sdk)

@@ -1,3 +1,6 @@
 export * from './host'
 export * from './ui/index'
 export * from './actions'
+export * from './bindings'
+export * from './runtime-panel'
+export * from './task-operation-controller'

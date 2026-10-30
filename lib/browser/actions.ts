@@ -91,6 +91,11 @@ export class ActionController implements ReactiveController {
         if (sdk && target?.runId && target.nodeInstanceId && target.view !== 'preview')
             void this.restore()
     }
+    get records(): readonly NodeActionResult[] {
+        return [...this.outcomes.values()].sort((a, b) =>
+            BigInt(a.sequence) < BigInt(b.sequence) ? -1 : 1,
+        )
+    }
     get busy() {
         return this.phase !== 'idle'
     }
@@ -153,7 +158,7 @@ export class ActionController implements ReactiveController {
                 if (!page.hasMore) break
                 if (!page.nextCursor) throw new Error('动作记录分页回执不完整')
                 if (pages >= 10)
-                    throw new Error('动作记录尚未核对完整（超过10页），请在宿主记录区继续核对')
+                    throw new Error('动作记录尚未核对完整（超过10页），请按原事件身份继续核对')
                 page = await sdk.nodeFlow.listActions({ ...query, cursor: page.nextCursor })
             }
             const ids = [...this.pending]

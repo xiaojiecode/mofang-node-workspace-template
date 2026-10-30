@@ -25,7 +25,7 @@ Tool可能计费。默认只查询能力元数据和Schema、编写代码并做�
 | 设置默认值、可选值、清空语义 | 当前contract.ts/inputSchema与业务要求 | 区分未填、false、0、null；不虚构查询条件 |
 | 何时启动、等谁、怎样结束 | 输入/任务/人工动作与NodeFacts | 逐分支覆盖空输入、零结果、不选择、失败、unknown、暂停与取消 |
 | 结果来源与候选去向 | deliveryId/inputRefs、task结果、候选id/revision | 不按标题猜身份，不伪造来源；已流转项只读 |
-| 页面、动作和历史模式 | settings/business修订、就绪投影与permissions | 保留宿主草稿、必要动作区及禁用原因 |
+| 页面、动作和历史模式 | settings/business修订、就绪投影与permissions | 保留宿主草稿，并在 Lit 正文提供必要动作及禁用原因 |
 | 超时、许可与费用 | node.ts、真实能力元数据、用户授权 | maxToolCalls为完整子任务跨阶段累计正预算，仅publish_message免计，按作者规范核算分支与轮询；timeoutSeconds=0用平台默认600秒；Tool额度在实际提交时核验 |
 
 ## 文件与最短实现路径
@@ -45,7 +45,7 @@ Tool可能计费。默认只查询能力元数据和Schema、编写代码并做�
 
 ## 结束、人工事件与故障
 
-`useProduction().finish()`暂存事件计划末尾的生产结束声明，不直接让节点成功，也不替候选流转或丢弃。输入、任务、事件、候选、unknown和控制义务需要实际结清。无参数必要动作由共同宿主区域提供，full-panel也保留；参数动作必须有真实页面入口。
+`useProduction().finish()`暂存事件计划末尾的生产结束声明，不直接让节点成功，也不替候选流转或丢弃。输入、任务、事件、候选、unknown和控制义务需要实际结清。无参数必要动作由 Lit 正文提供，full-panel也保留；参数动作必须有真实页面入口。
 
 普通业务失败不自动重发，unknown先查询同一操作身份并核对结果。动作accepted、applied与节点成功分别显示；action受理后查询getActionResult/watchActionResult，刷新用listActions恢复，不按payload猜身份或自动重提。设置保存、目录采用、页面发布、工作流起跑是独立步骤。
 

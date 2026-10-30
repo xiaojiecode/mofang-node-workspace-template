@@ -70,7 +70,7 @@ useNodeConfig只读取起跑固定设置，宿主排除item和所有已绑定字
 
 按[必须事件验收](references/verification.md)逐项核对等待条件、用户入口、动作Schema/修订、处理结果和剩余义务。动作实际处理前重新核对guard，服务端权限/来源/状态校验保留。
 
-host无参数必要入口由宿主提供，panel参数动作需要实际面板交互；按 panels.json 选择 Lit 或 mofang-lowcode-node 技能实现。零结果、不选择和业务失败有明确路径。unknown先核对，不能用finish掩盖。finish是新ABI事件末尾生产声明，不是节点成功、取消或候选流转；不能拿新规则解释旧冻结源码。
+host无参数必要入口由 Lit 正文提供，panel参数动作需要实际面板交互；按 panels.json 选择 Lit 或 mofang-lowcode-node 技能实现。零结果、不选择和业务失败有明确路径。unknown先核对，不能用finish掩盖。finish是新ABI事件末尾生产声明，不是节点成功、取消或候选流转；不能拿新规则解释旧冻结源码。
 
 action返回受理后按eventId等待outcome；需要恢复时查询动作列表，不能比较view是否变化、按payload猜身份或自动再提交一次。applied只代表协调事务成功，仍需跟踪任务、候选和节点终态。
 

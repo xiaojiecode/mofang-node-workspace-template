@@ -1,6 +1,6 @@
 # 布局、表格与运行展示
 
-组件样式统一来自 `panelStyles`，业务样式只负责布局和已确认的宿主尺寸。设置侧栏、有限高度业务抽屉和共同宿主必要动作区的责任遵守 Lit 面板技能；不要把预览的固定尺寸直接套到所有宿主。
+组件样式统一来自 `panelStyles`，业务样式只负责布局和已确认的宿主尺寸。设置侧栏与有限高度业务抽屉内的必要动作遵守 Lit 面板技能；不要把预览的固定尺寸直接套到所有宿主。
 
 `flow({direction:'horizontal'|'vertical',gap?,wrap?,align?,justify?},content)` 是普通流式布局，没有 DAG、执行或状态推进语义。`footer({leading?,actions?})` 固定在调用方容器末尾；调用方采用 `display:flex;flex-direction:column;min-height:0`，正文 `flex:1;min-height:0;overflow:auto`。不把 footer 定位到浏览器窗口，也不重复设置宿主保存按钮。
 

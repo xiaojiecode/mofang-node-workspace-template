@@ -15,7 +15,7 @@ description: 为魔方节点编写、验证和发布独立 Lit 设置与业务�
 
 需要规划或改善信息层级、交互、排版和状态反馈时，按需读取 [节点 UI 设计](../mofang-node-ui-design/SKILL.md)；业务决定尚不清楚时先用 [节点业务设计](../mofang-node-business-design/SKILL.md)。本技能负责宿主与 SDK 接线，不用设计建议替代真实契约。
 
-settings位于宿主右侧设置内容区，宿主保留导航和统一保存/取消；business位于有限高度上拉抽屉。业务默认用内置 `nodeCard({aside?,collapsed?},content)` 填满宿主剩余宽高，右侧组合内置 `cockpit`，统一受控折叠；正文只保留一个结果滚动层，具体见 [默认节点业务容器](../mofang-lit-ui/references/layout-and-runtime.md#默认节点业务容器)。标准与full-panel均保留平台必要操作区域，页面不能省略host动作或系统退路；业务内容利用剩余空间。
+settings位于设置正文内，Lit 工作流设置 shell 提供节点导航和策略，宿主负责统一草稿保存/取消；business位于有限高度上拉抽屉。业务默认用内置 `nodeCard({aside?,collapsed?},content)` 填满宿主剩余宽高，右侧组合内置 `cockpit`，统一受控折叠；正文只保留一个结果滚动层，具体见 [默认节点业务容器](../mofang-lit-ui/references/layout-and-runtime.md#默认节点业务容器)。标准与full-panel均在 Lit 正文提供平台必要操作、host动作与系统退路，宿主仅保留标题和真实渲染失败占位；业务内容利用剩余空间。
 
 后台React风格语法与Lit展示分别维护。运行只导入宿主许可的lit，默认导出LitElement，不打第二份Lit核心。动态属性用declare/static properties，目标取this.target，不把整个panelContext当target。
 

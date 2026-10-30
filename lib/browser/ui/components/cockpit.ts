@@ -61,36 +61,44 @@ function capabilities(items: NonNullable<CockpitNode['capabilities']>) {
 function nodeContent(node: CockpitNode, running: boolean) {
     return html`<div class="mf-cockpit__node-content">
         ${node.notice ? warningCard(node.notice) : nothing}
-        <div class="mf-cockpit__detail-card">
-            ${card(
-                { title: node.processTitle ?? 'Agent执行过程', variant: 'compact' },
-                node.process?.length
-                    ? timeline({
-                          label: node.processTitle ?? 'Agent执行过程',
-                          items: node.process,
-                          running,
-                      })
-                    : html`<p class="mf-cockpit__empty">暂无执行过程</p>`,
-            )}
-        </div>
-        <div class="mf-cockpit__detail-card">
-            ${card(
-                { title: '本次开启的原子能力', variant: 'compact' },
-                capabilities(node.capabilities ?? []),
-            )}
-        </div>
-        <div class="mf-cockpit__detail-card">
-            ${card(
-                { title: '数据来源', variant: 'compact' },
-                node.sourceContent ?? html`<p class="mf-cockpit__empty">暂无数据来源</p>`,
-            )}
-        </div>
-        <div class="mf-cockpit__detail-card">
-            ${card(
-                { title: '输出', variant: 'compact' },
-                node.outputContent ?? html`<p class="mf-cockpit__empty">暂无输出内容</p>`,
-            )}
-        </div>
+        ${node.process !== undefined
+            ? html`<div class="mf-cockpit__detail-card">
+                  ${card(
+                      { title: node.processTitle ?? 'Agent执行过程', variant: 'compact' },
+                      node.process?.length
+                          ? timeline({
+                                label: node.processTitle ?? 'Agent执行过程',
+                                items: node.process,
+                                running,
+                            })
+                          : html`<p class="mf-cockpit__empty">暂无执行过程</p>`,
+                  )}
+              </div>`
+            : nothing}
+        ${node.capabilities !== undefined
+            ? html`<div class="mf-cockpit__detail-card">
+                  ${card(
+                      { title: '本次开启的原子能力', variant: 'compact' },
+                      capabilities(node.capabilities),
+                  )}
+              </div>`
+            : nothing}
+        ${node.sourceContent !== undefined
+            ? html`<div class="mf-cockpit__detail-card">
+                  ${card(
+                      { title: '数据来源', variant: 'compact' },
+                      node.sourceContent ?? html`<p class="mf-cockpit__empty">暂无数据来源</p>`,
+                  )}
+              </div>`
+            : nothing}
+        ${node.outputContent !== undefined
+            ? html`<div class="mf-cockpit__detail-card">
+                  ${card(
+                      { title: '输出', variant: 'compact' },
+                      node.outputContent ?? html`<p class="mf-cockpit__empty">暂无输出内容</p>`,
+                  )}
+              </div>`
+            : nothing}
     </div>`
 }
 
