@@ -154,7 +154,7 @@ test('真实构建四种组合，离线保存严格检查当前源码、产物�
         catalogFile,
         JSON.stringify({
             ok: true,
-            data: { code, catalogInstanceId: 'catalog-fixture', catalogRevision: '3' },
+            data: { nodeCode: code, catalogInstanceId: 'catalog-fixture', catalogRevision: '3' },
         }),
     )
     const out = path.join(rootDir, 'save.json')
@@ -165,6 +165,34 @@ test('真实构建四种组合，离线保存严格检查当前源码、产物�
     assert.equal('viewSource' in body, false)
     assert.equal('programSource' in body, false)
     assert.deepEqual(JSON.parse(await readFile(out, 'utf8')), body)
+    // 旧目录源码快照仍可使用 code，但不允许用别名掩盖身份冲突。
+    const legacyCatalog = path.join(rootDir, 'legacy-catalog.json')
+    await writeFile(
+        legacyCatalog,
+        JSON.stringify({ code, catalogInstanceId: 'catalog-fixture', catalogRevision: '3' }),
+    )
+    assert.deepEqual(
+        await prepareSave({ code, surface: 'business', catalogFile: legacyCatalog, rootDir }),
+        body,
+    )
+    for (const snapshot of [
+        { nodeCode: 'other', code },
+        { nodeCode: code, code: 'other' },
+        { nodeCode: '', code },
+    ]) {
+        await writeFile(
+            legacyCatalog,
+            JSON.stringify({
+                ...snapshot,
+                catalogInstanceId: 'catalog-fixture',
+                catalogRevision: '3',
+            }),
+        )
+        await assert.rejects(
+            prepareSave({ code, surface: 'business', catalogFile: legacyCatalog, rootDir }),
+            /catalog/,
+        )
+    }
     await assert.rejects(prepareSave({ code, surface: 'business', catalogFile, out, rootDir }), {
         code: 'EEXIST',
     })

@@ -1,0 +1,10 @@
+[
+    "expectedRevision",
+    "isTestRun",
+    "mode",
+    "scope",
+    "initialDeliveries",
+    "reuseOutputs",
+    "sourceRunId",
+    "planId"
+]

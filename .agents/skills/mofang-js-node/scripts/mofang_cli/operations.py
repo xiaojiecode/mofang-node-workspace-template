@@ -7,8 +7,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 from .connection import CLIError
-from .contracts import operation_contract
-
+from .contracts import operation_contract, START_WORKFLOW_RUN_FIELDS
 
 @dataclass(frozen=True)
 class Operation:
@@ -166,7 +165,7 @@ def prepare(op, args):
         if not isinstance(body["graph"], dict) or any(not isinstance(body[field], str) for field in ("name", "description", "coverUrl")):
             raise CLIError("invalid_argument", "保存需要 graph 对象和字符串名称、说明、封面")
     if op.method == "POST" and op.path == "/definitions/{workflow_id}/runs":
-        allowed = {"expectedRevision", "isTestRun", "mode", "scope", "initialDeliveries", "reuseOutputs"}
+        allowed = set(START_WORKFLOW_RUN_FIELDS)
         if body.keys() - allowed:
             raise CLIError("invalid_argument", "workflows start 只接受已保存修订与显式运行参数；不接受 source/version 或临时配置")
         if not isinstance(body["isTestRun"], bool):

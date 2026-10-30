@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "syncedAt": "2026-10-30T06:17:08.065Z",
+  "syncedAt": "2026-10-30T10:02:27.006Z",
   "sources": {
     "mf-client/src/features/workflow/mofangsdk/core/catalog-types.ts": "43320d55d1fe12b53e4d3c598e5f240fe1f8dd82fc466a659433b3b8ff5a2e66",
     "mf-client/src/features/workflow/mofangsdk/core/context-types.ts": "605eb18f5021249790553e05d6b25582eeb05959a9bf1e0122f81af857df7fe1",
@@ -14,7 +14,7 @@
     "mf-client/src/features/workflow/mofangsdk/core/index.ts": "3bb26c8088279b5e7e219da341177c3834b7dd59f6eac962506df3d9954fd8ba",
     "mf-client/src/features/workflow/mofangsdk/core/input-body-types.ts": "6f8c99dbd607cd093d7f555b20ff94b6455bc52a0fb5aa13b05fdf6639e1b04b",
     "mf-client/src/features/workflow/mofangsdk/core/input-receipt-types.ts": "c78f4691f8d21ee6b89633c2e446daff388a0d672f67745017630e2e7aff4a36",
-    "mf-client/src/features/workflow/mofangsdk/core/input-types.ts": "c85e8d0ac9260e39fdfd7cd04e5e5756df22ecf0cc0737bee68a5027e01f65dd",
+    "mf-client/src/features/workflow/mofangsdk/core/input-types.ts": "3f3ff5e34cc842c6121a5c1852cbbfe78668168a59af4dd42f60830f5a82032e",
     "mf-client/src/features/workflow/mofangsdk/core/json-types.ts": "d481b7722e9fdae31423966cdd87ba9f2188f1682c6883fff372c4a05deca201",
     "mf-client/src/features/workflow/mofangsdk/core/message-relay.ts": "3129e91fcc4a047e7f3ec5ab584dbbf2bec89d85b09efeae75a71eccf48a7ac8",
     "mf-client/src/features/workflow/mofangsdk/core/message-sse.ts": "83e7ca021f07039a276b0c645b9f6aca972adf19f61695d0a27136b08003fc0d",
@@ -36,7 +36,7 @@
     "mf-client/src/features/workflow/mofangsdk/core/read-only-action-types.ts": "c195589417dfab4f2e736736bbfa0d74cc2f6f23f14ab5752b5a04add3afd6d1",
     "mf-client/src/features/workflow/mofangsdk/core/report-body-types.ts": "24ecf89c703112746e369dc3c855143e6d23e7bd5d4a0f677f8a5e9dc94efa69",
     "mf-client/src/features/workflow/mofangsdk/core/resource-types.ts": "04cfe4568e19eb895c51c17172144c23153a87036c9799bc99cb985ce9535442",
-    "mf-client/src/features/workflow/mofangsdk/core/run-body-types.ts": "017b3327822a94a15674f43ae224b85a3c2b2db9998be2088f1e777e5ed01c83",
+    "mf-client/src/features/workflow/mofangsdk/core/run-body-types.ts": "b2cd2de040ea20710d11729ca23793061c6de0dbb2dc8627f7adbc171151e0a0",
     "mf-client/src/features/workflow/mofangsdk/core/runtime-types.ts": "12aaeb4f0f65c57ba094d02d078f0310a87783948b92285997dad20313004483",
     "mf-client/src/features/workflow/mofangsdk/core/schema.ts": "8e29be2b7964919edf38519627992c1a2980b2f95a5bab044a8f16d04dcf9696",
     "mf-client/src/features/workflow/mofangsdk/core/sdk-error.ts": "0c33b80d6873ff1e68a77c16ffd284263af60dff92aa72738889f85261a666df",

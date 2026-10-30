@@ -366,6 +366,52 @@ class CLITest(unittest.TestCase):
             self.assertEqual((code, result["error"]["code"]), (1, expected))
         self.assertEqual(len(self.server.requests), before)
 
+    def test_start_preserves_source_run_plan_and_output_reference(self):
+        from mofang_cli.contracts import START_WORKFLOW_RUN_FIELDS
+        code, described = self.call(["describe", "workflows", "start"])
+        self.assertEqual(code, 0, described)
+        self.assertEqual(set(described["data"][0]["contract"]["body_fields"]), set(START_WORKFLOW_RUN_FIELDS))
+        self.login("client")
+        body = {"expectedRevision": "8", "isTestRun": True, "mode": "manual",
+                "sourceRunId": "source-run", "planId": "12",
+                "reuseOutputs": [{"nodeInstanceId": "source-node", "outputs": [{"kind": "node_output", "nodeRunId": "node-run", "itemIndex": 0}]}]}
+        before = len(self.server.requests)
+        code, result = self.call(["workflows", "start", "--workflow-id", "wf", *self.body(body)], profile="client")
+        self.assertEqual(code, 0, result)
+        self.assertEqual(self.server.requests[-1][:3], ("POST", "/v1/workflow/definitions/wf/runs", body))
+        self.assertEqual(len(self.server.requests), before + 1)
+
+    def test_panel_get_snapshot_can_prepare_local_save_without_platform_write(self):
+        self.login()
+        snapshot = {"nodeCode": "roundtrip", "catalogInstanceId": "catalog", "catalogRevision": "3"}
+        self.server.responses = [(200, {"code": 0, "data": snapshot})]
+        before = len(self.server.requests)
+        code, result = self.call(["panels", "get", "--code", "roundtrip", "--surface", "settings"])
+        self.assertEqual(code, 0, result)
+        catalog = self.root / "catalog.json"
+        catalog.write_text(json.dumps(result), encoding="utf-8")
+        workspace = SCRIPTS.parents[3]
+        project = self.root / "project"
+
+        def run_node(directory, script, *args):
+            completed = subprocess.run(["node", str(directory / script), *args], cwd=directory,
+                                       capture_output=True, text=True, check=False)
+            self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+            return completed.stdout
+
+        run_node(workspace, "tooling/init/project.mjs", "--dir", str(project), "--name", "panel-roundtrip")
+        (project / "node_modules").symlink_to(workspace / "node_modules", target_is_directory=True)
+        run_node(project, "tooling/init/node.mjs", "--code", "roundtrip")
+        run_node(project, "tooling/build/index.mjs")
+        prepared = json.loads(run_node(project, "tooling/cli.mjs", "panels:prepare", "--code", "roundtrip",
+                                       "--surface", "settings", "--catalog-file", str(catalog)))
+        self.assertEqual(prepared["data"]["expectedCatalogInstanceId"], "catalog")
+        self.assertEqual(prepared["data"]["expectedCatalogRevision"], "3")
+        self.assertTrue(prepared["data"]["viewCompiled"])
+        self.assertFalse(prepared["persisted"])
+        self.assertEqual(self.server.requests[before:][0][:2], ("GET", "/v1/admin/workflow/nodes/roundtrip/page?surface=settings"))
+        self.assertEqual(len(self.server.requests), before + 1)
+
     def test_offline_workflow_catalog_removes_retired_writes_but_keeps_page_releases(self):
         code, result = self.call(["describe"])
         self.assertEqual(code, 0, result)

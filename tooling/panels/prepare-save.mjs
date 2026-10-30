@@ -19,8 +19,12 @@ export async function prepareSave({
     const envelope = await readJSON(path.resolve(catalogFile))
     if (envelope.ok === false) throw new Error('catalog snapshot is a failed response')
     const catalog = envelope.ok === true ? envelope.data : envelope
+    const catalogCode = catalog?.nodeCode ?? catalog?.code
     if (
-        catalog?.code !== code ||
+        catalogCode !== code ||
+        (catalog?.nodeCode !== undefined &&
+            catalog?.code !== undefined &&
+            catalog.code !== catalog.nodeCode) ||
         typeof catalog.catalogInstanceId !== 'string' ||
         !catalog.catalogInstanceId.trim() ||
         typeof catalog.catalogRevision !== 'string' ||

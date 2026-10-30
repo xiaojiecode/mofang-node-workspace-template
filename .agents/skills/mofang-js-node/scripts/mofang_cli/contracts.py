@@ -1,5 +1,11 @@
 """节点开发所需的离线事实；不把本地目录声明为远端部署能力。"""
 
+import json
+from pathlib import Path
+
+# 字段清单随平台契约同步生成，workflowId 由路径身份消费。
+START_WORKFLOW_RUN_FIELDS = tuple(json.loads((Path(__file__).parent / "start-workflow-run-fields.json").read_text(encoding="utf-8")))
+
 ENVIRONMENTS = {
     "test": "https://dev.api.mofang.com",
     "production": "https://api.mofang.com",
@@ -7,6 +13,8 @@ ENVIRONMENTS = {
 }
 
 FIELD_HELP = {
+    "sourceRunId": "可选的真实来源运行身份，用于本次起跑的历史输出引用。",
+    "planId": "可选的真实任务计划 ID，使用正整数十进制字符串。",
     "viewCompiled": "模板本地构建的最终 CommonJS 展示产物，原样上传。",
     "viewHash": "展示产物原字节的 SHA-256。",
     "programCompiled": "模板本地构建的最终页面数据程序，仅 business Lit 需要。",
@@ -114,8 +122,9 @@ def operation_contract(group, action, operation):
                            "暂停普通配置与外观修改提交真实 pausedRun；未关闭运行含暂停仍锁定拓扑、绑定与策略。"]
             response = ["receipt.status", "receipt.resourceId", "receipt.resourceRevision", "snapshot.summary", "snapshot.draftGraph", "snapshot.draftRevision", "snapshot.saveContext", "pausedRun"]
         if action == "start":
-            for name in ("scope", "initialDeliveries", "reuseOutputs"):
-                fields[name] = {"required": False, "meaning": FIELD_HELP[name] if name != "scope" else "可选运行范围，遵循实际 Start 合同。"}
+            for name in START_WORKFLOW_RUN_FIELDS:
+                if name not in fields:
+                    fields[name] = {"required": False, "meaning": FIELD_HELP.get(name, "字段语义遵循冻结的 StartWorkflowRunBody 契约。")}
             conditions += ["先手动完整保存，再以同次回执 expectedRevision 和明确 isTestRun 起跑；不隐式保存、不传 source/versionId 或临时 Globals/节点配置。"]
             response = ["run.id", "run.source", "run.majorRevision", "run.isTestRun"]
     if group == "runs" and action in ("action", "action-result", "actions"):

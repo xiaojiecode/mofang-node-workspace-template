@@ -2340,7 +2340,7 @@ const WORKFLOW_SDK_METHODS = [
     parameters: [
       {
         name: "body",
-        type: 'Readonly<{ workflowId: ID; expectedRevision: Revision; isTestRun: boolean; mode: "auto" | "manual"; scope?: ExecutionScope; initialDeliveries?: readonly InitialDelivery[]; reuseOutputs?: readonly ReusedOutput[]; sourceRunId?: ID; }>',
+        type: 'Readonly<{ workflowId: ID; expectedRevision: Revision; isTestRun: boolean; mode: "auto" | "manual"; scope?: ExecutionScope; initialDeliveries?: readonly InitialDelivery[]; reuseOutputs?: readonly ReusedOutput[]; sourceRunId?: ID; planId?: ID; }>',
         fields: [
           {
             name: "workflowId",
@@ -2377,6 +2377,12 @@ const WORKFLOW_SDK_METHODS = [
             name: "sourceRunId",
             type: "string | undefined",
             optional: true
+          },
+          {
+            name: "planId",
+            type: "string | undefined",
+            optional: true,
+            description: "可选的真实任务计划 ID，使用正整数十进制字符串。"
           }
         ]
       }

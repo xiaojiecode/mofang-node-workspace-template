@@ -32,6 +32,8 @@ export type StartWorkflowRunBody = Readonly<{
     initialDeliveries?: readonly InitialDelivery[];
     reuseOutputs?: readonly ReusedOutput[];
     sourceRunId?: ID;
+    /** 可选的真实任务计划 ID，使用正整数十进制字符串。 */
+    planId?: ID;
 }>;
 export type RerunNodeBody = Readonly<{
     runId: ID;

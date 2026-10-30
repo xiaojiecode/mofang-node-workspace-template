@@ -22,6 +22,7 @@ export type InputDelivery = Readonly<{
     sourceRunId?: ID;
     sourceNodeRunId?: ID;
     sourceCandidateId?: ID;
+    sourceItemIndex?: number;
     sourceNodeInstanceId?: ID;
     nodeRunId?: ID;
     payloadRef: DataRef;

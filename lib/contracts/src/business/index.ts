@@ -1,4 +1,4 @@
-/** Generated from platform JSON Schema. Do not edit. Runtime validation still applies. */
+/** 从平台 JSON Schema 生成，不要手动修改；运行时仍须校验。 */
 
 export type Array = unknown[]
 export type Boolean = boolean

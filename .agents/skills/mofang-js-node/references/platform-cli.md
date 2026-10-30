@@ -111,6 +111,8 @@ python3 <技能目录>/scripts/mofang_node.py --profile demo-admin panels save -
 
 Lit 保存正文包含 viewSource/viewCompiled/viewHash/compilerVersion；business 另外包含 programSource/programCompiled/programHash 和显式非空 supportedContextSchemas。`panels:prepare --supported-context-schemas '["真实契约身份"]'` 按真实宿主声明上下文；不猜默认声明。每个产物摘要来自最终字节。保存一个面板后回读新目录修订，再准备另一个面板，不改写旧文件的 revision 规避冲突。
 
+`panels get` 的目录快照使用 `nodeCode`，可将 CLI 的完整回读结果直接交给 `panels:prepare`。旧源码快照的 `code` 字段仍可读取；同时提供两个字段时必须一致。目录身份、目录修订与节点编码均继续校验，本地准备不会发送保存请求。
+
 同一保存正文也可在后台相应节点与面板上传。后台核对当前身份、修订与摘要格式后提交同一接口，真实摘要由后端重算并核对，不重编译、不重写 CAS。发布仍使用已有 `panels publish --code <编码> --file <发布正文.json>`，正文携带 surface、已保存 panelRevision、显式 scope/targets；回执未知时只查询原资源，不自动重发。
 
 ### Puck 页面的后台请求结构
@@ -172,6 +174,8 @@ python3 <技能目录>/scripts/mofang_node.py --profile demo-user workflows save
 Save 返回 receipt 与 snapshot，成功核对 receipt.status=applied、资源身份和修订，使用 snapshot.draftRevision 作为后续起跑修订。失败、冲突或未知保留完整本地正文，不拆成多次写入或自动重试。退役的 workflows graph/config/publish 与 runs config 不再暴露；节点页面包 panels save/publish 保留。
 
 只有用户明确要求才执行 workflows start。先完成手动 Save，再提交同次保存修订、显式 isTestRun 与 mode；不隐式保存，不带 source、versionId、configurationDraftRevision、临时 Globals 或节点配置。
+
+起跑正文可按真实目标提供 `sourceRunId` 和 `planId`；`planId` 使用正整数十进制字符串，不能猜测计划身份。CLI 的允许字段由维护者同步 `StartWorkflowRunBody` 生成，不修改本地白名单绕过契约。维护者使用 `--workspace <工作区>` 或 `MOFANG_WORKSPACE` 运行 `sync:contracts` / `check:contracts`；普通节点开发使用工程内已冻结的声明，不要求连接平台源码。
 
 ```bash
 python3 <技能目录>/scripts/mofang_node.py describe workflows start

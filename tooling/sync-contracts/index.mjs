@@ -4,11 +4,14 @@ import { spawnSync } from 'node:child_process'
 import { readdir, readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises'
 import { compile } from 'json-schema-to-typescript'
 import { root, cache, readJSON, prepareCache } from '../paths.mjs'
+import { startWorkflowRunFields } from './start-fields.mjs'
 const args = process.argv.slice(2)
 const workspaceIndex = args.indexOf('--workspace')
 const workspace = workspaceIndex < 0 ? process.env.MOFANG_WORKSPACE : args[workspaceIndex + 1]
 if (!workspace)
-    throw new Error('维护者同步需要 --workspace <mofangv6>；普通开发使用仓库自带类型，不需要同步。')
+    throw new Error(
+        '维护者同步需要 --workspace <mofangv6> 或 MOFANG_WORKSPACE；普通开发使用仓库自带类型，不需要同步。',
+    )
 const sourceRoot = path.resolve(workspace)
 const destination = path.join(root, 'lib/contracts')
 const hash = (value) => createHash('sha256').update(value).digest('hex')
@@ -37,10 +40,22 @@ for (const file of [
     'mofang-server/go.mod',
 ])
     await record(file)
+const startFields = startWorkflowRunFields(
+    await readFile(
+        path.join(sourceRoot, 'mf-client/src/features/workflow/mofangsdk/core/run-body-types.ts'),
+        'utf8',
+    ),
+)
+const startFieldsFile = path.join(
+    root,
+    '.agents/skills/mofang-js-node/scripts/mofang_cli/start-workflow-run-fields.json',
+)
 if (args.includes('--check')) {
     const previous = await readJSON(path.join(destination, 'provenance.json'))
     if (JSON.stringify(previous.sources) !== JSON.stringify(sources))
         throw new Error('平台源码已变化：需要显式同步并重新核验 Goja 手工作者声明。')
+    if (JSON.stringify(await readJSON(startFieldsFile)) !== JSON.stringify(startFields))
+        throw new Error('CLI 起跑字段已过期，需要显式同步契约。')
     console.log('契约来源内容哈希一致。')
     process.exit(0)
 }
@@ -126,12 +141,12 @@ const schema = {
     ),
 }
 const output = await compile(schema, 'BuiltinTypes', {
-    bannerComment:
-        '/** Generated from platform JSON Schema. Do not edit. Runtime validation still applies. */',
+    bannerComment: '/** 从平台 JSON Schema 生成，不要手动修改；运行时仍须校验。 */',
     style: { singleQuote: true, semi: false },
 })
 await mkdir(path.join(destination, 'src/business'), { recursive: true })
 await writeFile(path.join(destination, 'src/business/index.ts'), output)
+await writeFile(startFieldsFile, JSON.stringify(startFields, null, 4) + '\n')
 await writeFile(
     path.join(destination, 'provenance.json'),
     JSON.stringify(
