@@ -704,7 +704,7 @@ ${JSON.stringify(task.waiting.output, null, 2)}</pre
             ${pageButtons(this.taskPage, this.taskTotal, '任务', (n) => {
                 this.taskPage = n
             })}
-            ${node.permissions.canControl
+            ${node.permissions.canControl && node.status !== 'cancelled'
                 ? html` ${button({
                       label: '暂停节点',
                       disabled: !this.writable,
