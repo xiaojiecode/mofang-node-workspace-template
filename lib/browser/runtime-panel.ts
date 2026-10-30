@@ -9,7 +9,7 @@ import type {
     PanelTarget,
 } from '@mofang/contracts/browser'
 import { HostPanel, NodeFlowController } from './host'
-import { button, checkbox, textarea, statusNote, panelStyles } from './ui/index'
+import { button, checkbox, textarea, statusNote, panelStyles, dialog } from './ui/index'
 import { ActionController } from './actions'
 import { TaskOperationController } from './task-operation-controller'
 
@@ -40,6 +40,7 @@ export class NodeRuntimePanel extends HostPanel {
     private failedPage = 1
     private failedTotal = 0
     private refreshSeq = 0
+    private reviewRevision: string | null = null
     private outcomeUnknown = false
     private readError = false
     private total = 0
@@ -74,6 +75,7 @@ export class NodeRuntimePanel extends HostPanel {
         this.failedPage = 1
         this.failedTotal = 0
         this.refreshSeq++
+        this.reviewRevision = null
         this.outcomeUnknown = false
         this.readError = false
         this.selected.clear()
@@ -457,11 +459,48 @@ export class NodeRuntimePanel extends HostPanel {
             ${button({
                 label: '结束审核',
                 disabled: !this.writable || !node.permissions.canEndReview,
-                onClick: () =>
-                    void this.mutate(() =>
-                        sdk.nodeFlow.endReview({ ...q, expectedRevision: node.revision }),
-                    ),
+                onClick: () => {
+                    this.reviewRevision = node.revision
+                    this.requestUpdate()
+                },
             })}
+            ${dialog(
+                {
+                    open: this.reviewRevision !== null,
+                    title: '结束审核',
+                    onClose: () => {
+                        this.reviewRevision = null
+                        this.requestUpdate()
+                    },
+                    footer: html` ${button({
+                        label: '取消',
+                        onClick: () => {
+                            this.reviewRevision = null
+                            this.requestUpdate()
+                        },
+                    })}
+                    ${button({
+                        label: '丢弃剩余候选并结束审核',
+                        variant: 'danger',
+                        disabled:
+                            !this.writable ||
+                            !node.permissions.canEndReview ||
+                            this.reviewRevision !== node.revision,
+                        onClick: () => {
+                            const revision = this.reviewRevision
+                            if (!revision || revision !== node.revision) return
+                            void this.mutate(async () => {
+                                await sdk.nodeFlow.endReview({ ...q, expectedRevision: revision })
+                                this.reviewRevision = null
+                            })
+                        },
+                    })}`,
+                },
+                html`<p>确认丢弃剩余候选并结束审核？</p>
+                    ${this.reviewRevision !== node.revision
+                        ? statusNote('节点内容已更新', '请取消并重新审核。', 'warning')
+                        : nothing}`,
+            )}
             ${pageButtons(this.page, this.total, '候选', (n) => {
                 this.page = n
             })}

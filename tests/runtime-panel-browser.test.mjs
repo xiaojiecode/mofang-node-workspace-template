@@ -38,6 +38,7 @@ for (const minify of [false, true])
                 return originalInterval(...args)
             }
             const calls = []
+            const flowListeners = new Set()
             const taskCalls = []
             const pageReads = []
             const edits = []
@@ -91,8 +92,12 @@ for (const minify of [false, true])
                 nodes: { tasks: async () => ({ items: [], total: 0, page: 1, pageSize: 20 }) },
                 nodeFlow: {
                     watch: () => ({
-                        subscribe: () => () => {
-                            released++
+                        subscribe: (fn) => {
+                            flowListeners.add(fn)
+                            return () => {
+                                flowListeners.delete(fn)
+                                released++
+                            }
                         },
                         getSnapshot: () => state,
                     }),
@@ -208,6 +213,10 @@ for (const minify of [false, true])
                 app,
                 calls,
                 intervals: () => intervals,
+                changeRevision: (revision) => {
+                    node.revision = revision
+                    for (const fn of flowListeners) fn()
+                },
                 shrink: () => {
                     candidateTotal = 1
                     messageListener()
@@ -251,6 +260,21 @@ for (const minify of [false, true])
             await page.evaluate(() => window.testRuntime.calls[1].expectedSessionRevision),
             '4',
         )
+        await panel.getByRole('button', { name: '结束审核', exact: true }).click()
+        const confirm = panel.getByRole('dialog', { name: '结束审核' })
+        await confirm.waitFor()
+        await page.evaluate(() => window.testRuntime.changeRevision('5'))
+        await confirm.getByText('节点内容已更新').waitFor()
+        assert.equal(
+            await confirm.getByRole('button', { name: '丢弃剩余候选并结束审核' }).isDisabled(),
+            true,
+        )
+        assert.equal(await page.evaluate(() => window.testRuntime.calls.length), 2)
+        await confirm.getByRole('button', { name: '取消', exact: true }).click()
+        await panel.getByRole('button', { name: '结束审核', exact: true }).click()
+        await confirm.getByRole('button', { name: '丢弃剩余候选并结束审核' }).click()
+        await page.waitForFunction(() => window.testRuntime.calls.length === 3)
+        assert.equal(await page.evaluate(() => window.testRuntime.calls[2].expectedRevision), '5')
         await panel.getByLabel('任务回答').fill('确认')
         await panel.getByRole('button', { name: '提交回答' }).click()
         await page.waitForFunction(() => window.testRuntime.taskCalls.length === 1)
