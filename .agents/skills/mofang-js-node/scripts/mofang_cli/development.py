@@ -49,10 +49,10 @@ def guide():
             "Component/guard/Project/updater/reducer不执行Tool；真正外部调用只在子任务stage的ctx.call。",
             "完整读取Tool双Schema、异步状态/代次、错误与结果字段，再映射完整Product；扩展属性用unknown并收窄。",
             "finish是事件计划末尾生产声明；输入、任务、事件、候选、unknown和控制义务未结清时节点不会成功。",
-            "零结果、不选择、失败都要有实际入口；无参数必要动作由宿主提供，full-panel也保留。",
+            "节点 UI 按原型和已确认交互实现，不自动追加宿主或 Lit 公共动作区；零结果、不选择、失败或核对缺少入口时，列出缺口并确认。",
             "顶层辅助输入可声明x-mf-config-before-run:true；不能绑定且运行含暂停不可改，禁止在item、输出和嵌套属性声明。",
             "unknown不自动重发；普通业务失败不静默重试，不恢复业务去重、步骤回用或副作用回放。",
-            "业务投影只取composition.projection.status=ready的nodeView，失败显示平台退路，不回退旧nodeView。",
+            "业务投影只取composition.projection.status=ready的nodeView，失败显示真实错误，不自动附加平台诊断区，不回退旧nodeView。",
             "动作accepted不是applied，更不是节点成功；按eventId读取getActionResult/watchActionResult。",
         ],
         "author_api": {

@@ -1,8 +1,6 @@
 import { createAuthoringPackage, applyOperations } from '@mofang/low-code-page/authoring'
 
-const host = (...path) => ({ from: 'host', path })
-
-/** 生成只展示宿主状态的中性低代码页面，不包含任何业务示例。 */
+/** 生成按原型补充内容的中性低代码页面，不附加平台状态或业务示例。 */
 function populate(definition, surface) {
     const operations = [
         {
@@ -17,15 +15,7 @@ function populate(definition, surface) {
                 text:
                     surface === 'settings'
                         ? '这是空白骨架，请按业务需求增加受控设置字段。'
-                        : '这是空白骨架，请按业务输出和动作补充页面。',
-            },
-        },
-        {
-            op: 'component.add',
-            type: 'Text',
-            props: {
-                text: '等待节点状态',
-                binding: { ...host('nodeFlow', 'data', 'status'), fallback: '等待节点状态' },
+                        : '这是空白骨架，请按原型和已确认交互补充页面。',
             },
         },
     ]
