@@ -9,13 +9,19 @@ description: 为魔方节点编写、验证和发布独立 Lit 设置与业务�
 
 默认使用 [Lit 组件库技能](../mofang-lit-ui/SKILL.md) 的公共组件、图标和受控交互；先复用，确有缺口时最小扩展库，不在业务页面复制平行实现。用户明确指定的替代方案优先。
 
+## 原型与界面边界
+
+节点 UI 以原型和用户确认的交互为准。保留执行能力不等于必须展示通用面板。要求移除的区域不得搬入 Lit、公共组件、折叠区或其他位置继续保留。原型缺少必要操作时，先列出具体缺口与影响，确认后再实施。
+
+不得自动附加任务列表、候选 JSON、技术 ID、协议状态、动作记录或通用控制区。区分执行语义不要求逐条常驻展示；已确认移除的区域不得换容器或换渲染框架保留。
+
 ## 先确定宿主与数据
 
 读取模板AGENTS并完成上游检查，按[模板说明](../../../README.md)核对现有节点、两个surface、模式和冻结引用。已有页面或输出先读取，不让用户重复提供可查字段；重要UI/契约取舍先讨论。
 
 需要规划或改善信息层级、交互、排版和状态反馈时，按需读取 [节点 UI 设计](../mofang-node-ui-design/SKILL.md)；业务决定尚不清楚时先用 [节点业务设计](../mofang-node-business-design/SKILL.md)。本技能负责宿主与 SDK 接线，不用设计建议替代真实契约。
 
-settings位于设置正文内，Lit 工作流设置 shell 提供节点导航和策略，宿主负责统一草稿保存/取消；business位于有限高度上拉抽屉。业务默认用内置 `nodeCard({aside?,collapsed?},content)` 填满宿主剩余宽高，右侧组合内置 `cockpit`，统一受控折叠；正文只保留一个结果滚动层，具体见 [默认节点业务容器](../mofang-lit-ui/references/layout-and-runtime.md#默认节点业务容器)。标准与full-panel均在 Lit 正文提供平台必要操作、host动作与系统退路，宿主仅保留标题和真实渲染失败占位；业务内容利用剩余空间。
+settings位于设置正文内，工作流设置外壳提供节点导航和策略，宿主负责统一草稿保存/取消；business位于有限高度上拉抽屉。业务容器可复用内置 `nodeCard({aside?,collapsed?},content)` 填满宿主剩余宽高，原型或用户确认需要驾驶舱时右侧组合内置 `cockpit`，统一受控折叠；正文只保留一个结果滚动层，具体见 [默认节点业务容器](../mofang-lit-ui/references/layout-and-runtime.md#默认节点业务容器)。正文按原型与已确认交互实现，禁止自动追加平台状态、host动作或系统退路面板；宿主保留标题和真实渲染失败占位，业务内容利用剩余空间。
 
 后台React风格语法与Lit展示分别维护。运行只导入宿主许可的lit，默认导出LitElement，不打第二份Lit核心。动态属性用declare/static properties，目标取this.target，不把整个panelContext当target。
 
@@ -39,7 +45,7 @@ business Lit 编译与保存均须显式提供非空 `supportedContextSchemas`�
 
 ## 新 ABI 业务页面
 
-先确认实际ABI/SDK能力，按[投影与动作接线](references/projection-actions.md)读取composition.projection。ready才读其nodeView；unavailable显示错误和平台状态，不用旧顶层nodeView、假fixture或旧缓存冒充当前投影。
+先确认实际ABI/SDK能力，按[投影与动作接线](references/projection-actions.md)读取composition.projection。ready才读其nodeView；unavailable显示真实错误，不额外输出原始平台状态，不用旧顶层nodeView、假fixture或旧缓存冒充当前投影。
 
 节点目标为真实runId/nodeInstanceId，订阅变化只渲染，不重复触发业务。SDK/目标/页变化解绑重绑，卸载释放；历史只读，不自建SDK/HTTP/SSE。
 

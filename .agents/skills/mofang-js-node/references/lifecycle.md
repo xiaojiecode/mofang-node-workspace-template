@@ -10,6 +10,6 @@ Component只绑定，业务由 useOnStart/useOnEntry/useOnInput/useTask(...).onR
 
 ## 必须人工事件与结束路径
 
-逐项列明事件名称、payloadSchema、guard及禁用原因、真实页面入口、accepted→outcome结果查询和剩余义务。host动作必须无参数；panel动作浏览器验收真实可达，full-panel 的 Lit 正文不能省略必要动作。关闭抽屉不是finish，finish不是endReview。
+逐项列明事件名称、payloadSchema、guard及禁用原因、真实页面入口、accepted→outcome结果查询和剩余义务。host 动作必须无参数；按原型实现的 panel 动作需验证真实可达。presentation 不要求自动生成动作区，缺失交互先列出并确认。关闭抽屉不是finish，finish不是endReview。
 
 用户重复点击/断连不自动重发，按eventId查询。业务拒绝撤销整个事件日志并保留用户选择；程序fault和unknown不能包装成成功。验证表见[必须验证](verification.md)。

@@ -2,7 +2,7 @@
 
 mf.node/1的业务JSON只取composition.projection.status为ready时的composition.projection.nodeView。外层snapshot与summary来自同一一致性快照；unavailable不回退旧顶层nodeView。后端GET不修补执行状态。
 
-静态动作说明来自冻结manifest；availability是当前投影，真正提交和消费仍校验权限、状态、guard、来源与修订。标准/full-panel 的 Lit 正文负责 host 无参数动作和参数交互及可达性。
+静态动作说明来自冻结manifest；availability是当前投影，真正提交和消费仍校验权限、状态、guard、来源与修订。标准/full-panel 的正文均按原型与已确认交互安排动作；host 声明不要求自动生成无参数动作区，入口缺口先列明并确认。
 
 现有nodeFlow.action为唯一提交名，new ABI明确提供expectedSessionRevision及所需候选数组，不由SDK猜当前修订自动补值。回执的eventId用于精确结果补读；applied只代表协调事务提交。
 

@@ -10,7 +10,7 @@
 
 节点业务默认使用 `nodeCard({aside?,collapsed?},content)`，从 `@mofang/browser` 导入。容器和正文默认填满宿主剩余宽高，保持 `min-width:0/min-height:0`；宿主先提供有限高度，不能再给业务卡片固定600px、70vh上限或外部margin。设置面板继续沿原宿主草稿布局，不包业务容器。
 
-右侧用内置 `cockpit` 作为 `aside`，两者使用同一个受控 `collapsed`。NodeCard 统一侧栏展开340px、收起44px，内部按339px排版，通过裁切宽度收起；不在业务节点重复造驾驶舱或宽度测量器。节点过程、能力、来源和输出只取就绪投影或宿主当前真实事实，缺失就显示空态；本地演示商品数量不能当成真实候选或输出。
+原型或用户确认需要驾驶舱时，右侧用内置 `cockpit` 作为 `aside`，两者使用同一个受控 `collapsed`。NodeCard 统一侧栏展开340px、收起44px，内部按339px排版，通过裁切宽度收起；不在业务节点重复造驾驶舱或宽度测量器。节点过程、能力、来源和输出只取就绪投影或宿主当前真实事实，缺失就显示空态；本地演示商品数量不能当成真实候选或输出。
 
 正文壳和NodeCard本身不滚动。结果表格只保留一层滚动：外部结果容器 `flex:1;min-height:0;overflow:hidden`，其直接 `.mf-table` 用 `height:100%;max-height:none;box-sizing:border-box` 承担横纵滚动，分页保持容器底部且不遮末行。报告使用其内置正文滚动，不再外叠overflow:auto。
 
